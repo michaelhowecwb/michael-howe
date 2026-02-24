@@ -1,11 +1,111 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Parte Frontmatter - Dados do seu currículo
+const nome = "Michael Howe";
+const cargo = "Front-End Developer";
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="pt-br">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{nome} | Portfolio</title>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" rel="stylesheet">
+		
+		<style is:global>
+			:root {
+				--bg: #111111;
+				--card-bg: #1a1a1a;
+				--text: #ffffff;
+				--accent: #00ff9d; /* Verde menta da imagem */
+				--secondary: #888888;
+			}
+
+			[data-theme='light'] {
+				--bg: #ffffff;
+				--card-bg: #f5f5f5;
+				--text: #111111;
+				--accent: #00a86b;
+				--secondary: #444444;
+			}
+
+			body {
+				background-color: var(--bg);
+				color: var(--text);
+				font-family: 'Inter', sans-serif;
+				transition: all 0.3s ease;
+				margin: 0;
+			}
+
+			code { font-family: 'Fira Code', monospace; }
+		</style>
+	</head>
+	<body>
+		<nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
+			<div style="font-weight: bold; font-size: 1.2rem;">{nome}</div>
+			<div style="display: flex; gap: 20px; align-items: center;">
+				<a href="#services" style="color: var(--secondary); text-decoration: none;">Services</a>
+				<a href="#works" style="color: var(--secondary); text-decoration: none;">Works</a>
+				<button id="themeToggle" style="background: var(--accent); border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-weight: bold;">
+					Theme
+				</button>
+			</div>
+		</nav>
+
+		<main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+			<section style="display: flex; align-items: center; min-height: 80vh; gap: 50px;">
+				<div style="flex: 1;">
+					<span style="color: var(--accent); font-family: code; border: 1px solid var(--accent); padding: 5px 10px; border-radius: 5px;">
+						{cargo}
+					</span>
+					<h1 style="font-size: 4rem; margin: 20px 0;">Talk is cheap.<br/>Show me the code</h1>
+					<p style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
+						I design and code beautifully simple things, and I love what I do.
+					</p>
+					<a href="#contact" style="color: var(--accent); text-decoration: underline; font-weight: bold; font-family: code;">LET'S CHAT!</a>
+				</div>
+				<div style="flex: 1; text-align: right;">
+					<div style="width: 400px; height: 500px; background: #222; display: inline-block; border-radius: 20px; position: relative; overflow: hidden;">
+						<span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #444;">Your Photo</span>
+					</div>
+				</div>
+			</section>
+
+			<section id="services" style="padding: 100px 0;">
+				<div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 100px;">
+					<div style="display: flex; flex-direction: column; gap: 20px;">
+						<div class="service-card" style="background: var(--card-bg); padding: 40px; border-radius: 15px;">
+							<h3 style="color: var(--accent);">Design</h3>
+							<p style="color: var(--secondary);">Create digital products with unique ideas.</p>
+						</div>
+						<div class="service-card" style="background: var(--card-bg); padding: 40px; border-radius: 15px;">
+							<h3 style="color: var(--accent);">Development</h3>
+							<p style="color: var(--secondary);">High performance coding for the web.</p>
+						</div>
+					</div>
+					<div>
+						<h2 style="font-size: 2.5rem;">Hello! I'm Michael.</h2>
+						<p style="font-style: italic; font-size: 1.5rem;">Every great design begins with an even better story.</p>
+						<p style="color: var(--secondary);">Sendo de ascendência europeia e focado no mercado global, trago uma visão técnica e minimalista para cada projeto.</p>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<script>
+			// Lógica de alternância de tema
+			const button = document.getElementById('themeToggle');
+			const html = document.documentElement;
+
+			button.addEventListener('click', () => {
+				const currentTheme = html.getAttribute('data-theme');
+				const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+				html.setAttribute('data-theme', newTheme);
+				localStorage.setItem('theme', newTheme);
+			});
+
+			// Mantém o tema ao recarregar
+			const savedTheme = localStorage.getItem('theme');
+			if (savedTheme) html.setAttribute('data-theme', savedTheme);
+		</script>
+	</body>
+</html>
