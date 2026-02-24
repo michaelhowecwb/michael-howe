@@ -37,6 +37,62 @@ const cargo = "Front-End Developer";
 			}
 
 			code { font-family: 'Fira Code', monospace; }
+
+			/* Container do Switch */
+			.theme-switch-wrapper {
+  				display: flex;
+  				align-items: center;
+			}
+
+			.theme-switch {
+  				display: inline-block;
+  				height: 34px;
+  				position: relative;
+  				width: 120px; /* Largura para caber o texto */
+			}
+
+			.theme-switch input { display: none; }
+
+			.slider {
+  				background-color: #222;
+  				bottom: 0;
+  				cursor: pointer;
+  				left: 0;
+  				position: absolute;
+  				right: 0;
+  				top: 0;
+  				transition: .4s;
+ 				border-radius: 34px;
+  				display: flex;
+  				align-items: center;
+  				justify-content: space-between;
+  				padding: 0 10px;
+  				font-size: 10px;
+  				font-weight: bold;
+  				font-family: sans-serif;
+  				color: #fff;
+			}
+
+			.slider:before {
+  				background-color: #fff;
+  				bottom: 4px;
+  				content: "";
+  				height: 26px;
+  				left: 4px;
+  				position: absolute;
+  				transition: .4s;
+  				width: 26px;
+  				border-radius: 50%;
+  				z-index: 2;
+			}
+
+			/* Quando checado (Light Mode) */
+			input:checked + .slider { background-color: #ccc; color: #333; }
+			input:checked + .slider:before { transform: translateX(86px); }
+
+			/* Texto dentro do botão */
+			.slider .text-dark { margin-left: 30px; }
+			.slider .text-light { margin-right: 30px; }
 		</style>
 	</head>
 	<body>
@@ -45,9 +101,13 @@ const cargo = "Front-End Developer";
 			<div style="display: flex; gap: 20px; align-items: center;">
 				<a href="#services" style="color: var(--secondary); text-decoration: none;">Services</a>
 				<a href="#works" style="color: var(--secondary); text-decoration: none;">Works</a>
-				<button id="themeToggle" style="background: var(--accent); border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-weight: bold;">
-					Theme
-				</button>
+				<label class="theme-switch" for="checkbox">
+    			<input type="checkbox" id="checkbox" />
+    				<div class="slider">
+        				<span class="text-dark">DARK</span>
+        				<span class="text-light">LIGHT</span>
+    				</div>
+				</label>
 			</div>
 		</nav>
 
@@ -92,20 +152,28 @@ const cargo = "Front-End Developer";
 		</main>
 
 		<script>
-			// Lógica de alternância de tema
-			const button = document.getElementById('themeToggle');
+			const toggleSwitch = document.querySelector('#checkbox');
 			const html = document.documentElement;
 
-			button.addEventListener('click', () => {
-				const currentTheme = html.getAttribute('data-theme');
-				const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-				html.setAttribute('data-theme', newTheme);
-				localStorage.setItem('theme', newTheme);
-			});
+			function switchTheme(e) {
+    			if (e.target.checked) {
+        			html.setAttribute('data-theme', 'light');
+        			localStorage.setItem('theme', 'light');
+    			} else {
+        			html.setAttribute('data-theme', 'dark');
+        			localStorage.setItem('theme', 'dark');
+    			}    
+			}
 
-			// Mantém o tema ao recarregar
-			const savedTheme = localStorage.getItem('theme');
-			if (savedTheme) html.setAttribute('data-theme', savedTheme);
+			toggleSwitch.addEventListener('change', switchTheme, false);
+
+			const currentTheme = localStorage.getItem('theme');
+			if (currentTheme) {
+    			html.setAttribute('data-theme', currentTheme);
+    			if (currentTheme === 'light') {
+        			toggleSwitch.checked = true;
+    			}
+			}
 		</script>
 	</body>
 </html>
