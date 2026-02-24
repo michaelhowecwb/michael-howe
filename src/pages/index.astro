@@ -14,23 +14,25 @@ const cargo = "Front-End Developer";
 		
 		<style is:global>
 :root {
-    --bg: #111111;
-    --card-bg: #1a1a1a;
+    --bg: #0b0b0b; /* Um preto mais profundo e elegante */
+    --card-bg: #141414; 
     --text: #ffffff;
-    --accent: #00ff9d;
-    --secondary: #888888;
-    --card-border: rgba(255, 255, 255, 0.1);
+    --cursor-text: #111111;
+    --text-rgb: 255, 255, 255;
+    --accent: #00ff9d; /* Neon para o Dark */
+    --secondary: #a0a0a0; /* Um cinza um pouco mais claro para leitura */
+    --card-border: rgba(255, 255, 255, 0.05);
 }
 
 [data-theme='light'] {
-    /* Mudamos o fundo para um cinza muito claro, para o card BRANCO se destacar */
-    --bg: #f2f2f2; 
+    --bg: #f9f9f9; 
     --card-bg: #ffffff; 
     --text: #111111;
-    --accent: #00a86b; /* Verde mais escuro para leitura no claro */
+    --cursor-text: #ffffff;
+    --text-rgb: 0, 0, 0;
+    --accent: #008f5d; /* Verde mais denso para contraste no claro */
     --secondary: #666666;
-    /* Borda sutil para dar forma ao card no claro */
-    --card-border: rgba(0, 0, 0, 0.08);
+    --card-border: rgba(0, 0, 0, 0.06);
 }
 
 			body {
@@ -42,7 +44,19 @@ const cargo = "Front-End Developer";
 			}
 
 			code { font-family: 'Fira Code', monospace; }
+html, body {
+    margin: 0;
+    padding: 0;
+    cursor: none; /* Esconde a seta padrão */
+}
+a, button, .chat-link, .service-card, .work-card, h1 {
+    cursor: none !important;
+}
 
+section {
+    position: relative;
+    border-bottom: 1px solid var(--card-border); /* Linhas sutis dividindo o conteúdo */
+}
 			@keyframes float {
     0% { transform: translateY(0px); }
     50% { transform: translateY(-20px); }
@@ -58,6 +72,10 @@ const cargo = "Front-End Developer";
     animation: fadeUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
     opacity: 0;
 }
+.reveal:nth-child(1) { animation-delay: 0.1s; }
+.reveal:nth-child(2) { animation-delay: 0.3s; }
+.reveal:nth-child(3) { animation-delay: 0.5s; }
+.reveal:nth-child(4) { animation-delay: 0.7s; }
 
 @keyframes fadeUp {
     from {
@@ -66,9 +84,109 @@ const cargo = "Front-End Developer";
     }
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
+
+#custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none !important;
+    z-index: 10000;
+}
+
+.cursor-shape {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* No estado normal (círculo) */
+    background: rgba(var(--bg, 255, 255, 255), 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1.5px solid rgba(var(--text-rgb, 255, 255, 255), 0.8);
+    border-radius: 50%;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ESTADO DE HOVER - A SOLUÇÃO DEFINITIVA */
+#custom-cursor.is-hovering .cursor-shape {
+    transform: scale(1.8);
+    background: rgba(var(--text-rgb, 255, 255, 255), 0.8);
+    border-radius: 0%;
+    border: none; 
+    clip-path: polygon(50% 5%, 62% 38%, 95% 50%, 62% 62%, 50% 95%, 38% 62%, 5% 50%, 38% 38%);
+}
+
+/* Criamos a borda da estrela usando um elemento antes dela */
+#custom-cursor.is-hovering .cursor-shape::before {
+    content: "";
+    position: absolute;
+    /* Alinhamos exatamente com o contêiner */
+    inset: 0; 
+    /* Cor idêntica à borda do seu círculo (branco 0.4) */
+    background: rgba(var(--text-rgb, 255, 255, 255), 0.8);
+    clip-path: polygon(50% 5%, 62% 38%, 95% 50%, 62% 62%, 50% 95%, 38% 62%, 5% 50%, 38% 38%);
+    z-index: -1;
+}
+
+/* Criamos um "buraco" no meio para que reste apenas a borda */
+#custom-cursor.is-hovering .cursor-shape::after {
+    content: "";
+    position: absolute;
+    /* Criamos a espessura de 1.5px */
+    inset: 1.5px; 
+    /* Cor de fundo com a transparência desejada */
+    background: rgba(var(--bg, 255, 255, 255), 0.8);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    clip-path: polygon(50% 5%, 62% 38%, 95% 50%, 62% 62%, 50% 95%, 38% 62%, 5% 50%, 38% 38%);
+    z-index: -1;
+}
+
+.cursor-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-family: 'Inter', sans-serif;
+    font-size: 5px;
+    font-weight: 900;
+    /* Cor padrão */
+    color: var(--cursor-text);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 10;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+}
+
+#custom-cursor.is-hovering .cursor-text {
+    opacity: 1;
+    /* Forçamos a cor verde neon para garantir contraste total */
+    color: var(--cursor-text); 
+    transform: translate(-50%, -50%) scale(1);
+    /* Adicionamos um leve brilho para ajudar na leitura sobre o branco */
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+/* Em celulares (touch), volta o cursor padrão e esconde a bola */
+@media (pointer: coarse) {
+    #custom-cursor {
+        display: none;
+    }
+    html, body {
+        cursor: auto;
+    }
+    a, button, .chat-link, .service-card, .work-card, h1 {
+        cursor: pointer !important;
+    }
+}
+
 nav a, .chat-link {
     position: relative;
     text-decoration: none;
@@ -94,7 +212,36 @@ nav a:hover::after {
 nav a:hover {
     color: var(--accent) !important;
 }
+/* O sensor precisa estar NA FRENTE de tudo para detectar o mouse */
+.photo-sensor {
+    position: relative;
+    width: 400px;
+    height: 500px;
+    margin: auto;
+    /*background: rgba(255,0,0,0.2);*/
+    z-index: 20; /* Maior que a foto e os ícones flutuantes */
+    overflow: visible; /* Importante para a foto poder "sair" um pouco da borda */
+}
 
+#profile-photo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* Remova o transition: transform daqui */
+    will-change: transform;
+    z-index: 10;
+}
+#profile-photo img {
+    width: 100%;
+    height: 100%;
+    border-radius: 15px;
+    object-fit: cover;
+    display: block;
+    /* Remova o transform: scale(1.1) daqui se quiser tirar o zoom fixo */
+}
 .glow-astro-container {
     position: absolute;
     width: 50px;
@@ -135,16 +282,27 @@ nav a:hover {
 }
 .service-card, .project-card {
     background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--card-border); /* Essencial para o Light Mode */
-    box-shadow: 8px 8px 0px var(--accent); /* Mudança aqui: use var(--accent) */
-    transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    border: 1px solid var(--card-border);
+    /* No Light Mode, sombras suaves funcionam melhor que sombras sólidas */
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.03); 
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .service-card:hover, .project-card:hover {
     /* Inverte a sombra no hover para dar sensação de clique/pressão */
     transform: translate(4px, 4px);
     box-shadow: 4px 4px 0px var(--accent);
+}
+
+[data-theme='dark'] .service-card:hover {
+    background: #1d1d1d;
+    border-color: var(--accent);
+}
+
+[data-theme='light'] .service-card:hover {
+    background: #ffffff;
+    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.06);
+    border-color: var(--accent);
 }
 h1.main-header {
     font-size: 4.5rem;
@@ -154,9 +312,9 @@ h1.main-header {
     
     /* Radial gradient ajustado para ser mais suave */
 background: radial-gradient(
-        circle 150px at var(--x, 50%) var(--y, 50%), 
-        var(--accent) 0%, 
-        var(--text) 80% /* Mudança aqui: o gradiente termina na cor do texto atual */
+        circle at var(--x) var(--y), 
+        var(--accent), 
+        var(--text) 80% /* Força o gradiente a terminar na cor do texto principal */
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -177,12 +335,20 @@ h1.main-header:hover {
     letter-spacing: 2px;
     font-size: 0.8rem;
     transition: all 0.3s ease;
+    background: transparent;
+    border: 2px solid var(--accent); /* Borda mais grossa para presença */
+    color: var(--accent);
 }
 
 .chat-link:hover {
     background: var(--accent);
     color: #111;
     box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+}
+[data-theme='light'] .chat-link:hover {
+    background: var(--accent);
+    color: #ffffff; /* Texto branco no botão verde escuro */
+    box-shadow: 0 10px 20px rgba(0, 112, 74, 0.2);
 }
 @keyframes reveal {
     0% { transform: translateY(30px); opacity: 0; }
@@ -192,7 +358,7 @@ h1.main-header:hover {
 		</style>
 	</head>
 	<link rel="icon" type="image/png" href="/favicon.png" />
-<div class="noise-overlay"></div>
+<!--<div class="noise-overlay"></div>
 
 <style>
   .noise-overlay {
@@ -206,7 +372,7 @@ h1.main-header:hover {
     pointer-events: none;
     z-index: 9999;
   }
-</style>
+</style>-->
 	<body>
 		<nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
 			<div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
@@ -223,7 +389,7 @@ h1.main-header:hover {
 					<span style="color: var(--accent); font-family: code; border: 1px solid var(--accent); padding: 5px 10px; border-radius: 5px;">
 						{cargo}
 					</span>
-					<h1 class="main-header" style="font-size: 4rem; margin: 20px 0;">Talk is cheap.<br/>Show me the code</h1>
+					<h1 class="main-header reveal" style="font-size: 4rem; margin: 20px 0;">Talk is cheap.<br/>Show me the code</h1>
 					<p class="reveal" style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
 						I design and code beautifully simple things, and I love what I do.
 					</p>
@@ -240,9 +406,11 @@ h1.main-header:hover {
     <div style="position: relative; padding: 20px;">
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%; background: radial-gradient(circle, rgba(0,255,157,0.05) 0%, transparent 70%); z-index: 0;"></div>
     
-    <div class="reveal" style="width: 400px; height: 500px; margin: auto; border-radius: 24px; overflow: hidden; border: 1px solid var(--accent); position: relative; z-index: 1; backdrop-filter: blur(10px);">
-         <img src="/minha-foto.jpg" alt="Michael Howe" style="width: 100%; height: 100%; object-fit: cover;" />
+    <div class="photo-sensor">
+    <div id="profile-photo" class="reveal">
+         <img src="/minha-foto.jpg" alt="Michael Howe" />
     </div>
+</div>
 </div>
 </div>
 				</div>
@@ -286,27 +454,100 @@ h1.main-header:hover {
     </div>
 </section>
 		</main>
+        <footer style="margin-top: 100px; padding: 60px 2rem; border-top: 1px solid var(--card-border); text-align: center;">
+    <h2 style="font-size: 2rem; margin-bottom: 20px;">Ready to start a project?</h2>
+    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 40px;">
+        <a href="https://github.com/seu-user" target="_blank" class="chat-link">GITHUB</a>
+        <a href="https://linkedin.com/in/seu-user" target="_blank" class="chat-link">LINKEDIN</a>
+    </div>
+    <p style="color: var(--secondary); font-size: 0.9rem;">
+        © 2026 {nome} • Based in Brazil, looking for global opportunities.
+    </p>
+</footer>
 
-		<script>
-const title = document.querySelector('h1.main-header');
+	<script>
+    // 1. Seleção de Elementos com Tipagem
+    const cursor = document.getElementById('custom-cursor') as HTMLElement | null;
+    const photoEl = document.getElementById('profile-photo') as HTMLElement | null;
+    const sensor = document.querySelector('.photo-sensor') as HTMLElement | null;
+    const title = document.querySelector('h1.main-header') as HTMLElement | null;
 
-window.addEventListener('mousemove', (e) => {
-    if (!title) return;
+    // Variáveis de posição e controle
+    let mouseX = 0, mouseY = 0;      // Posição real do mouse
+    let targetX = 0, targetY = 0;    // Alvo da foto (sensor)
+    let currentX = 0, currentY = 0;  // Posição atual da foto (suavizada)
 
-    const rect = title.getBoundingClientRect();
-    
-    // Calcula a posição do mouse relativa ao elemento H1
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    // 2. Evento de Mouse (Captura coordenadas e Gradiente)
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
 
-    // Converte para porcentagem em relação ao tamanho do H1
-    const xPercent = (x / rect.width) * 100;
-    const yPercent = (y / rect.height) * 100;
+        // Lógica do Gradiente no H1
+        if (title) {
+            const rect = title.getBoundingClientRect();
+            const x = ((mouseX - rect.left) / rect.width) * 100;
+            const y = ((mouseY - rect.top) / rect.height) * 100;
+            title.style.setProperty('--x', `${x}%`);
+            title.style.setProperty('--y', `${y}%`);
+        }
 
-    // Atualiza as variáveis CSS
-    title.style.setProperty('--x', `${xPercent}%`);
-    title.style.setProperty('--y', `${yPercent}%`);
+        // Lógica do Sensor da Foto
+        if (sensor) {
+            const rect = sensor.getBoundingClientRect();
+            const isInside = (
+                mouseX >= rect.left && mouseX <= rect.right &&
+                mouseY >= rect.top && mouseY <= rect.bottom
+            );
+
+            if (isInside) {
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                targetX = (mouseX - centerX) / 15;
+                targetY = (mouseY - centerY) / 15;
+            } else {
+                targetX = 0;
+                targetY = 0;
+            }
+        }
+    });
+
+    // 3. Loop de Animação (Cursor e Parallax)
+    function animate() {
+        if (cursor) {
+            cursor.style.transform = `translate3d(${mouseX - 12}px, ${mouseY - 12}px, 0)`;
+        }
+
+        currentX += (targetX - currentX) * 0.1;
+        currentY += (targetY - currentY) * 0.1;
+
+        if (photoEl) {
+            photoEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(1.02)`;
+        }
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // 4. Gerenciamento de Hover (Refinado via Event Delegation)
+    // Esse método detecta automaticamente novos elementos adicionados ao DOM
+   document.addEventListener('mouseover', (e) => {
+    // Adicionei .theme-switch e .slider à lista
+    const target = (e.target as HTMLElement).closest('a, button, .service-card, .work-card, .project-card, h1, .chat-link, .theme-switch, .slider');
+    if (target) {
+        cursor?.classList.add('is-hovering');
+    }
 });
-		</script>
-	</body>
-</html>
+
+document.addEventListener('mouseout', (e) => {
+    // Adicionei .theme-switch e .slider à lista aqui também
+    const target = (e.target as HTMLElement).closest('a, button, .service-card, .work-card, .project-card, h1, .chat-link, .theme-switch, .slider');
+    if (target) {
+        cursor?.classList.remove('is-hovering');
+    }
+});
+</script>
+       <div id="custom-cursor">
+    <div class="cursor-shape"></div>
+    <span class="cursor-text">VIEW</span>
+</div>
+</body> </html>
