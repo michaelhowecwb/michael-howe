@@ -278,6 +278,7 @@ const cargo = "Front-End Developer";
         </footer>
 
 <script>
+            // Type casting corrigido para TypeScript do Astro
             const photoEl = document.getElementById('profile-photo') as HTMLElement;
             const sensor = document.querySelector('.photo-sensor') as HTMLElement;
             const title = document.querySelector('h1.main-header') as HTMLElement;
@@ -290,7 +291,6 @@ const cargo = "Front-End Developer";
                 mouseX = e.clientX;
                 mouseY = e.clientY;
 
-                // Gradiente do Título
                 if (title) {
                     const rect = title.getBoundingClientRect();
                     const x = ((mouseX - rect.left) / rect.width) * 100;
@@ -299,7 +299,6 @@ const cargo = "Front-End Developer";
                     title.style.setProperty('--y', `${y}%`);
                 }
 
-                // Lógica Magnética (CORRIGIDA)
                 if (sensor) {
                     const rect = sensor.getBoundingClientRect();
                     const isInside = (
@@ -312,9 +311,8 @@ const cargo = "Front-End Developer";
                     if (isInside) {
                         const centerX = rect.left + rect.width / 2;
                         const centerY = rect.top + rect.height / 2;
-                        // Calculando a distância do centro
-                        targetX = (mouseX - centerX) / 5; 
-                        targetY = (mouseY - centerY) / 5;
+                        targetX = (mouseX - centerX) / 6; 
+                        targetY = (mouseY - centerY) / 6;
                     } else {
                         targetX = 0; 
                         targetY = 0;
@@ -323,25 +321,19 @@ const cargo = "Front-End Developer";
             });
 
             function animate() {
-                // Mover cursor
-                if (photoEl) {
-                    photoEl.style.transform = `translate3d(${mouseX - 10}px, ${mouseY - 10}px, 0)`;
-                }
-
-                // Interpolação do efeito magnético
-                currentX += (targetX - currentX) * 0.15;
-                currentY += (targetY - currentY) * 0.15;
+                // Suavização (Lerp)
+                currentX += (targetX - currentX) * 0.1;
+                currentY += (targetY - currentY) * 0.1;
 
                 if (photoEl) {
-                    // Aplica o movimento magnético real
+                    // Removi a linha que tentava mover a foto com o mouseX absoluto
+                    // Agora apenas o magnetismo controla o transform da foto
                     photoEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(${targetX !== 0 ? 1.05 : 1})`;
                 }
 
                 requestAnimationFrame(animate);
             }
             animate();
-
-            
         </script>
     </body>
 </html>
