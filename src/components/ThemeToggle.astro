@@ -1,26 +1,36 @@
 <div class="theme-switch-wrapper">
-    <label class="theme-switch" for="checkbox">
-        <input type="checkbox" id="checkbox" />
+    <label class="theme-switch" for="theme-checkbox">
+        <input type="checkbox" id="theme-checkbox" />
         <div class="slider">
-            <div id="icon-container"></div>
+            <div class="icon-container" id="icon-target"></div>
             <span id="theme-text">DARK SIDE</span>
         </div>
     </label>
 </div>
 
 <style>
-    .theme-switch-wrapper { display: flex; align-items: center; }
-    .theme-switch { display: inline-block; height: 38px; position: relative; width: 150px; }
-    .theme-switch input { display: none; }
+    .theme-switch-wrapper { 
+        display: flex; 
+        align-items: center; 
+        z-index: 100;
+    }
+    
+    .theme-switch { 
+        display: inline-block; 
+        height: 38px; 
+        position: relative; 
+        width: 150px; 
+    }
+    
+    .theme-switch input { 
+        display: none; 
+    }
     
     .slider {
         background-color: #222;
-        bottom: 0; 
-        cursor: none !important; 
-        left: 0; 
+        inset: 0;
+        cursor: pointer; 
         position: absolute; 
-        right: 0; 
-        top: 0;
         transition: .4s; 
         border-radius: 34px; 
         display: flex; 
@@ -29,7 +39,7 @@
         border: 1px solid #333;
     }
 
-    #icon-container {
+    .icon-container {
         background-color: #fff;
         height: 30px; 
         width: 30px; 
@@ -39,46 +49,61 @@
         justify-content: center;
         transition: .4s; 
         z-index: 2; 
-        overflow: hidden; /* Garante que o ícone não escape do círculo */
+        overflow: hidden;
     }
 
-    /* Estilo base da imagem */
-    #icon-container :global(img) {
+    /* Estilo para a imagem injetada */
+    .icon-container :global(img) {
         width: 100%;
         height: 100%;
         object-fit: contain;
-        transition: transform 0.3s ease, filter 0.3s ease;
+        transition: transform 0.3s ease;
+        display: block;
     }
 
     #theme-text {
-        margin-left: 10px; font-size: 10px; font-weight: bold;
-        letter-spacing: 1px; transition: .4s; color: #fff; font-family: sans-serif;
+        margin-left: 10px; 
+        font-size: 10px; 
+        font-weight: bold;
+        letter-spacing: 1px; 
+        transition: .4s; 
+        color: #fff; 
+        font-family: sans-serif;
+        pointer-events: none;
     }
 
-    input:checked + .slider { background-color: #f0f0f0; border-color: #ccc; }
-    input:checked + .slider #icon-container { 
+    /* Estados de Ativação */
+    input:checked + .slider { 
+        background-color: #f0f0f0; 
+        border-color: #ccc; 
+    }
+    
+    input:checked + .slider .icon-container { 
         transform: translateX(108px); 
         background-color: #111; 
     }
-    input:checked + .slider #theme-text { transform: translateX(-35px); color: #000; }
+    
+    input:checked + .slider #theme-text { 
+        transform: translateX(-35px); 
+        color: #000; 
+    }
 </style>
 
 <script>
-    const toggleSwitch = document.querySelector('#checkbox') as HTMLInputElement;
+    const toggleSwitch = document.querySelector('#theme-checkbox') as HTMLInputElement;
     const themeText = document.querySelector('#theme-text');
-    const iconContainer = document.querySelector('#icon-container');
+    const iconContainer = document.querySelector('#icon-target');
     const html = document.documentElement;
 
-    // CONFIGURAÇÃO DE TAMANHO: Ajuste os valores de scale aqui
     const ICON_CONFIG = {
         light: {
-            path: '/icons/jedi-order.svg',
-            scale: '1.0', // Aumenta o ícone Jedi
+            path: './icons/jedi-order.svg',
+            scale: '1.0',
             filter: 'invert(1)'
         },
         dark: {
-            path: '/icons/sith.svg',
-            scale: '1.8', // Aumenta o ícone Sith (que estava pequeno)
+            path: './icons/sith.svg',
+            scale: '1.8',
             filter: 'invert(0)'
         }
     };
@@ -86,31 +111,34 @@
     function updateUI(isLight: boolean) {
         if (themeText && iconContainer) {
             const config = isLight ? ICON_CONFIG.light : ICON_CONFIG.dark;
-            
             themeText.textContent = isLight ? "LIGHT SIDE" : "DARK SIDE";
             
-            // Aplicamos a escala diretamente no style da imagem
             iconContainer.innerHTML = `
                 <img src="${config.path}" 
-                     alt="Icon" 
+                     alt="Theme Icon" 
                      style="filter: ${config.filter}; transform: scale(${config.scale});" />
             `;
         }
     }
 
+    // Listener para mudança manual
     toggleSwitch?.addEventListener('change', (e) => {
         const isLight = (e.target as HTMLInputElement).checked;
-        html.setAttribute('data-theme', isLight ? 'light' : 'dark');
-        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        const theme = isLight ? 'light' : 'dark';
+        
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
         updateUI(isLight);
     });
 
-    const currentTheme = localStorage.getItem('theme') || 'dark';
-    html.setAttribute('data-theme', currentTheme);
-    if (currentTheme === 'light' && toggleSwitch) {
-        toggleSwitch.checked = true;
-        updateUI(true);
-    } else {
-        updateUI(false);
+    // Inicialização correta (Executa ao carregar a página)
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const isActuallyLight = savedTheme === 'light';
+
+    html.setAttribute('data-theme', savedTheme);
+    
+    if (toggleSwitch) {
+        toggleSwitch.checked = isActuallyLight;
+        updateUI(isActuallyLight);
     }
 </script>

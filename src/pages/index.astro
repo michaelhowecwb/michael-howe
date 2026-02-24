@@ -6,548 +6,387 @@ const cargo = "Front-End Developer";
 ---
 
 <html lang="pt-br">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>{nome} | Portfolio</title>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" rel="stylesheet">
-		
-		<style is:global>
-:root {
-    --bg: #0b0b0b; /* Um preto mais profundo e elegante */
-    --card-bg: #141414; 
-    --text: #ffffff;
-    --cursor-text: #111111;
-    --text-rgb: 255, 255, 255;
-    --accent: #00ff9d; /* Neon para o Dark */
-    --secondary: #a0a0a0; /* Um cinza um pouco mais claro para leitura */
-    --card-border: rgba(255, 255, 255, 0.05);
-}
-
-[data-theme='light'] {
-    --bg: #f9f9f9; 
-    --card-bg: #ffffff; 
-    --text: #111111;
-    --cursor-text: #ffffff;
-    --text-rgb: 0, 0, 0;
-    --accent: #008f5d; /* Verde mais denso para contraste no claro */
-    --secondary: #666666;
-    --card-border: rgba(0, 0, 0, 0.06);
-}
-
-			body {
-				background-color: var(--bg);
-				color: var(--text);
-				font-family: 'Inter', sans-serif;
-				transition: all 0.3s ease;
-				margin: 0;
-			}
-
-			code { font-family: 'Fira Code', monospace; }
-html, body {
-    margin: 0;
-    padding: 0;
-    cursor: none; /* Esconde a seta padrão */
-}
-a, button, .chat-link, .service-card, .work-card, h1 {
-    cursor: none !important;
-}
-
-section {
-    position: relative;
-    border-bottom: 1px solid var(--card-border); /* Linhas sutis dividindo o conteúdo */
-}
-			@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
-}
-@media (max-width: 768px) {
-    h1 { font-size: 2.5rem !important; }
-    section { flex-direction: column; text-align: center; gap: 20px; }
-    div[style*="width: 400px"] { width: 100% !important; max-width: 300px; height: 380px !important; }
-    .glow-astro-container, .glow-react-container { display: none; }
-}
-.reveal {
-    animation: fadeUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-    opacity: 0;
-}
-.reveal:nth-child(1) { animation-delay: 0.1s; }
-.reveal:nth-child(2) { animation-delay: 0.3s; }
-.reveal:nth-child(3) { animation-delay: 0.5s; }
-.reveal:nth-child(4) { animation-delay: 0.7s; }
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-#custom-cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none !important;
-    z-index: 10000;
-}
-
-.cursor-shape {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    /* No estado normal (círculo) */
-    background: rgba(var(--bg, 255, 255, 255), 0.1);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    border: 1.5px solid rgba(var(--text-rgb, 255, 255, 255), 0.8);
-    border-radius: 50%;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-/* ESTADO DE HOVER - A SOLUÇÃO DEFINITIVA */
-#custom-cursor.is-hovering .cursor-shape {
-    transform: scale(1.8);
-    background: rgba(var(--text-rgb, 255, 255, 255), 0.8);
-    border-radius: 0%;
-    border: none; 
-    clip-path: polygon(50% 5%, 62% 38%, 95% 50%, 62% 62%, 50% 95%, 38% 62%, 5% 50%, 38% 38%);
-}
-
-/* Criamos a borda da estrela usando um elemento antes dela */
-#custom-cursor.is-hovering .cursor-shape::before {
-    content: "";
-    position: absolute;
-    /* Alinhamos exatamente com o contêiner */
-    inset: 0; 
-    /* Cor idêntica à borda do seu círculo (branco 0.4) */
-    background: rgba(var(--text-rgb, 255, 255, 255), 0.8);
-    clip-path: polygon(50% 5%, 62% 38%, 95% 50%, 62% 62%, 50% 95%, 38% 62%, 5% 50%, 38% 38%);
-    z-index: -1;
-}
-
-/* Criamos um "buraco" no meio para que reste apenas a borda */
-#custom-cursor.is-hovering .cursor-shape::after {
-    content: "";
-    position: absolute;
-    /* Criamos a espessura de 1.5px */
-    inset: 1.5px; 
-    /* Cor de fundo com a transparência desejada */
-    background: rgba(var(--bg, 255, 255, 255), 0.8);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    clip-path: polygon(50% 5%, 62% 38%, 95% 50%, 62% 62%, 50% 95%, 38% 62%, 5% 50%, 38% 38%);
-    z-index: -1;
-}
-
-.cursor-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    font-family: 'Inter', sans-serif;
-    font-size: 5px;
-    font-weight: 900;
-    /* Cor padrão */
-    color: var(--cursor-text);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 10;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    pointer-events: none;
-}
-
-#custom-cursor.is-hovering .cursor-text {
-    opacity: 1;
-    /* Forçamos a cor verde neon para garantir contraste total */
-    color: var(--cursor-text); 
-    transform: translate(-50%, -50%) scale(1);
-    /* Adicionamos um leve brilho para ajudar na leitura sobre o branco */
-    text-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-}
-/* Em celulares (touch), volta o cursor padrão e esconde a bola */
-@media (pointer: coarse) {
-    #custom-cursor {
-        display: none;
-    }
-    html, body {
-        cursor: auto;
-    }
-    a, button, .chat-link, .service-card, .work-card, h1 {
-        cursor: pointer !important;
-    }
-}
-
-nav a, .chat-link {
-    position: relative;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-nav a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -5px;
-    left: 50%;
-    background-color: var(--accent);
-    transition: all 0.3s ease-in-out;
-    transform: translateX(-50%);
-}
-
-nav a:hover::after {
-    width: 100%;
-}
-
-nav a:hover {
-    color: var(--accent) !important;
-}
-/* O sensor precisa estar NA FRENTE de tudo para detectar o mouse */
-.photo-sensor {
-    position: relative;
-    width: 400px;
-    height: 500px;
-    margin: auto;
-    /*background: rgba(255,0,0,0.2);*/
-    z-index: 20; /* Maior que a foto e os ícones flutuantes */
-    overflow: visible; /* Importante para a foto poder "sair" um pouco da borda */
-}
-
-#profile-photo {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    /* Remova o transition: transform daqui */
-    will-change: transform;
-    z-index: 10;
-}
-#profile-photo img {
-    width: 100%;
-    height: 100%;
-    border-radius: 15px;
-    object-fit: cover;
-    display: block;
-    /* Remova o transform: scale(1.1) daqui se quiser tirar o zoom fixo */
-}
-.glow-astro-container {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    filter: drop-shadow(0 0 15px rgba(188, 82, 238, 0.9));
-    animation: float 4s ease-in-out infinite;
-    z-index: 10;
-}
-
-.astro-icon-mask {
-    width: 100%;
-    height: 100%;
-    background-color: #BC52EE;
-    
-    -webkit-mask: url('/icons/astro.svg') no-repeat center;
-    mask: url('/icons/astro.svg') no-repeat center;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-}
-.glow-react-container {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    filter: drop-shadow(0 0 15px rgba(97, 218, 251, 0.9));
-    animation: float 4s ease-in-out infinite;
-    z-index: 10;
-}
-
-.react-icon-mask {
-    width: 100%;
-    height: 100%;
-    background-color: #61DAFB;
-    
-    -webkit-mask: url('/icons/react.svg') no-repeat center;
-    mask: url('/icons/react.svg') no-repeat center;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-}
-.service-card, .project-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    /* No Light Mode, sombras suaves funcionam melhor que sombras sólidas */
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.03); 
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.service-card:hover, .project-card:hover {
-    /* Inverte a sombra no hover para dar sensação de clique/pressão */
-    transform: translate(4px, 4px);
-    box-shadow: 4px 4px 0px var(--accent);
-}
-
-[data-theme='dark'] .service-card:hover {
-    background: #1d1d1d;
-    border-color: var(--accent);
-}
-
-[data-theme='light'] .service-card:hover {
-    background: #ffffff;
-    box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.06);
-    border-color: var(--accent);
-}
-h1.main-header {
-    font-size: 4.5rem;
-    line-height: 1.1;
-    /* Cursor de link para indicar interatividade */
-    cursor: pointer;
-    
-    /* Radial gradient ajustado para ser mais suave */
-background: radial-gradient(
-        circle at var(--x) var(--y), 
-        var(--accent), 
-        var(--text) 80% /* Força o gradiente a terminar na cor do texto principal */
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: background 0.1s ease-out, filter 0.3s ease;
-}
-h1.main-header:hover {
-    filter: drop-shadow(0 0 10px rgba(0, 255, 157, 0.2));
-}
-.chat-link {
-    display: inline-block;
-    padding: 12px 24px;
-    border: 1px solid var(--accent);
-    border-radius: 50px;
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 0.8rem;
-    transition: all 0.3s ease;
-    background: transparent;
-    border: 2px solid var(--accent); /* Borda mais grossa para presença */
-    color: var(--accent);
-}
-
-.chat-link:hover {
-    background: var(--accent);
-    color: #111;
-    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
-}
-[data-theme='light'] .chat-link:hover {
-    background: var(--accent);
-    color: #ffffff; /* Texto branco no botão verde escuro */
-    box-shadow: 0 10px 20px rgba(0, 112, 74, 0.2);
-}
-@keyframes reveal {
-    0% { transform: translateY(30px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
-}
-
-		</style>
-	</head>
-	<link rel="icon" type="image/png" href="/favicon.png" />
-<!--<div class="noise-overlay"></div>
-
-<style>
-  .noise-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.04;
-    pointer-events: none;
-    z-index: 9999;
-  }
-</style>-->
-	<body>
-		<nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
-			<div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
-			<div style="display: flex; gap: 20px; align-items: center;">
-				<a href="#services" style="color: var(--secondary); text-decoration: none;">Services</a>
-				<a href="#works" style="color: var(--secondary); text-decoration: none;">Works</a>
-    <ThemeToggle />
-			</div>
-		</nav>
-
-		<main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-			<section style="display: flex; align-items: center; min-height: 80vh; gap: 50px;">
-				<div style="flex: 1;">
-					<span style="color: var(--accent); font-family: code; border: 1px solid var(--accent); padding: 5px 10px; border-radius: 5px;">
-						{cargo}
-					</span>
-					<h1 class="main-header reveal" style="font-size: 4rem; margin: 20px 0;">Talk is cheap.<br/>Show me the code</h1>
-					<p class="reveal" style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
-						I design and code beautifully simple things, and I love what I do.
-					</p>
-					<a href="#contact" class="chat-link">LET'S CHAT!</a>
-				</div>
-				<div style="flex: 1; text-align: right;">
-					<div style="position: relative;">
-    <div class="glow-astro-container" style="top: -20px; left: -20px; animation-delay: 0s;">
-    <div class="astro-icon-mask"></div>
-</div>
-    <div class="glow-react-container" style="bottom: 50px; right: -30px; animation-delay: -2s;"> <div class="react-icon-mask"></div>
-</div>
-    
-    <div style="position: relative; padding: 20px;">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%; background: radial-gradient(circle, rgba(0,255,157,0.05) 0%, transparent 70%); z-index: 0;"></div>
-    
-    <div class="photo-sensor">
-    <div id="profile-photo" class="reveal">
-         <img src="/minha-foto.jpg" alt="Michael Howe" />
-    </div>
-</div>
-</div>
-</div>
-				</div>
-			</section>
-
-			<section id="services" style="padding: 100px 0px;">
-				<div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 100px;">
-					<div style="display: flex; flex-direction: column; gap: 40px;">
-						<div class="service-card" style="padding: 40px; border-radius: 15px;">
-							<h3 style="color: var(--accent);">Design</h3>
-							<p style="color: var(--secondary);">Create digital products with unique ideas.</p>
-						</div>
-						<div class="service-card" style="padding: 40px; border-radius: 15px;">
-							<h3 style="color: var(--accent);">Development</h3>
-							<p style="color: var(--secondary);">High performance coding for the web.</p>
-						</div>
-					</div>
-					<div>
-						<h2 style="font-size: 2.5rem;">Hello! I'm Michael.</h2>
-						<p style="font-style: italic; font-size: 1.5rem;">Every great design begins with an even better story.</p>
-						<p style="color: var(--secondary);">Sendo de ascendência europeia e focado no mercado global, trago uma visão técnica e minimalista para cada projeto.</p>
-					</div>
-				</div>
-			</section>
-			
-<section id="works" style="padding: 100px 0;">
-    <h2 style="font-size: 2.5rem; margin-bottom: 40px;">Selected Works</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-        <WorkCard 
-            title="E-commerce Global" 
-            description="Plataforma de vendas focada no mercado europeu." 
-            tags={["Astro", "React", "Stripe"]}
-            link="#"
-        />
-        <WorkCard 
-            title="Dashboard Design" 
-            description="Interface administrativa minimalista." 
-            tags={["Figma", "UI/UX"]}
-            link="#"
-        />
-    </div>
-</section>
-		</main>
-        <footer style="margin-top: 100px; padding: 60px 2rem; border-top: 1px solid var(--card-border); text-align: center;">
-    <h2 style="font-size: 2rem; margin-bottom: 20px;">Ready to start a project?</h2>
-    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 40px;">
-        <a href="https://github.com/seu-user" target="_blank" class="chat-link">GITHUB</a>
-        <a href="https://linkedin.com/in/seu-user" target="_blank" class="chat-link">LINKEDIN</a>
-    </div>
-    <p style="color: var(--secondary); font-size: 0.9rem;">
-        © 2026 {nome} • Based in Brazil, looking for global opportunities.
-    </p>
-</footer>
-
-	<script>
-    // 1. Seleção de Elementos com Tipagem
-    const cursor = document.getElementById('custom-cursor') as HTMLElement | null;
-    const photoEl = document.getElementById('profile-photo') as HTMLElement | null;
-    const sensor = document.querySelector('.photo-sensor') as HTMLElement | null;
-    const title = document.querySelector('h1.main-header') as HTMLElement | null;
-
-    // Variáveis de posição e controle
-    let mouseX = 0, mouseY = 0;      // Posição real do mouse
-    let targetX = 0, targetY = 0;    // Alvo da foto (sensor)
-    let currentX = 0, currentY = 0;  // Posição atual da foto (suavizada)
-
-    // 2. Evento de Mouse (Captura coordenadas e Gradiente)
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-
-        // Lógica do Gradiente no H1
-        if (title) {
-            const rect = title.getBoundingClientRect();
-            const x = ((mouseX - rect.left) / rect.width) * 100;
-            const y = ((mouseY - rect.top) / rect.height) * 100;
-            title.style.setProperty('--x', `${x}%`);
-            title.style.setProperty('--y', `${y}%`);
-        }
-
-        // Lógica do Sensor da Foto
-        if (sensor) {
-            const rect = sensor.getBoundingClientRect();
-            const isInside = (
-                mouseX >= rect.left && mouseX <= rect.right &&
-                mouseY >= rect.top && mouseY <= rect.bottom
-            );
-
-            if (isInside) {
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                targetX = (mouseX - centerX) / 15;
-                targetY = (mouseY - centerY) / 15;
-            } else {
-                targetX = 0;
-                targetY = 0;
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{nome} | Portfolio</title>
+        
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" rel="stylesheet">
+        
+        <style is:global>
+            :root {
+                --bg: #0b0b0b;
+                --card-bg: #141414; 
+                --text: #ffffff;
+                --cursor-text: #111111;
+                --text-rgb: 255, 255, 255;
+                --accent: #00ff9d;
+                --secondary: #a0a0a0;
+                --card-border: rgba(255, 255, 255, 0.05);
             }
-        }
-    });
 
-    // 3. Loop de Animação (Cursor e Parallax)
-    function animate() {
-        if (cursor) {
-            cursor.style.transform = `translate3d(${mouseX - 12}px, ${mouseY - 12}px, 0)`;
-        }
+            [data-theme='light'] {
+                --bg: #f9f9f9; 
+                --card-bg: #ffffff; 
+                --text: #111111;
+                --cursor-text: #ffffff;
+                --text-rgb: 0, 0, 0;
+                --accent: #008f5d;
+                --secondary: #666666;
+                --card-border: rgba(0, 0, 0, 0.06);
+            }
 
-        currentX += (targetX - currentX) * 0.1;
-        currentY += (targetY - currentY) * 0.1;
+            /* Reset de Segurança para o Vercel */
+            * { box-sizing: border-box; }
+            
+            img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+            }
 
-        if (photoEl) {
-            photoEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(1.02)`;
-        }
+            body {
+                background-color: var(--bg);
+                color: var(--text);
+                font-family: 'Inter', sans-serif;
+                transition: background-color 0.3s ease, color 0.3s ease;
+                margin: 0;
+                padding: 0;
+                cursor: none;
+                overflow-x: hidden;
+            }
 
-        requestAnimationFrame(animate);
-    }
-    animate();
+            code { font-family: 'Fira Code', monospace; }
 
-    // 4. Gerenciamento de Hover (Refinado via Event Delegation)
-    // Esse método detecta automaticamente novos elementos adicionados ao DOM
-   document.addEventListener('mouseover', (e) => {
-    // Adicionei .theme-switch e .slider à lista
-    const target = (e.target as HTMLElement).closest('a, button, .service-card, .work-card, .project-card, h1, .chat-link, .theme-switch, .slider');
-    if (target) {
-        cursor?.classList.add('is-hovering');
-    }
-});
+            a, button, .chat-link, .service-card, .work-card, h1 {
+                cursor: none !important;
+            }
 
-document.addEventListener('mouseout', (e) => {
-    // Adicionei .theme-switch e .slider à lista aqui também
-    const target = (e.target as HTMLElement).closest('a, button, .service-card, .work-card, .project-card, h1, .chat-link, .theme-switch, .slider');
-    if (target) {
-        cursor?.classList.remove('is-hovering');
-    }
-});
-</script>
-       <div id="custom-cursor">
-    <div class="cursor-shape"></div>
-    <span class="cursor-text">VIEW</span>
-</div>
-</body> </html>
+            section {
+                position: relative;
+                border-bottom: 1px solid var(--card-border);
+            }
+
+            /* Animações */
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-20px); }
+                100% { transform: translateY(0px); }
+            }
+
+            .reveal {
+                animation: fadeUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+                opacity: 0;
+            }
+            .reveal:nth-child(1) { animation-delay: 0.1s; }
+            .reveal:nth-child(2) { animation-delay: 0.3s; }
+
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            /* Cursor Customizado */
+            #custom-cursor {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                pointer-events: none !important;
+                z-index: 10000;
+            }
+
+            .cursor-shape {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background: rgba(var(--text-rgb), 0.1);
+                backdrop-filter: blur(6px);
+                border: 1.5px solid rgba(var(--text-rgb), 0.8);
+                border-radius: 50%;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            #custom-cursor.is-hovering .cursor-shape {
+                transform: scale(1.8);
+                background: rgba(var(--text-rgb), 0.8);
+                border-radius: 0%;
+                clip-path: polygon(50% 5%, 62% 38%, 95% 50%, 62% 62%, 50% 95%, 38% 62%, 5% 50%, 38% 38%);
+            }
+
+            .cursor-text {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0);
+                font-size: 5px;
+                font-weight: 900;
+                color: var(--cursor-text);
+                opacity: 0;
+                transition: 0.3s;
+                z-index: 10;
+                text-transform: uppercase;
+            }
+
+            #custom-cursor.is-hovering .cursor-text {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            /* Navegação */
+            nav a {
+                position: relative;
+                text-decoration: none;
+                transition: color 0.3s;
+            }
+
+            nav a:hover { color: var(--accent) !important; }
+
+            /* Foto de Perfil e Sensores */
+            .photo-sensor {
+                position: relative;
+                width: 100%;
+                max-width: 400px;
+                height: 500px;
+                margin: auto;
+                z-index: 20;
+            }
+
+            #profile-photo {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                will-change: transform;
+                z-index: 10;
+            }
+
+            #profile-photo img {
+                width: 100%;
+                height: 100%;
+                border-radius: 15px;
+                object-fit: cover;
+            }
+
+            /* Ícones Flutuantes */
+            .glow-astro-container, .glow-react-container {
+                position: absolute;
+                width: 50px;
+                height: 50px;
+                z-index: 15;
+            }
+
+            .astro-icon-mask {
+                width: 100%; height: 100%; background-color: #BC52EE;
+                -webkit-mask: url('/icons/astro.svg') no-repeat center / contain;
+                mask: url('/icons/astro.svg') no-repeat center / contain;
+            }
+
+            .react-icon-mask {
+                width: 100%; height: 100%; background-color: #61DAFB;
+                -webkit-mask: url('/icons/react.svg') no-repeat center / contain;
+                mask: url('/icons/react.svg') no-repeat center / contain;
+            }
+
+            /* Cards */
+            .service-card {
+                background: var(--card-bg);
+                border: 1px solid var(--card-border);
+                transition: all 0.4s ease;
+            }
+
+            .service-card:hover {
+                transform: translate(4px, 4px);
+                box-shadow: 4px 4px 0px var(--accent);
+                border-color: var(--accent);
+            }
+
+            /* Header Principal */
+            h1.main-header {
+                font-size: 4.5rem;
+                line-height: 1.1;
+                background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), var(--accent), var(--text) 80%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+
+            .chat-link {
+                display: inline-block;
+                padding: 12px 24px;
+                border: 2px solid var(--accent);
+                border-radius: 50px;
+                color: var(--accent);
+                text-decoration: none;
+                font-weight: bold;
+                letter-spacing: 2px;
+                transition: 0.3s;
+            }
+
+            .chat-link:hover {
+                background: var(--accent);
+                color: #111;
+                box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+            }
+
+            @media (max-width: 768px) {
+                h1.main-header { font-size: 2.5rem; }
+                section { flex-direction: column; text-align: center; }
+                .photo-sensor { height: 380px; }
+                #custom-cursor { display: none; }
+                body { cursor: auto; }
+            }
+        </style>
+    </head>
+
+    <body>
+        <nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
+            <div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <a href="#services" style="color: var(--secondary); text-decoration: none;">Services</a>
+                <a href="#works" style="color: var(--secondary); text-decoration: none;">Works</a>
+                <ThemeToggle />
+            </div>
+        </nav>
+
+        <main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+            <section style="display: flex; align-items: center; min-height: 80vh; gap: 50px;">
+                <div style="flex: 1;">
+                    <span style="color: var(--accent); font-family: monospace; border: 1px solid var(--accent); padding: 5px 10px; border-radius: 5px;">
+                        {cargo}
+                    </span>
+                    <h1 class="main-header reveal">Talk is cheap.<br/>Show me the code</h1>
+                    <p class="reveal" style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
+                        I design and code beautifully simple things, and I love what I do.
+                    </p>
+                    <a href="#contact" class="chat-link">LET'S CHAT!</a>
+                </div>
+                
+                <div style="flex: 1;">
+                    <div style="position: relative;">
+                        <div class="glow-astro-container" style="top: -20px; left: -20px;">
+                            <div class="astro-icon-mask"></div>
+                        </div>
+                        <div class="glow-react-container" style="bottom: 50px; right: -30px;"> 
+                            <div class="react-icon-mask"></div>
+                        </div>
+                        
+                        <div class="photo-sensor">
+                            <div id="profile-photo" class="reveal">
+                                 <img src="/minha-foto.jpg" alt="Michael Howe" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="services" style="padding: 100px 0;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px;">
+                    <div class="service-card" style="padding: 40px; border-radius: 15px;">
+                        <h3 style="color: var(--accent);">Design</h3>
+                        <p style="color: var(--secondary);">Create digital products with unique ideas.</p>
+                    </div>
+                    <div class="service-card" style="padding: 40px; border-radius: 15px;">
+                        <h3 style="color: var(--accent);">Development</h3>
+                        <p style="color: var(--secondary);">High performance coding for the web.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="works" style="padding: 100px 0;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 40px;">Selected Works</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                    <WorkCard 
+                        title="E-commerce Global" 
+                        description="Plataforma de vendas focada no mercado europeu." 
+                        tags={["Astro", "React", "Stripe"]}
+                        link="#"
+                    />
+                    <WorkCard 
+                        title="Dashboard Design" 
+                        description="Interface administrativa minimalista." 
+                        tags={["Figma", "UI/UX"]}
+                        link="#"
+                    />
+                </div>
+            </section>
+        </main>
+
+        <footer style="margin-top: 100px; padding: 60px 2rem; border-top: 1px solid var(--card-border); text-align: center;">
+            <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 40px;">
+                <a href="#" class="chat-link">GITHUB</a>
+                <a href="#" class="chat-link">LINKEDIN</a>
+            </div>
+            <p style="color: var(--secondary); font-size: 0.9rem;">
+                © 2026 {nome} • Based in Brazil, looking for global opportunities.
+            </p>
+        </footer>
+
+        <script>
+            const cursor = document.getElementById('custom-cursor');
+            const photoEl = document.getElementById('profile-photo');
+            const sensor = document.querySelector('.photo-sensor');
+            const title = document.querySelector('h1.main-header') as HTMLElement;
+
+            let mouseX = 0, mouseY = 0;
+            let targetX = 0, targetY = 0;
+            let currentX = 0, currentY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                if (title) {
+                    const rect = title.getBoundingClientRect();
+                    const x = ((mouseX - rect.left) / rect.width) * 100;
+                    const y = ((mouseY - rect.top) / rect.height) * 100;
+                    title.style.setProperty('--x', `${x}%`);
+                    title.style.setProperty('--y', `${y}%`);
+                }
+
+                if (sensor) {
+                    const rect = sensor.getBoundingClientRect();
+                    const isInside = (mouseX >= rect.left && mouseX <= rect.right && mouseY >= rect.top && mouseY <= rect.bottom);
+                    if (isInside) {
+                        targetX = (mouseX - (rect.left + rect.width / 2)) / 15;
+                        targetY = (mouseY - (rect.top + rect.height / 2)) / 15;
+                    } else {
+                        targetX = 0; targetY = 0;
+                    }
+                }
+            });
+
+            function animate() {
+                if (cursor) {
+                    cursor.style.transform = `translate3d(${mouseX - 10}px, ${mouseY - 10}px, 0)`;
+                }
+                currentX += (targetX - currentX) * 0.1;
+                currentY += (targetY - currentY) * 0.1;
+                if (photoEl) {
+                    photoEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(1.02)`;
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            document.addEventListener('mouseover', (e) => {
+                const target = (e.target as HTMLElement).closest('a, button, .service-card, .work-card, h1, .chat-link, .theme-switch');
+                if (target) cursor?.classList.add('is-hovering');
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                const target = (e.target as HTMLElement).closest('a, button, .service-card, .work-card, h1, .chat-link, .theme-switch');
+                if (target) cursor?.classList.remove('is-hovering');
+            });
+        </script>
+
+        <div id="custom-cursor">
+            <div class="cursor-shape"></div>
+            <span class="cursor-text">VIEW</span>
+        </div>
+    </body>
+</html>
