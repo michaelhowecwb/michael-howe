@@ -17,7 +17,7 @@ const cargo = "// Full-stack Developer";
         <style is:global>
             :root {
                 --bg: #0b0b0b;
-                --bg-rgb: 11, 11, 11; /* Essencial para o Vercel */
+                --bg-rgb: 11, 11, 11;
                 --card-bg: #141414;
                 --text: #ffffff;
                 --cursor-text: #111111;
@@ -29,7 +29,7 @@ const cargo = "// Full-stack Developer";
 
             [data-theme='light'] {
                 --bg: #f9f9f9;
-                --bg-rgb: 249, 249, 249; /* Essencial para o Vercel */
+                --bg-rgb: 249, 249, 249;
                 --card-bg: #ffffff;
                 --text: #111111;
                 --cursor-text: #ffffff;
@@ -51,7 +51,7 @@ const cargo = "// Full-stack Developer";
             code { font-family: 'Fira Code', monospace; }
             html, body { margin: 0; padding: 0; }
             
-            /* Garante que os elementos interativos não mostrem o cursor padrão */
+            /* Garante que os elementos interativos mostrem o cursor padrão */
             a, button, .chat-link, .service-card, .work-card, h1, .theme-switch, .slider {
                 cursor: pointer !important;
             }
@@ -121,7 +121,7 @@ const cargo = "// Full-stack Developer";
                 box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
             }
 
-/* --- FOTO E EFEITO MAGNÉTICO --- */
+            /* --- FOTO E EFEITO MAGNÉTICO --- */
             .hero-container {
                 display: flex; align-items: center; min-height: 85vh; gap: 40px;
                 max-width: 1200px; margin: 0 auto; padding: 0 2rem;
@@ -135,7 +135,7 @@ const cargo = "// Full-stack Developer";
             .photo-sensor {
                 position: relative;
                 width: 380px; height: 480px;
-                z-index: 50; /* Garante que receba o mouse */
+                z-index: 50;
             }
 
             /* A FOTO que se move */
@@ -277,7 +277,7 @@ const cargo = "// Full-stack Developer";
             </p>
         </footer>
 
-<script>
+        <script>
             // Type casting corrigido para TypeScript do Astro
             const photoEl = document.getElementById('profile-photo') as HTMLElement;
             const sensor = document.querySelector('.photo-sensor') as HTMLElement;
@@ -326,8 +326,6 @@ const cargo = "// Full-stack Developer";
                 currentY += (targetY - currentY) * 0.1;
 
                 if (photoEl) {
-                    // Removi a linha que tentava mover a foto com o mouseX absoluto
-                    // Agora apenas o magnetismo controla o transform da foto
                     photoEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(${targetX !== 0 ? 1.05 : 1})`;
                 }
 
