@@ -15,22 +15,22 @@ const cargo = "Front-End Developer";
 		<style is:global>
 :root {
     --bg: #111111;
-    --card-bg: #1a1a1a;
+    --card-bg: rgba(26, 26, 26, 0.6);
     --text: #ffffff;
     --accent: #00ff9d;
     --secondary: #888888;
     --card-border: rgba(255, 255, 255, 0.1);
+    --h1-gradient-start: rgba(255, 255, 255, 0.4); /* Luz no dark */
 }
 
 [data-theme='light'] {
-    /* Mudamos o fundo para um cinza muito claro, para o card BRANCO se destacar */
-    --bg: #f2f2f2; 
-    --card-bg: #ffffff; 
-    --text: #111111;
-    --accent: #00a86b; /* Verde mais escuro para leitura no claro */
+    --bg: #f8f9fa; /* Um branco levemente acinzentado é mais elegante */
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --text: #1a1a1a;
+    --accent: #00a86b;
     --secondary: #666666;
-    /* Borda sutil para dar forma ao card no claro */
-    --card-border: rgba(0, 0, 0, 0.08);
+    --card-border: rgba(0, 0, 0, 0.05);
+    --h1-gradient-start: rgba(0, 0, 0, 0.2); /* Sombra no light */
 }
 
 			body {
@@ -136,17 +136,16 @@ nav a:hover {
 .service-card, .project-card {
     background: var(--card-bg);
     backdrop-filter: blur(12px);
-    border: 1px solid var(--card-border); /* Essencial para o Light Mode */
-    box-shadow: 8px 8px 0px var(--accent); /* Mudança aqui: use var(--accent) */
+    border: 1px solid var(--card-border);
+    box-shadow: 8px 8px 0px var(--accent); /* Usa o verde correto de cada tema */
     transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .service-card:hover, .project-card:hover {
-    /* Inverte a sombra no hover para dar sensação de clique/pressão */
-    transform: translate(4px, 4px);
-    box-shadow: 4px 4px 0px var(--accent);
+    transform: translate(4px, 4px); /* Movimento leve */
+    box-shadow: -4px -4px 0px var(--accent);
 }
-h1.main-header {
+h1 {
     font-size: 4.5rem;
     line-height: 1.1;
     /* Cursor de link para indicar interatividade */
@@ -154,15 +153,16 @@ h1.main-header {
     
     /* Radial gradient ajustado para ser mais suave */
 background: radial-gradient(
-        circle 150px at var(--x, 50%) var(--y, 50%), 
-        var(--accent) 0%, 
-        var(--text) 80% /* Mudança aqui: o gradiente termina na cor do texto atual */
+        circle 100px at var(--x, 50%) var(--y, 50%), 
+        var(--accent) -50%, 
+        var(--text) 50%, /* Segue a cor do texto do tema */
+        var(--h1-gradient-start) 100%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     transition: background 0.1s ease-out, filter 0.3s ease;
 }
-h1.main-header:hover {
+h1.reveal:hover {
     filter: drop-shadow(0 0 10px rgba(0, 255, 157, 0.2));
 }
 .chat-link {
@@ -209,7 +209,7 @@ h1.main-header:hover {
 </style>
 	<body>
 		<nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
-			<div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
+			<div style="font-weight: bold; font-size: 1.2rem;">{nome}</div>
 			<div style="display: flex; gap: 20px; align-items: center;">
 				<a href="#services" style="color: var(--secondary); text-decoration: none;">Services</a>
 				<a href="#works" style="color: var(--secondary); text-decoration: none;">Works</a>
@@ -223,7 +223,7 @@ h1.main-header:hover {
 					<span style="color: var(--accent); font-family: code; border: 1px solid var(--accent); padding: 5px 10px; border-radius: 5px;">
 						{cargo}
 					</span>
-					<h1 class="main-header" style="font-size: 4rem; margin: 20px 0;">Talk is cheap.<br/>Show me the code</h1>
+					<h1 class="reveal" style="font-size: 4rem; margin: 20px 0;">Talk is cheap.<br/>Show me the code</h1>
 					<p class="reveal" style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
 						I design and code beautifully simple things, and I love what I do.
 					</p>
@@ -240,7 +240,7 @@ h1.main-header:hover {
     <div style="position: relative; padding: 20px;">
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%; background: radial-gradient(circle, rgba(0,255,157,0.05) 0%, transparent 70%); z-index: 0;"></div>
     
-    <div class="reveal" style="width: 400px; height: 500px; margin: auto; border-radius: 24px; overflow: hidden; border: 1px solid var(--accent); position: relative; z-index: 1; backdrop-filter: blur(10px);">
+    <div class="reveal" style="width: 400px; height: 500px; margin: auto; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 1; backdrop-filter: blur(10px);">
          <img src="/minha-foto.jpg" alt="Michael Howe" style="width: 100%; height: 100%; object-fit: cover;" />
     </div>
 </div>
@@ -288,7 +288,7 @@ h1.main-header:hover {
 		</main>
 
 		<script>
-const title = document.querySelector('h1.main-header');
+const title = document.querySelector('h1.reveal');
 
 window.addEventListener('mousemove', (e) => {
     if (!title) return;
