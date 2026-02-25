@@ -1,0 +1,22 @@
+---
+import ThemeToggle from '@components/ThemeToggle.astro';
+import LanguagePicker from '@components/LanguagePicker.astro';
+const nome = "Michael Howe";
+import { ui } from '../utils/i18n';
+const t = ui.en;
+---
+
+<nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
+    <div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <a href="#home" style="color: var(--secondary);">Home</a>
+        <a href="#services" style="color: var(--secondary);">{t['nav.services']}</a>
+        <a href="#works" style="color: var(--secondary);">{t['nav.works']}</a>
+        <nav>
+            <div class="controls">
+                <LanguagePicker />
+                <ThemeToggle />
+            </div>
+        </nav>
+    </div>
+</nav>

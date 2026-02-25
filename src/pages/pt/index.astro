@@ -1,9 +1,9 @@
 ---
 import { ui } from '@utils/i18n';
 const t = ui.pt;
-import ThemeToggle from '@components/ThemeToggle.astro';
-import LanguagePicker from '@components/LanguagePicker.astro';
 import WorkCard from '@components/WorkCard.astro';
+import MainNavbar from '@components/MainNavbar.astro';
+import Footer from '@components/Footer.astro';
 
 const nome = "Michael Howe";
 const cargo = "// Full-stack Developer";
@@ -207,20 +207,8 @@ const cargo = "// Full-stack Developer";
     </head>
 
     <body>
-        <nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
-            <div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
-            <div style="display: flex; gap: 20px; align-items: center;">
-                <a href="#home" style="color: var(--secondary);">Home</a>
-                <a href="#services" style="color: var(--secondary);">{t['nav.services']}</a>
-                <a href="#works" style="color: var(--secondary);">{t['nav.works']}</a>
-                <nav>
-                    <div class="controls">
-                        <LanguagePicker />
-                        <ThemeToggle />
-                    </div>
-                </nav>
-            </div>
-        </nav>
+        
+        <MainNavbar />
 
         <main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
             <section class="hero-container">
@@ -292,16 +280,7 @@ const cargo = "// Full-stack Developer";
             </section>
         </main>
 
-        <footer style="margin-top: 100px; padding: 60px 2rem; border-top: 1px solid var(--card-border); text-align: center; background: #14171b">
-            <h2 style="font-size: 2rem; margin-bottom: 20px;">Ready to start a project?</h2>
-            <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 40px;">
-                <a href="#" class="chat-link">GITHUB</a>
-                <a href="#" class="chat-link">LINKEDIN</a>
-            </div>
-            <p style="color: var(--secondary); font-size: 0.9rem;">
-                © 2026 {nome} • Based in Brazil, looking for global opportunities.
-            </p>
-        </footer>
+        <Footer />
 
         <script>
             // Type casting corrigido para TypeScript do Astro
