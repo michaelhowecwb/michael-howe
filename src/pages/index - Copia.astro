@@ -1,6 +1,9 @@
 ---
-import ThemeToggle from '../components/ThemeToggle.astro';
-import WorkCard from '../components/WorkCard.astro';
+import { ui } from '@utils/i18n';
+const t = ui.en;
+import WorkCard from '@components/WorkCard.astro';
+import MainNavbar from '@components/MainNavbar.astro';
+import Footer from '@components/Footer.astro';
 
 const nome = "Michael Howe";
 const cargo = "// Full-stack Developer";
@@ -42,6 +45,10 @@ const cargo = "// Full-stack Developer";
                 --card-border: rgba(0, 0, 0, 0.06);
             }
 
+            html {
+                scroll-behavior: smooth;
+            }
+
             body {
                 background-color: var(--bg);
                 background-image: var(--noise-layer);
@@ -59,6 +66,13 @@ const cargo = "// Full-stack Developer";
             /* Garante que os elementos interativos mostrem o cursor padrão */
             a, button, .chat-link, .service-card, .work-card, h1, .theme-switch, .slider {
                 cursor: pointer !important;
+            }
+
+            .controls {
+                display: flex;
+                align-items: center;
+                gap: 1.5rem;
+                margin-left: 2rem;
             }
 
             section {
@@ -191,20 +205,54 @@ const cargo = "// Full-stack Developer";
                 .photo-sensor { width: 100% !important; max-width: 300px; height: 380px !important; }
                 .glow-astro-container, .glow-react-container,
                 body { cursor: auto; }
+                .controls { margin-left: 1rem; gap: 1rem; }
             }
         </style>
+        <script is:inline>
+            (function() {
+                // Detecta o idioma do navegador (ex: pt-BR, en-US)
+                const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
+    
+                // Verifica se o usuário já clicou manualmente em algum idioma nesta sessão
+                const manualSelection = sessionStorage.getItem('language_preference');
+
+                // Se o navegador for PT, não houver seleção manual e NÃO estivermos já na pasta /pt/
+                if (userLang.startsWith('pt') && !manualSelection && !window.location.pathname.includes('/pt')) {
+                    // Marcamos que o sistema tomou uma decisão automática
+                    sessionStorage.setItem('language_preference', 'auto-pt');
+                    window.location.href = '/pt/';
+                }
+            })();
+            (function() {
+        // 1. Bloqueia o "pulo" automático do navegador no F5
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        // 2. Força a página a começar sempre no topo ao carregar
+        window.scrollTo(0, 0);
+
+        // 3. Detecta o idioma do navegador
+        const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
+        const manualSelection = sessionStorage.getItem('language_preference');
+
+        // 4. Lógica de Redirecionamento
+        if (userLang.startsWith('pt') && !manualSelection && !window.location.pathname.includes('/pt')) {
+            sessionStorage.setItem('language_preference', 'auto-pt');
+            window.location.href = '/pt/';
+        }
+
+        // 5. Limpa o fragmento (#) da URL para manter o endereço limpo
+        if (window.location.hash) {
+            history.replaceState(null, null, window.location.pathname);
+        }
+    })();
+        </script>
     </head>
 
     <body>
-        <nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
-            <div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
-            <div style="display: flex; gap: 20px; align-items: center;">
-                <a href="#works" style="color: var(--secondary);">Home</a>
-                <a href="#services" style="color: var(--secondary);">Services</a>
-                <a href="#works" style="color: var(--secondary);">Works</a>
-                <ThemeToggle />
-            </div>
-        </nav>
+        
+        <MainNavbar />
 
         <main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
             <section class="hero-container">
@@ -276,16 +324,7 @@ const cargo = "// Full-stack Developer";
             </section>
         </main>
 
-        <footer style="margin-top: 100px; padding: 60px 2rem; border-top: 1px solid var(--card-border); text-align: center; background: #14171b">
-            <h2 style="font-size: 2rem; margin-bottom: 20px;">Ready to start a project?</h2>
-            <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 40px;">
-                <a href="#" class="chat-link">GITHUB</a>
-                <a href="#" class="chat-link">LINKEDIN</a>
-            </div>
-            <p style="color: var(--secondary); font-size: 0.9rem;">
-                © 2026 {nome} • Based in Brazil, looking for global opportunities.
-            </p>
-        </footer>
+        <Footer />
 
         <script>
             // Type casting corrigido para TypeScript do Astro

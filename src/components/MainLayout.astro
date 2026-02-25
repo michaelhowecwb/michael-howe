@@ -1,0 +1,85 @@
+---
+import MainNavbar from '@components/MainNavbar.astro';
+import Footer from '@components/Footer.astro';
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{title}</title>
+        <link rel="icon" type="image/png" href="/icons/favicon512.png?v=2" />
+        <link rel="apple-touch-icon" href="/icons/favicon512.png?v=2" />
+        <link rel="shortcut icon" href="/icons/favicon512.png?v=2" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" rel="stylesheet">
+        
+        <style is:global>
+            :root {
+                --bg: #0b0b0b;
+                --bg-rgb: 11, 11, 11;
+                --card-bg: #141414;
+                --text: #ffffff;
+                --cursor-text: #111111;
+                --text-rgb: 255, 255, 255;
+                --accent: #00ff9d;
+                --secondary: #a0a0a0;
+                --card-border: rgba(255, 255, 255, 0.05);
+                --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            }
+
+            [data-theme='light'] {
+                --bg: #f9f9f9;
+                --bg-rgb: 249, 249, 249;
+                --card-bg: #ffffff;
+                --text: #111111;
+                --cursor-text: #ffffff;
+                --text-rgb: 0, 0, 0;
+                --accent: #008f5d;
+                --secondary: #666666;
+                --card-border: rgba(0, 0, 0, 0.06);
+            }
+
+            html { scroll-behavior: smooth; }
+            body {
+                background-color: var(--bg);
+                color: var(--text);
+                font-family: 'Inter', sans-serif;
+                margin: 0;
+                overflow-x: hidden;
+            }
+            code { font-family: 'Fira Code', monospace; }
+            
+            /* Espaçamento para Navbar Fixa */
+            main { padding-top: 20px; } 
+            section { scroll-margin-top: 100px; }
+        </style>
+
+        <script is:inline>
+            (function() {
+                if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+                window.scrollTo(0, 0);
+
+                const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
+                const manualSelection = sessionStorage.getItem('language_preference');
+
+                if (userLang.startsWith('pt') && !manualSelection && !window.location.pathname.includes('/pt')) {
+                    sessionStorage.setItem('language_preference', 'auto-pt');
+                    window.location.href = '/pt/';
+                }
+                if (window.location.hash) { history.replaceState(null, null, window.location.pathname); }
+            })();
+        </script>
+    </head>
+
+    <body>
+        <MainNavbar />
+        <slot /> 
+        <Footer />
+    </body>
+</html>

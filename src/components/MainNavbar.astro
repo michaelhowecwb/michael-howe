@@ -8,17 +8,111 @@ const isPt = pathname.includes('/pt');
 const t = isPt ? ui.pt : ui.en;
 ---
 
-<nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
-    <div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
-    <div style="display: flex; gap: 20px; align-items: center;">
-        <a href="#home" style="color: var(--secondary);">Home</a>
-        <a href="#services" style="color: var(--secondary);">{t['nav.services']}</a>
-        <a href="#works" style="color: var(--secondary);">{t['nav.works']}</a>
-        <nav>
-            <div class="controls">
-                <LanguagePicker />
-                <ThemeToggle />
-            </div>
-        </nav>
+<nav class="mainNav">
+  <div class="navContainer">
+    <div class="brand">
+      <span class="navName">{nome}</span>
     </div>
+
+    <div class="navContent">
+      <div class="links">
+        <a href="#">Home</a>
+        <a href="#services">{t['nav.services']}</a>
+        <a href="#works">{t['nav.works']}</a>
+      </div>
+      
+      <div class="separator"></div>
+
+      <div class="controls">
+        <LanguagePicker />
+        <ThemeToggle />
+      </div>
+    </div>
+  </div>
 </nav>
+
+<style>
+
+                nav a,{ position: relative; text-decoration: none; }
+            nav a::after {
+                content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 50%;
+                background-color: var(--accent); transition: all 0.3s ease; transform: translateX(-50%);
+            }
+            nav a:hover::after { width: 100%; }
+            nav a:hover { color: var(--accent) !important; }
+            
+  .mainNav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 1000;
+    background: rgba(10, 10, 10, 0.8); /* Fundo levemente escuro para contraste */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+  }
+
+  .navContainer {
+    width: 100%;
+    max-width: 1300px; /* Um pouco maior para respirar melhor */
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between; /* ESQUERDA <---> DIREITA */
+    align-items: center;
+  }
+
+  .navName {
+    font-weight: 800;
+    font-size: 1.5rem;
+    white-space: nowrap;
+    color: #ffffff;
+  }
+
+.navContent {
+    display: flex;
+    align-items: center; /* ISSO alinha os links com o botão de Dark Side verticalmente */
+    gap: 2rem;
+  }
+
+.links a {
+    text-decoration: none;
+    color: var(--secondary); /* Devolve a cor que você usava antes */
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap; /* Impede que o texto quebre em duas linhas */
+    transition: filter 0.3s ease;
+    padding: 0 10px;
+  }
+
+  .links a:hover {
+    filter: brightness(1.3); /* Um efeito sutil de brilho no hover */
+  }
+
+  .links a:hover {
+    color: #ffffff;
+  }
+
+  .separator {
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+
+  /* Ajuste para Mobile */
+  @media (max-width: 768px) {
+    .links {
+      display: none; /* Esconde os links no mobile para não quebrar */
+    }
+  }
+</style>

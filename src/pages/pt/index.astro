@@ -1,6 +1,7 @@
 ---
 import { ui } from '@utils/i18n';
-const t = ui.pt;
+const t = ui.en;
+import MainLayout from '@components/MainLayout.astro';
 import WorkCard from '@components/WorkCard.astro';
 import MainNavbar from '@components/MainNavbar.astro';
 import Footer from '@components/Footer.astro';
@@ -8,6 +9,8 @@ import Footer from '@components/Footer.astro';
 const nome = "Michael Howe";
 const cargo = "// Full-stack Developer";
 ---
+
+<MainLayout title={`${nome} | Portfolio`}>
 
 <html lang="pt-br">
     <head>
@@ -19,44 +22,8 @@ const cargo = "// Full-stack Developer";
         <link rel="shortcut icon" href="/icons/favicon512.png?v=2" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" rel="stylesheet">
         
-        <style is:global>
-            :root {
-                --bg: #0b0b0b;
-                --bg-rgb: 11, 11, 11;
-                --card-bg: #141414;
-                --text: #ffffff;
-                --cursor-text: #111111;
-                --text-rgb: 255, 255, 255;
-                --accent: #00ff9d;
-                --secondary: #a0a0a0;
-                --card-border: rgba(255, 255, 255, 0.05);
-                --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            }
-
-            [data-theme='light'] {
-                --bg: #f9f9f9;
-                --bg-rgb: 249, 249, 249;
-                --card-bg: #ffffff;
-                --text: #111111;
-                --cursor-text: #ffffff;
-                --text-rgb: 0, 0, 0;
-                --accent: #008f5d;
-                --secondary: #666666;
-                --card-border: rgba(0, 0, 0, 0.06);
-            }
-
-            body {
-                background-color: var(--bg);
-                background-image: var(--noise-layer);
-                background-blend-mode: overlay;
-                color: var(--text);
-                font-family: 'Inter', sans-serif;
-                transition: all 0.3s ease;
-                margin: 0;
-                overflow-x: hidden;
-            }
-
-            code { font-family: 'Fira Code', monospace; }
+        <style>
+            
             html, body { margin: 0; padding: 0; }
             
             /* Garante que os elementos interativos mostrem o cursor padrão */
@@ -119,25 +86,6 @@ const cargo = "// Full-stack Developer";
                 transition: filter 0.3s ease;
             }
 
-            /* --- NAV & LINKS --- */
-            nav a, .chat-link { position: relative; text-decoration: none; }
-            nav a::after {
-                content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 50%;
-                background-color: var(--accent); transition: all 0.3s ease; transform: translateX(-50%);
-            }
-            nav a:hover::after { width: 100%; }
-            nav a:hover { color: var(--accent) !important; }
-
-            .chat-link {
-                display: inline-block; padding: 12px 24px;
-                border: 2px solid var(--accent); border-radius: 50px;
-                color: var(--accent); font-weight: bold; transition: all 0.3s ease;
-            }
-            .chat-link:hover {
-                background: var(--accent); color: #111;
-                box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
-            }
-
             /* --- FOTO E EFEITO MAGNÉTICO --- */
             .hero-container {
                 display: flex; align-items: center; min-height: 85vh; gap: 40px;
@@ -146,6 +94,15 @@ const cargo = "// Full-stack Developer";
 
             .visual-wrapper {
                 position: relative; flex: 1; display: flex; justify-content: center; align-items: center;
+            }
+            .letsChat{ position: relative; text-decoration: none;
+                display: inline-block; padding: 12px 24px;
+                text-decoration: none;
+                border: 2px solid var(--accent); border-radius: 50px;
+                color: var(--accent); font-weight: bold; transition: all 0.3s ease;}
+                .letsChat:hover {
+                background: var(--accent); color: #111;
+                box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
             }
 
             /* O SENSOR define a área onde o imã funciona */
@@ -204,11 +161,6 @@ const cargo = "// Full-stack Developer";
                 .controls { margin-left: 1rem; gap: 1rem; }
             }
         </style>
-    </head>
-
-    <body>
-        
-        <MainNavbar />
 
         <main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
             <section class="hero-container">
@@ -216,11 +168,11 @@ const cargo = "// Full-stack Developer";
                     <span style="color: var(--accent); font-family: 'Fira Code', monospace; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem;">
                         {cargo}
                     </span>
-                    <h1 class="main-header">{t['hero.title']}</h1>
+                    <h1 class="main-header">Talk is cheap.<br/>Show me the code</h1>
                     <p style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
-                        {t['hero.subtitle']}
+                        I design and code beautifully simple things, and I love what I do.
                     </p>
-                    <a class="chat-link" href="#contact" style="">LET'S CHAT!</a>
+                    <a class="letsChat" href="#contact" style="">LET'S CHAT!</a>
                 </div>
                 
                 <div class="visual-wrapper">
@@ -280,8 +232,6 @@ const cargo = "// Full-stack Developer";
             </section>
         </main>
 
-        <Footer />
-
         <script>
             // Type casting corrigido para TypeScript do Astro
             const photoEl = document.getElementById('profile-photo') as HTMLElement;
@@ -338,5 +288,4 @@ const cargo = "// Full-stack Developer";
             }
             animate();
         </script>
-    </body>
-</html>
+</MainLayout>
