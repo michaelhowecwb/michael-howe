@@ -45,36 +45,63 @@ const { title } = Astro.props;
                 --card-border: rgba(0, 0, 0, 0.06);
             }
 
-            html { scroll-behavior: smooth; }
+            html { scroll-behavior: smooth !important; }
             body {
                 background-color: var(--bg);
                 color: var(--text);
                 font-family: 'Inter', sans-serif;
                 margin: 0;
                 overflow-x: hidden;
+                scroll-behavior: smooth !important;
             }
             code { font-family: 'Fira Code', monospace; }
             
             /* Espaçamento para Navbar Fixa */
             main { padding-top: 20px; } 
-            section { scroll-margin-top: 100px; }
+            section { scroll-margin-top: 80px; }
         </style>
 
-        <script is:inline>
-            (function() {
-                if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
-                window.scrollTo(0, 0);
+<script is:inline>
+    (function() {
+        // --- PARTE 1: SISTEMA E IDIOMA ---
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+        
+        const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
+        const manualSelection = sessionStorage.getItem('language_preference');
 
-                const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
-                const manualSelection = sessionStorage.getItem('language_preference');
+        if (userLang.startsWith('pt') && !manualSelection && !window.location.pathname.includes('/pt')) {
+            sessionStorage.setItem('language_preference', 'auto-pt');
+            window.location.href = '/pt/';
+            return; // Para a execução se for redirecionar
+        }
 
-                if (userLang.startsWith('pt') && !manualSelection && !window.location.pathname.includes('/pt')) {
-                    sessionStorage.setItem('language_preference', 'auto-pt');
-                    window.location.href = '/pt/';
-                }
-                if (window.location.hash) { history.replaceState(null, null, window.location.pathname); }
-            })();
-        </script>
+        if (window.location.hash) { 
+            history.replaceState(null, null, window.location.pathname); 
+        }
+
+        // --- PARTE 2: SMOOTH SCROLL (FORÇA BRUTA) ---
+        document.addEventListener('click', function(e) {
+            // Procura por elementos que tenham o nosso atributo personalizado
+            const scrollLink = e.target.closest('[data-scroll-to]');
+            if (!scrollLink) return;
+
+            e.preventDefault();
+            const targetId = scrollLink.getAttribute('data-scroll-to');
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement) {
+                // Cálculo exato compensando a altura da sua Navbar (aprox 80px)
+                const navHeight = 80;
+                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
+
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    })();
+</script>
     </head>
 
     <body>

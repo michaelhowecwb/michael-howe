@@ -16,9 +16,9 @@ const t = isPt ? ui.pt : ui.en;
 
     <div class="navContent">
       <div class="links">
-        <a href="#">Home</a>
-        <a href="#services">{t['nav.services']}</a>
-        <a href="#works">{t['nav.works']}</a>
+        <a href="javascript:void(0)" data-scroll-to="home">Home</a>
+        <a href="javascript:void(0)" data-scroll-to="services">{t['nav.services']}</a>
+        <a href="javascript:void(0)" data-scroll-to="works">{t['nav.works']}</a>
       </div>
       
       <div class="separator"></div>
@@ -40,7 +40,7 @@ const t = isPt ? ui.pt : ui.en;
             }
             nav a:hover::after { width: 100%; }
             nav a:hover { color: var(--accent) !important; }
-            
+
   .mainNav {
     position: fixed;
     top: 0;
