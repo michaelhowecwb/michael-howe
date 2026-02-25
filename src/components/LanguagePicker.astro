@@ -1,0 +1,45 @@
+---
+// Detectamos a URL atual para saber qual idioma destacar
+const { pathname } = Astro.url;
+const isPt = pathname.includes('/pt');
+---
+
+<div class="language-picker">
+  <a href="/" class={!isPt ? "active" : ""}>EN</a>
+  <span>|</span>
+  <a href="/pt/" class={isPt ? "active" : ""}>PT</a>
+</div>
+
+<style>
+  .language-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-right: 1rem;
+  }
+
+  .language-picker a {
+    text-decoration: none;
+    color: var(--text);
+    opacity: 0.5;
+    transition: opacity 0.3s ease, color 0.3s ease;
+  }
+
+  .language-picker a:hover {
+    opacity: 1;
+  }
+
+  .language-picker a.active {
+    opacity: 1;
+    color: var(--accent); /* Usa a cor verde/neon do seu portfólio */
+  }
+
+  .language-picker span {
+    opacity: 0.3;
+    font-weight: 300;
+  }
+</style>

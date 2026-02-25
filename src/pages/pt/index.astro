@@ -1,6 +1,6 @@
 ---
-import { ui } from '../utils/i18n';
-const t = ui.en;
+import { ui } from '@utils/i18n';
+const t = ui.pt;
 import ThemeToggle from '@components/ThemeToggle.astro';
 import LanguagePicker from '@components/LanguagePicker.astro';
 import WorkCard from '@components/WorkCard.astro';
@@ -202,17 +202,17 @@ const cargo = "// Full-stack Developer";
             }
         </style>
         <script is:inline>
-  // Verifica se o usuário já tem uma preferência ou se é a primeira visita
-  const language = window.navigator.language.toLowerCase();
-  const isPortuguese = language.startsWith('pt');
-  const hasRedirected = sessionStorage.getItem('redirected');
+            // Verifica se o usuário já tem uma preferência ou se é a primeira visita
+            const language = window.navigator.language.toLowerCase();
+            const isPortuguese = language.startsWith('pt');
+            const hasRedirected = sessionStorage.getItem('redirected');
 
-  // Se for português e ainda não estiver na pasta /pt/
-  if (isPortuguese && !window.location.pathname.includes('/pt') && !hasRedirected) {
-    sessionStorage.setItem('redirected', 'true');
-    window.location.pathname = '/pt/';
-  }
-</script>
+            // Se for português e ainda não estiver na pasta /pt/
+            if (isPortuguese && !window.location.pathname.includes('/pt') && !hasRedirected) {
+                sessionStorage.setItem('redirected', 'true');
+                window.location.pathname = '/pt/';
+            }
+        </script>
     </head>
 
     <body>
@@ -237,9 +237,9 @@ const cargo = "// Full-stack Developer";
                     <span style="color: var(--accent); font-family: 'Fira Code', monospace; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem;">
                         {cargo}
                     </span>
-                    <h1 class="main-header">Talk is cheap.<br/>Show me the code</h1>
+                    <h1 class="main-header">{t['hero.title']}</h1>
                     <p style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
-                        I design and code beautifully simple things, and I love what I do.
+                        {t['hero.subtitle']}
                     </p>
                     <a class="chat-link" href="#contact" style="">LET'S CHAT!</a>
                 </div>

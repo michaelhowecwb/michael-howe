@@ -1,312 +1,347 @@
 ---
 import ThemeToggle from '../components/ThemeToggle.astro';
 import WorkCard from '../components/WorkCard.astro';
+
 const nome = "Michael Howe";
-const cargo = "Front-End Developer";
+const cargo = "// Full-stack Developer";
 ---
 
 <html lang="pt-br">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>{nome} | Portfolio</title>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" rel="stylesheet">
-		
-		<style is:global>
-:root {
-    --bg: #111111;
-    --card-bg: rgba(26, 26, 26, 0.6);
-    --text: #ffffff;
-    --accent: #00ff9d;
-    --secondary: #888888;
-    --card-border: rgba(255, 255, 255, 0.1);
-    --h1-gradient-start: rgba(255, 255, 255, 0.4); /* Luz no dark */
-}
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>{nome} | Portfolio</title>
+        <link rel="icon" type="image/png" href="/icons/favicon512.png?v=2" />
+        <link rel="apple-touch-icon" href="/icons/favicon512.png?v=2" />
+        <link rel="shortcut icon" href="/icons/favicon512.png?v=2" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" rel="stylesheet">
+        
+        <style is:global>
+            :root {
+                --bg: #0b0b0b;
+                --bg-rgb: 11, 11, 11;
+                --card-bg: #141414;
+                --text: #ffffff;
+                --cursor-text: #111111;
+                --text-rgb: 255, 255, 255;
+                --accent: #00ff9d;
+                --secondary: #a0a0a0;
+                --card-border: rgba(255, 255, 255, 0.05);
+                --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            }
 
-[data-theme='light'] {
-    --bg: #f8f9fa; /* Um branco levemente acinzentado é mais elegante */
-    --card-bg: rgba(255, 255, 255, 0.7);
-    --text: #1a1a1a;
-    --accent: #00a86b;
-    --secondary: #666666;
-    --card-border: rgba(0, 0, 0, 0.05);
-    --h1-gradient-start: rgba(0, 0, 0, 0.2); /* Sombra no light */
-}
+            [data-theme='light'] {
+                --bg: #f9f9f9;
+                --bg-rgb: 249, 249, 249;
+                --card-bg: #ffffff;
+                --text: #111111;
+                --cursor-text: #ffffff;
+                --text-rgb: 0, 0, 0;
+                --accent: #008f5d;
+                --secondary: #666666;
+                --card-border: rgba(0, 0, 0, 0.06);
+            }
 
-			body {
-				background-color: var(--bg);
-				color: var(--text);
-				font-family: 'Inter', sans-serif;
-				transition: all 0.3s ease;
-				margin: 0;
-			}
+            body {
+                background-color: var(--bg);
+                background-image: var(--noise-layer);
+                background-blend-mode: overlay;
+                color: var(--text);
+                font-family: 'Inter', sans-serif;
+                transition: all 0.3s ease;
+                margin: 0;
+                overflow-x: hidden;
+            }
 
-			code { font-family: 'Fira Code', monospace; }
+            code { font-family: 'Fira Code', monospace; }
+            html, body { margin: 0; padding: 0; }
+            
+            /* Garante que os elementos interativos mostrem o cursor padrão */
+            a, button, .chat-link, .service-card, .work-card, h1, .theme-switch, .slider {
+                cursor: pointer !important;
+            }
 
-			@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-    100% { transform: translateY(0px); }
-}
-@media (max-width: 768px) {
-    h1 { font-size: 2.5rem !important; }
-    section { flex-direction: column; text-align: center; gap: 20px; }
-    div[style*="width: 400px"] { width: 100% !important; max-width: 300px; height: 380px !important; }
-    .glow-astro-container, .glow-react-container { display: none; }
-}
-.reveal {
-    animation: fadeUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-    opacity: 0;
-}
+            section {
+                position: relative;
+                border-bottom: 1px solid var(--card-border);
+            }
 
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-nav a, .chat-link {
-    position: relative;
-    text-decoration: none;
-    transition: color 0.3s;
-}
+            /* --- ANIMAÇÕES GERAIS --- */
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-20px); }
+                100% { transform: translateY(0px); }
+            }
 
-nav a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -5px;
-    left: 50%;
-    background-color: var(--accent);
-    transition: all 0.3s ease-in-out;
-    transform: translateX(-50%);
-}
+            .reveal {
+                animation: fadeUp 1s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+                opacity: 0;
+            }
+            .reveal:nth-child(1) { animation-delay: 0.1s; }
+            .reveal:nth-child(2) { animation-delay: 0.3s; }
 
-nav a:hover::after {
-    width: 100%;
-}
+            @keyframes fadeUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
 
-nav a:hover {
-    color: var(--accent) !important;
-}
+            /* --- CARDS & HOVER --- */
+            .service-card {
+                background: var(--card-bg);
+                border: 1px solid var(--card-border);
+                box-shadow: -4px -4px 0px var(--accent);
+                /*box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.03);*/
+                transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                /*border-color: rgba(0, 255, 157, 0.4);*/
+            }
 
-.glow-astro-container {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    filter: drop-shadow(0 0 15px rgba(188, 82, 238, 0.9));
-    animation: float 4s ease-in-out infinite;
-    z-index: 10;
-}
+            .service-card:hover {
+                transform: translate(4px, 4px);
+                box-shadow: 4px 4px 0px var(--accent);
+                border-color: var(--accent);
+            }
 
-.astro-icon-mask {
-    width: 100%;
-    height: 100%;
-    background-color: #BC52EE;
-    
-    -webkit-mask: url('/icons/astro.svg') no-repeat center;
-    mask: url('/icons/astro.svg') no-repeat center;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-}
-.glow-react-container {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    filter: drop-shadow(0 0 15px rgba(97, 218, 251, 0.9));
-    animation: float 4s ease-in-out infinite;
-    z-index: 10;
-}
+            /* --- HEADER GRADIENT --- */
+            h1.main-header {
+                font-size: 4.5rem; line-height: 1.1;
+                background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), var(--accent), var(--text) 80%);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                transition: filter 0.3s ease;
+            }
 
-.react-icon-mask {
-    width: 100%;
-    height: 100%;
-    background-color: #61DAFB;
-    
-    -webkit-mask: url('/icons/react.svg') no-repeat center;
-    mask: url('/icons/react.svg') no-repeat center;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-}
-.service-card, .project-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--card-border);
-    box-shadow: 8px 8px 0px var(--accent); /* Usa o verde correto de cada tema */
-    transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-}
+            /* --- NAV & LINKS --- */
+            nav a, .chat-link { position: relative; text-decoration: none; }
+            nav a::after {
+                content: ''; position: absolute; width: 0; height: 2px; bottom: -5px; left: 50%;
+                background-color: var(--accent); transition: all 0.3s ease; transform: translateX(-50%);
+            }
+            nav a:hover::after { width: 100%; }
+            nav a:hover { color: var(--accent) !important; }
 
-.service-card:hover, .project-card:hover {
-    transform: translate(4px, 4px); /* Movimento leve */
-    box-shadow: -4px -4px 0px var(--accent);
-}
-h1 {
-    font-size: 4.5rem;
-    line-height: 1.1;
-    /* Cursor de link para indicar interatividade */
-    cursor: pointer;
-    
-    /* Radial gradient ajustado para ser mais suave */
-background: radial-gradient(
-        circle 100px at var(--x, 50%) var(--y, 50%), 
-        var(--accent) -50%, 
-        var(--text) 50%, /* Segue a cor do texto do tema */
-        var(--h1-gradient-start) 100%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: background 0.1s ease-out, filter 0.3s ease;
-}
-h1.reveal:hover {
-    filter: drop-shadow(0 0 10px rgba(0, 255, 157, 0.2));
-}
-.chat-link {
-    display: inline-block;
-    padding: 12px 24px;
-    border: 1px solid var(--accent);
-    border-radius: 50px;
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    font-size: 0.8rem;
-    transition: all 0.3s ease;
-}
+            .chat-link {
+                display: inline-block; padding: 12px 24px;
+                border: 2px solid var(--accent); border-radius: 50px;
+                color: var(--accent); font-weight: bold; transition: all 0.3s ease;
+            }
+            .chat-link:hover {
+                background: var(--accent); color: #111;
+                box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+            }
 
-.chat-link:hover {
-    background: var(--accent);
-    color: #111;
-    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
-}
-@keyframes reveal {
-    0% { transform: translateY(30px); opacity: 0; }
-    100% { transform: translateY(0); opacity: 1; }
-}
+            /* --- FOTO E EFEITO MAGNÉTICO --- */
+            .hero-container {
+                display: flex; align-items: center; min-height: 85vh; gap: 40px;
+                max-width: 1200px; margin: 0 auto; padding: 0 2rem;
+            }
 
-		</style>
-	</head>
-	<link rel="icon" type="image/png" href="/favicon.png" />
-<div class="noise-overlay"></div>
+            .visual-wrapper {
+                position: relative; flex: 1; display: flex; justify-content: center; align-items: center;
+            }
 
-<style>
-  .noise-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.04;
-    pointer-events: none;
-    z-index: 9999;
-  }
-</style>
-	<body>
-		<nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
-			<div style="font-weight: bold; font-size: 1.2rem;">{nome}</div>
-			<div style="display: flex; gap: 20px; align-items: center;">
-				<a href="#services" style="color: var(--secondary); text-decoration: none;">Services</a>
-				<a href="#works" style="color: var(--secondary); text-decoration: none;">Works</a>
-    <ThemeToggle />
-			</div>
-		</nav>
+            /* O SENSOR define a área onde o imã funciona */
+            .photo-sensor {
+                position: relative;
+                width: 380px; height: 480px;
+                z-index: 50;
+            }
 
-		<main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-			<section style="display: flex; align-items: center; min-height: 80vh; gap: 50px;">
-				<div style="flex: 1;">
-					<span style="color: var(--accent); font-family: code; border: 1px solid var(--accent); padding: 5px 10px; border-radius: 5px;">
-						{cargo}
-					</span>
-					<h1 class="reveal" style="font-size: 4rem; margin: 20px 0;">Talk is cheap.<br/>Show me the code</h1>
-					<p class="reveal" style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
-						I design and code beautifully simple things, and I love what I do.
-					</p>
-					<a href="#contact" class="chat-link">LET'S CHAT!</a>
-				</div>
-				<div style="flex: 1; text-align: right;">
-					<div style="position: relative;">
-    <div class="glow-astro-container" style="top: -20px; left: -20px; animation-delay: 0s;">
-    <div class="astro-icon-mask"></div>
-</div>
-    <div class="glow-react-container" style="bottom: 50px; right: -30px; animation-delay: -2s;"> <div class="react-icon-mask"></div>
-</div>
-    
-    <div style="position: relative; padding: 20px;">
-    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 110%; height: 110%; background: radial-gradient(circle, rgba(0,255,157,0.05) 0%, transparent 70%); z-index: 0;"></div>
-    
-    <div class="reveal" style="width: 400px; height: 500px; margin: auto; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); position: relative; z-index: 1; backdrop-filter: blur(10px);">
-         <img src="/minha-foto.jpg" alt="Michael Howe" style="width: 100%; height: 100%; object-fit: cover;" />
-    </div>
-</div>
-</div>
-				</div>
-			</section>
+            /* A FOTO que se move */
+            #profile-photo {
+                position: absolute;
+                top: 0; left: 0; width: 100%; height: 100%;
+                will-change: transform;
+                pointer-events: none; /* Mouse passa através dela para o sensor */
+                transition: transform 0.1s ease-out; /* Suaviza a volta */
+            }
 
-			<section id="services" style="padding: 100px 0px;">
-				<div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 100px;">
-					<div style="display: flex; flex-direction: column; gap: 40px;">
-						<div class="service-card" style="padding: 40px; border-radius: 15px;">
-							<h3 style="color: var(--accent);">Design</h3>
-							<p style="color: var(--secondary);">Create digital products with unique ideas.</p>
-						</div>
-						<div class="service-card" style="padding: 40px; border-radius: 15px;">
-							<h3 style="color: var(--accent);">Development</h3>
-							<p style="color: var(--secondary);">High performance coding for the web.</p>
-						</div>
-					</div>
-					<div>
-						<h2 style="font-size: 2.5rem;">Hello! I'm Michael.</h2>
-						<p style="font-style: italic; font-size: 1.5rem;">Every great design begins with an even better story.</p>
-						<p style="color: var(--secondary);">Sendo de ascendência europeia e focado no mercado global, trago uma visão técnica e minimalista para cada projeto.</p>
-					</div>
-				</div>
-			</section>
-			
-<section id="works" style="padding: 100px 0;">
-    <h2 style="font-size: 2.5rem; margin-bottom: 40px;">Selected Works</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-        <WorkCard 
-            title="E-commerce Global" 
-            description="Plataforma de vendas focada no mercado europeu." 
-            tags={["Astro", "React", "Stripe"]}
-            link="#"
-        />
-        <WorkCard 
-            title="Dashboard Design" 
-            description="Interface administrativa minimalista." 
-            tags={["Figma", "UI/UX"]}
-            link="#"
-        />
-    </div>
-</section>
-		</main>
+            #profile-photo img {
+                width: 100%; height: 100%;
+                /*border-radius: 20px;*/
+                object-fit: cover;
+                /*box-shadow: 0 20px 50px rgba(0,0,0,0.5);*/
+            }
 
-		<script>
-const title = document.querySelector('h1.reveal');
+            /* ÍCONES FLUTUANTES */
+            .floating-icon {
+                position: absolute; width: 55px; height: 55px; z-index: 60;
+                pointer-events: none;
+                animation: float 4s ease-in-out infinite;
+            }
 
-window.addEventListener('mousemove', (e) => {
-    if (!title) return;
+            @keyframes float {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-15px); }
+            }
 
-    const rect = title.getBoundingClientRect();
-    
-    // Calcula a posição do mouse relativa ao elemento H1
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+            .astro-mask {
+                width: 100%; height: 100%; background: #BC52EE;
+                -webkit-mask: url('/icons/astro.svg') no-repeat center / contain;
+                mask: url('/icons/astro.svg') no-repeat center / contain;
+                filter: drop-shadow(0 0 12px rgba(188, 82, 238, 0.8));
+            }
+            .react-mask {
+                width: 100%; height: 100%; background: #61DAFB;
+                -webkit-mask: url('/icons/react.svg') no-repeat center / contain;
+                mask: url('/icons/react.svg') no-repeat center / contain;
+                filter: drop-shadow(0 0 12px rgba(97, 218, 251, 0.8));
+            }
+            @media (max-width: 768px) {
+                h1.main-header { font-size: 2.5rem; }
+                section { flex-direction: column; text-align: center; gap: 20px; }
+                .photo-sensor { width: 100% !important; max-width: 300px; height: 380px !important; }
+                .glow-astro-container, .glow-react-container,
+                body { cursor: auto; }
+            }
+        </style>
+    </head>
 
-    // Converte para porcentagem em relação ao tamanho do H1
-    const xPercent = (x / rect.width) * 100;
-    const yPercent = (y / rect.height) * 100;
+    <body>
+        <nav style="display: flex; justify-content: space-between; padding: 2rem; max-width: 1200px; margin: 0 auto;">
+            <div style="font-weight: bold; font-size: 1.4rem;">{nome}</div>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <a href="#works" style="color: var(--secondary);">Home</a>
+                <a href="#services" style="color: var(--secondary);">Services</a>
+                <a href="#works" style="color: var(--secondary);">Works</a>
+                <ThemeToggle />
+            </div>
+        </nav>
 
-    // Atualiza as variáveis CSS
-    title.style.setProperty('--x', `${xPercent}%`);
-    title.style.setProperty('--y', `${yPercent}%`);
-});
-		</script>
-	</body>
+        <main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+            <section class="hero-container">
+                <div style="flex: 1.2;">
+                    <span style="color: var(--accent); font-family: 'Fira Code', monospace; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem;">
+                        {cargo}
+                    </span>
+                    <h1 class="main-header">Talk is cheap.<br/>Show me the code</h1>
+                    <p style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
+                        I design and code beautifully simple things, and I love what I do.
+                    </p>
+                    <a class="chat-link" href="#contact" style="">LET'S CHAT!</a>
+                </div>
+                
+                <div class="visual-wrapper">
+                    <div class="floating-icon" style="top: -20px; left: 0;">
+                        <div class="astro-mask"></div>
+                    </div>
+                    <div class="floating-icon" style="bottom: 20px; right: 0; animation-delay: -2s;">
+                         <div class="react-mask"></div>
+                    </div>
+
+                    <div class="photo-sensor">
+                        <div id="profile-photo">
+                             <img src="/minha-foto3.png" alt={nome} />
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+            <section id="services" style="padding: 100px 0; width: 100%; background: #171717">
+                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 100px; max-width: 1200px; margin: 0 auto;">
+                    <div style="display: flex; flex-direction: column; gap: 40px;">
+                        <div class="service-card" style="padding: 40px; border-radius: 15px;">
+                            <h3 style="color: var(--accent);">Design</h3>
+                            <p style="color: var(--secondary);">Create digital products with unique ideas.</p>
+                        </div>
+                        <div class="service-card" style="padding: 40px; border-radius: 15px;">
+                            <h3 style="color: var(--accent);">Development</h3>
+                            <p style="color: var(--secondary);">High performance coding for the web.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 2.5rem;">Hello! I'm Michael.</h2>
+                        <p style="font-style: italic; font-size: 1.5rem;">Every great design begins with an even better story.</p>
+                        <p style="color: var(--secondary);">Sendo de ascendência europeia e focado no mercado global, trago uma visão técnica e minimalista para cada projeto.</p>
+                    </div>
+                </div>
+            </section>
+
+        <main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+            <section id="works" style="padding: 100px 0;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 40px;">Selected Works</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                    <WorkCard 
+                        title="E-commerce Global" 
+                        description="Plataforma de vendas focada no mercado europeu." 
+                        tags={["Astro", "React", "Stripe"]} 
+                        link="#" 
+                    />
+                    <WorkCard 
+                        title="Dashboard Design" 
+                        description="Interface administrativa minimalista." 
+                        tags={["Figma", "UI/UX"]} 
+                        link="#" 
+                    />
+                </div>
+            </section>
+        </main>
+
+        <footer style="margin-top: 100px; padding: 60px 2rem; border-top: 1px solid var(--card-border); text-align: center; background: #14171b">
+            <h2 style="font-size: 2rem; margin-bottom: 20px;">Ready to start a project?</h2>
+            <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 40px;">
+                <a href="#" class="chat-link">GITHUB</a>
+                <a href="#" class="chat-link">LINKEDIN</a>
+            </div>
+            <p style="color: var(--secondary); font-size: 0.9rem;">
+                © 2026 {nome} • Based in Brazil, looking for global opportunities.
+            </p>
+        </footer>
+
+        <script>
+            // Type casting corrigido para TypeScript do Astro
+            const photoEl = document.getElementById('profile-photo') as HTMLElement;
+            const sensor = document.querySelector('.photo-sensor') as HTMLElement;
+            const title = document.querySelector('h1.main-header') as HTMLElement;
+
+            let mouseX = 0, mouseY = 0;
+            let targetX = 0, targetY = 0;
+            let currentX = 0, currentY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                if (title) {
+                    const rect = title.getBoundingClientRect();
+                    const x = ((mouseX - rect.left) / rect.width) * 100;
+                    const y = ((mouseY - rect.top) / rect.height) * 100;
+                    title.style.setProperty('--x', `${x}%`);
+                    title.style.setProperty('--y', `${y}%`);
+                }
+
+                if (sensor) {
+                    const rect = sensor.getBoundingClientRect();
+                    const isInside = (
+                        mouseX >= rect.left && 
+                        mouseX <= rect.right && 
+                        mouseY >= rect.top && 
+                        mouseY <= rect.bottom
+                    );
+                    
+                    if (isInside) {
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+                        targetX = (mouseX - centerX) / 6; 
+                        targetY = (mouseY - centerY) / 6;
+                    } else {
+                        targetX = 0; 
+                        targetY = 0;
+                    }
+                }
+            });
+
+            function animate() {
+                // Suavização (Lerp)
+                currentX += (targetX - currentX) * 0.1;
+                currentY += (targetY - currentY) * 0.1;
+
+                if (photoEl) {
+                    photoEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(${targetX !== 0 ? 1.05 : 1})`;
+                }
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        </script>
+    </body>
 </html>
