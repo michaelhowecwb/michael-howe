@@ -45,59 +45,134 @@ const { title } = Astro.props;
                 --card-border: rgba(0, 0, 0, 0.06);
             }
 
-            html { scroll-behavior: smooth !important; }
-            body {
-                background-color: var(--bg);
-                color: var(--text);
-                font-family: 'Inter', sans-serif;
-                margin: 0;
-                overflow-x: hidden;
-                scroll-behavior: smooth !important;
-            }
+            html {
+        scroll-behavior: auto !important;
+    }
+body {
+background-color: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        /* Garante que o scroll aconteça no nível da janela */
+        overflow-x: hidden;
+        overflow-y: auto;
+        min-height: 100vh;
+        scroll-behavior: auto !important;
+    }
+
             code { font-family: 'Fira Code', monospace; }
-            
+            .nav-link {
+    transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--secondary); /* Cor padrão (cinza) */
+    text-decoration: none;
+}
+
+.nav-link.active {
+    color: var(--accent) !important; /* Cor verde de destaque */
+    font-weight: bold;
+}
             /* Espaçamento para Navbar Fixa */
             main { padding-top: 20px; } 
-            section { scroll-margin-top: 80px; }
+            section { scroll-margin-top: 100px; }
+            .back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: var(--accent);
+        color: #111;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        opacity: 0;
+        visibility: hidden;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3);
+    }
+
+    .back-to-top.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .back-to-top:hover {
+        transform: translateY(-5px);
+        background: #fff;
+    }
+
+            @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
         </style>
 
 <script is:inline>
     (function() {
-        // --- PARTE 1: SISTEMA E IDIOMA ---
-        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+        // --- 1. CONFIGURAÇÕES DE SISTEMA E IDIOMA ---
+        if ('scrollRestoration' in history) { 
+            history.scrollRestoration = 'manual'; 
+        }
         
         const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
         const manualSelection = sessionStorage.getItem('language_preference');
 
+        // Redirecionamento automático para PT
         if (userLang.startsWith('pt') && !manualSelection && !window.location.pathname.includes('/pt')) {
             sessionStorage.setItem('language_preference', 'auto-pt');
             window.location.href = '/pt/';
-            return; // Para a execução se for redirecionar
+            return; // Interrompe para carregar a nova página
         }
 
+        // Limpa o hash (#) da URL para evitar o pulo nativo no refresh
         if (window.location.hash) { 
             history.replaceState(null, null, window.location.pathname); 
         }
 
-        // --- PARTE 2: SMOOTH SCROLL (FORÇA BRUTA) ---
+        // --- 2. FORÇAR SCROLL SUAVE (Ignora travas do Windows) ---
         document.addEventListener('click', function(e) {
-            // Procura por elementos que tenham o nosso atributo personalizado
-            const scrollLink = e.target.closest('[data-scroll-to]');
-            if (!scrollLink) return;
+            // Busca se o clique foi em um link de âncora (#)
+            const link = e.target.closest('a[href^="#"]');
+            if (!link) return;
 
-            e.preventDefault();
-            const targetId = scrollLink.getAttribute('data-scroll-to');
-            const targetElement = document.getElementById(targetId);
+            const targetId = link.getAttribute('href');
+            if (targetId === '#' || !targetId.startsWith('#')) return;
 
+            const targetElement = document.querySelector(targetId);
             if (targetElement) {
-                // Cálculo exato compensando a altura da sua Navbar (aprox 80px)
-                const navHeight = 80;
-                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
+                e.preventDefault(); // Bloqueia o pulo instantâneo do navegador
 
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
+                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - 80; // 80px de margem da Navbar
+                const startPosition = window.pageYOffset;
+                const distance = targetPosition - startPosition;
+                const duration = 800; // Duração da animação em milissegundos
+                let start = null;
+
+                // Função de animação frame-a-frame
+                function animation(timestamp) {
+                    if (!start) start = timestamp;
+                    const progress = timestamp - start;
+                    const percentage = Math.min(progress / duration, 1);
+                    
+                    // Easing: easeInOutQuad (começa devagar, acelera, termina devagar)
+                    const easing = percentage < 0.5 
+                        ? 2 * percentage * percentage 
+                        : -1 + (4 - 2 * percentage) * percentage;
+
+                    window.scrollTo(0, startPosition + distance * easing);
+
+                    if (progress < duration) {
+                        window.requestAnimationFrame(animation);
+                    }
+                }
+
+                window.requestAnimationFrame(animation);
             }
         });
     })();
@@ -108,5 +183,111 @@ const { title } = Astro.props;
         <MainNavbar />
         <slot /> 
         <Footer />
+
+        <button id="back-to-top" aria-label="Voltar ao topo" class="back-to-top">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m18 15-6-6-6 6"/>
+            </svg>
+        </button>
+
+
+        <script is:inline>
+    (function() {
+        // 1. Elementos principais
+        const btn = document.getElementById('back-to-top');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section[id], header[id], #home');
+
+        if (!btn) return;
+
+        // 2. Função de Scroll Suave Reutilizável
+        function smoothScrollTo(targetPos) {
+            const startPosition = window.pageYOffset;
+            const distance = targetPos - startPosition;
+            const duration = 800;
+            let start = null;
+
+            function animation(timestamp) {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                const percentage = Math.min(progress / duration, 1);
+                const easing = percentage < 0.5 ? 2 * percentage * percentage : -1 + (4 - 2 * percentage) * percentage;
+                window.scrollTo(0, startPosition + distance * easing);
+                if (progress < duration) window.requestAnimationFrame(animation);
+            }
+            window.requestAnimationFrame(animation);
+        }
+
+        // 3. Scroll Spy (Intersection Observer)
+        const observerOptions = {
+            root: null,
+            rootMargin: '-25% 0px -65% 0px', // Ajustado para captar melhor o meio da tela
+            threshold: 0.1
+        };
+
+const observerCallback = (entries) => {
+    entries.forEach(entry => {
+        // Se a seção está visível
+        if (entry.isIntersecting) {
+            const id = entry.target.getAttribute('id');
+            
+            navLinks.forEach(link => {
+                // Remove o active de todos
+                link.classList.remove('active');
+                
+                // Se o link termina com #home, #services, etc.
+                if (link.getAttribute('href').endsWith('#' + id)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+    });
+
+    // Lógica extra: Se estivermos no topo absoluto da página (Y = 0), 
+    // força o "Home" a ficar verde mesmo que o observer hesite.
+    if (window.pageYOffset < 50) {
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').endsWith('#home')) {
+                link.classList.add('active');
+            }
+        });
+    }
+};
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        sections.forEach(section => observer.observe(section));
+
+        // 4. Lógica de mostrar/esconder botão de topo ao rolar
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        });
+
+        // 5. Clique no Botão de Topo
+        btn.addEventListener('click', () => smoothScrollTo(0));
+
+        // 6. Clique nos Links da Navbar (Interceptação)
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href*="#"]');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            const targetId = href.split('#')[1];
+            if (!targetId) return;
+
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                e.preventDefault();
+                const targetPos = targetElement.getBoundingClientRect().top + window.pageYOffset - 80;
+                smoothScrollTo(targetPos);
+            }
+        });
+    })();
+</script>
+
     </body>
 </html>
