@@ -11,6 +11,15 @@ const { title } = Astro.props;
 <!DOCTYPE html>
 <html lang="pt-br">
     <head>
+        <script is:inline>
+  const theme = (() => {
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+      return localStorage.getItem('theme');
+    }
+    return 'dark';
+  })();
+  document.documentElement.setAttribute('data-theme', theme);
+</script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <title>{title}</title>
@@ -23,6 +32,8 @@ const { title } = Astro.props;
             :root {
                 --bg: #0b0b0b;
                 --bg-rgb: 11, 11, 11;
+                --mainnav-bg: #14171b;
+                --mainnav-bg-rgb: rgb(20, 23, 27);
                 --card-bg: #141414;
                 --text: #ffffff;
                 --dark-text: #111111;
@@ -38,12 +49,14 @@ const { title } = Astro.props;
                 --btt-border: #00ff9d;
                 --links: #00ff9d;
                 --links-text: #111111;
-                --dropshadow-rgb: rgba(0, 255, 157, 0.4);
+                --dropshadow-rgb: rgba(0, 255, 157, 0.2);
             }
             
             [data-theme='light'] {
                 --bg: #e3e7ec;
-                --bg-rgb: 249, 249, 249;
+                --bg-rgb: 227, 231, 236;
+                --mainnav-bg: #d7dbe0;
+                --mainnav-bg-rgb: rgb(215, 219, 224);
                 --card-bg: #ffffff;
                 --text: #1e293b;
                 --light-text: #ffffff;
@@ -59,27 +72,8 @@ const { title } = Astro.props;
                 --btt-border: #111111;
                 --links: #111111;
                 --links-text: #ffffff;
-                --dropshadow-rgb: rgba(120, 131, 255, 0.6);
+                --dropshadow-rgb: rgba(120, 131, 255, 0.2);
             }
-
-            /*[data-theme='light'] {
-                --bg: #eeeff1;
-                --bg-rgb: 249, 249, 249;
-                --card-bg: #f5f5f5;
-                --text: #111111;
-                --cursor-text: #ffffff;
-                --text-rgb: 0, 0, 0;
-                --accent: #059669;
-                --secondary: #666666;
-                --card-border: rgba(0, 0, 0, 0.06);
-                --section-alt: #e3e4e6;
-                --footer-bg: #e6e9ec;
-                --btt-bg: #eeeff1;
-                --btt-icon: #111111;
-                --btt-border: #111111;
-                --links: #111111;
-                --links-text: #00ff9d;
-            }*/
 
             html {
         scroll-behavior: auto !important;
@@ -143,7 +137,7 @@ background-color: var(--bg);
         transform: translateY(-5px);
         background: var(--accent);
         color: var(--links-text);
-        border: var(--accent);
+        border-color: var(--accent);
         box-shadow: 0 4px 15px var(--dropshadow-rgb);
     }
 
@@ -287,14 +281,11 @@ const observerCallback = (entries) => {
 
     // Lógica extra: Se estivermos no topo absoluto da página (Y = 0), 
     // força o "Home" a ficar verde mesmo que o observer hesite.
-    if (window.pageYOffset < 50) {
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href').endsWith('#home')) {
-                link.classList.add('active');
-            }
-        });
-    }
+    if (window.scrollY < 50) { // scrollY é mais moderno que pageYOffset
+    navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href').endsWith('#home'));
+    });
+}
 };
 
         const observer = new IntersectionObserver(observerCallback, observerOptions);

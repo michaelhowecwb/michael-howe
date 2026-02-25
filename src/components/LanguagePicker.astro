@@ -1,13 +1,35 @@
 ---
-// Detectamos a URL atual para saber qual idioma destacar
-const { pathname } = Astro.url;
+import { ui } from '@utils/i18n';
+const { pathname, hash } = Astro.url;
+
+// 1. Detectamos se estamos na rota de português
 const isPt = pathname.includes('/pt');
+
+// 2. Criamos os links dinamicamente
+// Se o usuário clicar em EN, ele vai para a raiz + a seção (ex: /#works)
+// Se clicar em PT, ele vai para /pt/ + a seção (ex: /pt/#works)
+const enLink = isPt ? `/${hash}` : `#home`;
+const ptLink = isPt ? `#home` : `/pt/${hash}`;
 ---
 
-<div class="language-picker">
-  <a href="/" class={!isPt ? "active" : ""}>EN</a>
-  <span>|</span>
-  <a href="/pt/" class={isPt ? "active" : ""}>PT</a>
+<div class="language-picker" aria-label={isPt ? "Selecionar idioma" : "Select language"}>
+  <a 
+    href={enLink} 
+    class={!isPt ? "active" : ""} 
+    aria-current={!isPt ? "page" : undefined}
+  >
+    EN
+  </a>
+
+  <span class="separator" aria-hidden="true">|</span>
+
+  <a 
+    href={ptLink} 
+    class={isPt ? "active" : ""}
+    aria-current={isPt ? "page" : undefined}
+  >
+    PT
+  </a>
 </div>
 
 <style>
@@ -17,29 +39,30 @@ const isPt = pathname.includes('/pt');
     gap: 0.5rem;
     font-family: 'Inter', sans-serif;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--text);
-    margin-right: 1rem;
   }
 
   .language-picker a {
     text-decoration: none;
     color: var(--text);
-    opacity: 0.5;
-    transition: opacity 0.3s ease, color 0.3s ease;
+    opacity: 0.4;
+    transition: all 0.3s ease;
   }
 
   .language-picker a:hover {
     opacity: 1;
+    color: var(--accent);
   }
 
   .language-picker a.active {
     opacity: 1;
-    color: var(--accent); /* Usa a cor verde/neon do seu portfólio */
+    color: var(--accent);
+    cursor: default;
   }
 
-  .language-picker span {
-    opacity: 0.3;
+  .separator {
+    opacity: 0.2;
     font-weight: 300;
   }
 </style>

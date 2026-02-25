@@ -16,29 +16,26 @@ const nome = "Michael Howe";
     </div>
     
     <p class="footer-copy">
-        © 2026 {nome} • Based in Brazil, looking for global opportunities.
+        © {new Date().getFullYear()} {nome} • Based in Brazil, looking for global opportunities.
     </p>
   </div>
 </footer>
 
 <style>
-  /* 1. O STRIPE (Fundo 100%) */
+
   .footer-stripe {
-    width: 100%;
-    margin-top: 100px;
-    /* Usando a cor de seção alternativa para Dark/Light */
-    background-color: var(--footer-bg); 
-    border-top: 1px solid var(--card-border);
-    padding: 80px 0;
-    transition: background-color 0.3s ease;
-    
-    /* Garante que ele ignore qualquer padding lateral do elemento pai */
+    width: 100vw;
     position: relative;
     left: 50%;
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
-    width: 100vw;
+    
+    margin-top: 100px;
+    background-color: var(--footer-bg); 
+    border-top: 1px solid var(--card-border);
+    padding: 80px 0;
+    transition: background-color 0.3s ease;
   }
 
   /* 2. O CONTAINER (Conteúdo Centralizado) */
@@ -49,10 +46,19 @@ const nome = "Michael Howe";
     text-align: center;
   }
 
-  .footer-title {
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+  }
+
+.footer-title {
     font-size: 2.5rem;
+    font-weight: 800; /* Um pouco mais de peso para o mercado europeu */
     margin-bottom: 30px;
     color: var(--text);
+    letter-spacing: -1px;
   }
 
   .footer-links {
@@ -62,33 +68,39 @@ const nome = "Michael Howe";
     margin-bottom: 50px;
   }
 
-  .footer-copy {
+.footer-copy {
     color: var(--secondary);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    opacity: 0.8;
   }
 
-  /* 3. BOTÕES (GITHUB / LINKEDIN) */
-  .chat-link {
+.chat-link {
     text-decoration: none;
     display: inline-block;
-    padding: 12px 30px;
+    padding: 12px 35px;
     border: 2px solid var(--accent);
     border-radius: 50px;
     color: var(--accent);
-    font-weight: bold;
-    transition: all 0.3s ease;
+    font-weight: 700;
+    font-family: 'Fira Code', monospace; /* Mantém a estética tech */
+    font-size: 0.9rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .chat-link:hover {
+.chat-link:hover {
     background: var(--accent);
-    color: var(--links-text); /* Cor escura fixa no hover para contraste com o verde */
-    box-shadow: 0 0 20px var(--dropshadow-rgb);
-    transform: translateY(-3px);
+    color: var(--links-text);
+    box-shadow: 0 10px 25px var(--dropshadow-rgb);
+    transform: translateY(-5px);
   }
 
-  /* Responsividade */
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
     .footer-title { font-size: 1.8rem; }
-    .footer-links { flex-direction: column; align-items: center; gap: 15px; }
+    .footer-links { 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 15px; 
+    }
+    .chat-link { width: 100%; max-width: 250px; }
   }
 </style>
