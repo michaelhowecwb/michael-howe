@@ -201,18 +201,6 @@ const cargo = "// Full-stack Developer";
                 body { cursor: auto; }
             }
         </style>
-        <script is:inline>
-            // Verifica se o usuário já tem uma preferência ou se é a primeira visita
-            const language = window.navigator.language.toLowerCase();
-            const isPortuguese = language.startsWith('pt');
-            const hasRedirected = sessionStorage.getItem('redirected');
-
-            // Se for português e ainda não estiver na pasta /pt/
-            if (isPortuguese && !window.location.pathname.includes('/pt') && !hasRedirected) {
-                sessionStorage.setItem('redirected', 'true');
-                window.location.pathname = '/pt/';
-            }
-        </script>
     </head>
 
     <body>

@@ -202,17 +202,21 @@ const cargo = "// Full-stack Developer";
             }
         </style>
         <script is:inline>
-  // Verifica se o usuário já tem uma preferência ou se é a primeira visita
-  const language = window.navigator.language.toLowerCase();
-  const isPortuguese = language.startsWith('pt');
-  const hasRedirected = sessionStorage.getItem('redirected');
+            (function() {
+                // Detecta o idioma do navegador (ex: pt-BR, en-US)
+                const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
+    
+                // Verifica se o usuário já clicou manualmente em algum idioma nesta sessão
+                const manualSelection = sessionStorage.getItem('language_preference');
 
-  // Se for português e ainda não estiver na pasta /pt/
-  if (isPortuguese && !window.location.pathname.includes('/pt') && !hasRedirected) {
-    sessionStorage.setItem('redirected', 'true');
-    window.location.pathname = '/pt/';
-  }
-</script>
+                // Se o navegador for PT, não houver seleção manual e NÃO estivermos já na pasta /pt/
+                if (userLang.startsWith('pt') && !manualSelection && !window.location.pathname.includes('/pt')) {
+                    // Marcamos que o sistema tomou uma decisão automática
+                    sessionStorage.setItem('language_preference', 'auto-pt');
+                    window.location.href = '/pt/';
+                }
+            })();
+        </script>
     </head>
 
     <body>
