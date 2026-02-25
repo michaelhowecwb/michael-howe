@@ -6,27 +6,89 @@ const t = isPt ? ui.pt : ui.en;
 const nome = "Michael Howe";
 ---
 
-<footer style="margin-top: 100px; padding: 60px 2rem; border-top: 1px solid var(--card-border); text-align: center; background: #14171b">
-    <h2 style="font-size: 2rem; margin-bottom: 20px;">Ready to start a project?</h2>
-    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 40px;">
-        <a href="#" class="chat-link">GITHUB</a>
-        <a href="#" class="chat-link">LINKEDIN</a>
+<footer class="footer-stripe">
+  <div class="footer-container">
+    <h2 class="footer-title">Ready to start a project?</h2>
+    
+    <div class="footer-links">
+        <a href="https://github.com" target="_blank" class="chat-link">GITHUB</a>
+        <a href="https://linkedin.com" target="_blank" class="chat-link">LINKEDIN</a>
     </div>
-    <p style="color: var(--secondary); font-size: 0.9rem;">
+    
+    <p class="footer-copy">
         © 2026 {nome} • Based in Brazil, looking for global opportunities.
     </p>
+  </div>
 </footer>
 
 <style>
-                .chat-link {
-                    position: relative; text-decoration: none;
-                display: inline-block; padding: 12px 24px;
-                text-decoration: none;
-                border: 2px solid var(--accent); border-radius: 50px;
-                color: var(--accent); font-weight: bold; transition: all 0.3s ease;
-            }
-            .chat-link:hover {
-                background: var(--accent); color: #111;
-                box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
-            }
+  /* 1. O STRIPE (Fundo 100%) */
+  .footer-stripe {
+    width: 100%;
+    margin-top: 100px;
+    /* Usando a cor de seção alternativa para Dark/Light */
+    background-color: var(--footer-bg); 
+    border-top: 1px solid var(--card-border);
+    padding: 80px 0;
+    transition: background-color 0.3s ease;
+    
+    /* Garante que ele ignore qualquer padding lateral do elemento pai */
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
+  }
+
+  /* 2. O CONTAINER (Conteúdo Centralizado) */
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+  }
+
+  .footer-title {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    color: var(--text);
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 50px;
+  }
+
+  .footer-copy {
+    color: var(--secondary);
+    font-size: 0.9rem;
+  }
+
+  /* 3. BOTÕES (GITHUB / LINKEDIN) */
+  .chat-link {
+    text-decoration: none;
+    display: inline-block;
+    padding: 12px 30px;
+    border: 2px solid var(--accent);
+    border-radius: 50px;
+    color: var(--accent);
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .chat-link:hover {
+    background: var(--accent);
+    color: #111; /* Cor escura fixa no hover para contraste com o verde */
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+    transform: translateY(-3px);
+  }
+
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .footer-title { font-size: 1.8rem; }
+    .footer-links { flex-direction: column; align-items: center; gap: 15px; }
+  }
 </style>
