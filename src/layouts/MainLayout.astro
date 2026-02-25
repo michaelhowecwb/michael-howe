@@ -25,7 +25,7 @@ const { title } = Astro.props;
                 --bg-rgb: 11, 11, 11;
                 --card-bg: #141414;
                 --text: #ffffff;
-                --cursor-text: #111111;
+                --dark-text: #111111;
                 --text-rgb: 255, 255, 255;
                 --accent: #00ff9d;
                 --secondary: #a0a0a0;
@@ -33,21 +33,53 @@ const { title } = Astro.props;
                 --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
                 --section-alt: #171717;
                 --footer-bg: #14171b;
+                --btt-bg: #111111;
+                --btt-icon: #00ff9d;
+                --btt-border: #00ff9d;
+                --links: #00ff9d;
+                --links-text: #111111;
+                --dropshadow-rgb: rgba(0, 255, 157, 0.4);
             }
-
+            
             [data-theme='light'] {
-                --bg: #f9f9f9;
+                --bg: #e3e7ec;
                 --bg-rgb: 249, 249, 249;
                 --card-bg: #ffffff;
+                --text: #1e293b;
+                --light-text: #ffffff;
+                --text-rgb: 0, 0, 0;
+                --accent: #6366f1;
+                --accent-rgb: 99, 102, 241;
+                --secondary: #64748b;
+                --card-border: rgba(0, 0, 0, 0.06);
+                --section-alt: #f1f5f9;
+                --footer-bg: #e2e8f0;
+                --btt-bg: #eeeff1;
+                --btt-icon: #111111;
+                --btt-border: #111111;
+                --links: #111111;
+                --links-text: #ffffff;
+                --dropshadow-rgb: rgba(120, 131, 255, 0.6);
+            }
+
+            /*[data-theme='light'] {
+                --bg: #eeeff1;
+                --bg-rgb: 249, 249, 249;
+                --card-bg: #f5f5f5;
                 --text: #111111;
                 --cursor-text: #ffffff;
                 --text-rgb: 0, 0, 0;
-                --accent: #008f5d;
+                --accent: #059669;
                 --secondary: #666666;
                 --card-border: rgba(0, 0, 0, 0.06);
-                --section-alt: #e6e6e6;
-                --footer-bg: #e3e7ec;
-            }
+                --section-alt: #e3e4e6;
+                --footer-bg: #e6e9ec;
+                --btt-bg: #eeeff1;
+                --btt-icon: #111111;
+                --btt-border: #111111;
+                --links: #111111;
+                --links-text: #00ff9d;
+            }*/
 
             html {
         scroll-behavior: auto !important;
@@ -82,12 +114,12 @@ background-color: var(--bg);
         position: fixed;
         bottom: 30px;
         right: 30px;
-        background: var(--accent);
-        color: #111;
+        background: var(--btt-bg);
+        color: var(--btt-icon);
         width: 45px;
         height: 45px;
         border-radius: 50%;
-        border: none;
+        border: 2px solid var(--btt-border);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -96,9 +128,12 @@ background-color: var(--bg);
         opacity: 0;
         visibility: hidden;
         z-index: 1000;
-        box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3);
+        
     }
-
+/*--btt-bg: #111111;
+                --btt-icon: #00ff9d;
+                --btt-border: #00ff9d;
+                --btt-bg: #eeeff1;*/
     .back-to-top.show {
         opacity: 1;
         visibility: visible;
@@ -106,7 +141,10 @@ background-color: var(--bg);
 
     .back-to-top:hover {
         transform: translateY(-5px);
-        background: #fff;
+        background: var(--accent);
+        color: var(--links-text);
+        border: var(--accent);
+        box-shadow: 0 4px 15px var(--dropshadow-rgb);
     }
 
             @media (prefers-reduced-motion: reduce) {
