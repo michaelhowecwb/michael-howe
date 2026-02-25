@@ -22,7 +22,6 @@ const cargo = "// Full-stack Developer";
         
         <style>
             
-            html, body { margin: 0; padding: 0; }
             
             /* Garante que os elementos interativos mostrem o cursor padrão */
             a, button, .chat-link, .service-card, .work-card, h1, .theme-switch, .slider {
@@ -61,20 +60,43 @@ const cargo = "// Full-stack Developer";
             }
 
             /* --- CARDS & HOVER --- */
-            .service-card {
-                background: var(--card-bg);
-                border: 1px solid var(--card-border);
-                box-shadow: -4px -4px 0px var(--accent);
-                /*box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.03);*/
-                transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-                /*border-color: rgba(0, 255, 157, 0.4);*/
-            }
 
-            .service-card:hover {
-                transform: translate(4px, 4px);
-                box-shadow: 4px 4px 0px var(--accent);
-                border-color: var(--accent);
-            }
+#services {
+        padding: 100px 0;
+        width: 100vw; /* Garante que pegue a tela toda */
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+        background-color: var(--section-alt);
+        border-top: 1px solid var(--card-border);
+        border-bottom: 1px solid var(--card-border);
+        transition: background-color 0.3s ease;
+    }
+
+            .services-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 100px;
+    }
+
+.service-card {
+        background: var(--card-bg); /* O card volta a ser a cor base do tema para dar contraste */
+        border: 1px solid var(--card-border);
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: -4px -4px 0px var(--accent);
+        transition: all 0.4s ease;
+    }
+
+    .service-card:hover {
+        transform: translate(4px, 4px);
+        box-shadow: 4px 4px 0px var(--accent);
+    }
 
             /* --- HEADER GRADIENT --- */
             h1.main-header {
@@ -190,25 +212,30 @@ const cargo = "// Full-stack Developer";
             </section>
         </main>
 
-            <section id="services" style="padding: 100px 0; width: 100%; background: #171717">
-                <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 100px; max-width: 1200px; margin: 0 auto;">
-                    <div style="display: flex; flex-direction: column; gap: 40px;">
-                        <div class="service-card" style="padding: 40px; border-radius: 15px;">
-                            <h3 style="color: var(--accent);">Design</h3>
-                            <p style="color: var(--secondary);">Create digital products with unique ideas.</p>
-                        </div>
-                        <div class="service-card" style="padding: 40px; border-radius: 15px;">
-                            <h3 style="color: var(--accent);">Development</h3>
-                            <p style="color: var(--secondary);">High performance coding for the web.</p>
-                        </div>
-                    </div>
-                    <div>
-                        <h2 style="font-size: 2.5rem;">Hello! I'm Michael.</h2>
-                        <p style="font-style: italic; font-size: 1.5rem;">Every great design begins with an even better story.</p>
-                        <p style="color: var(--secondary);">Sendo de ascendência europeia e focado no mercado global, trago uma visão técnica e minimalista para cada projeto.</p>
-                    </div>
-                </div>
-            </section>
+            <section id="services">
+    <div class="services-container">
+        <div style="display: flex; flex-direction: column; gap: 40px;">
+            <div class="service-card">
+                <h3 style="color: var(--accent); margin: 0 0 10px 0;">Design</h3>
+                <p style="color: var(--secondary); margin: 0;">Create digital products with unique ideas.</p>
+            </div>
+            <div class="service-card">
+                <h3 style="color: var(--accent); margin: 0 0 10px 0;">Development</h3>
+                <p style="color: var(--secondary); margin: 0;">High performance coding for the web.</p>
+            </div>
+        </div>
+        
+        <div class="intro-text">
+            <h2 style="font-size: 2.5rem; margin-top: 0; color: var(--text);">Hello! I'm Michael.</h2>
+            <p style="color: var(--text); font-style: italic; font-size: 1.5rem; margin-bottom: 20px;">
+                Every great design begins with an even better story.
+            </p>
+            <p style="color: var(--secondary);">
+                Sendo de ascendência europeia e focado no mercado global, trago uma visão técnica e minimalista para cada projeto.
+            </p>
+        </div>
+    </div>
+</section>
 
         <main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
             <section id="works" style="padding: 100px 0;">
