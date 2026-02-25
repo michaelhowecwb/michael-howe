@@ -188,9 +188,9 @@ const t = isPt ? ui.pt : ui.en;
                     </span>
                     <h1 class="main-header">{t['hero.title']}</h1>
                     <p style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;">
-                        I design and code beautifully simple things, and I love what I do.
+                        {t['hero.subtitle']}
                     </p>
-                    <a class="letsChat" href="#contact" style="">LET'S CHAT!</a>
+                    <a class="letsChat" href="#contact" style="">{t['lets.chat']}</a>
                 </div>
                 
                 <div class="visual-wrapper">
@@ -214,22 +214,22 @@ const t = isPt ? ui.pt : ui.en;
     <div class="services-container">
         <div style="display: flex; flex-direction: column; gap: 40px;">
             <div class="service-card">
-                <h3 style="color: var(--accent); margin: 0 0 10px 0;">Design</h3>
-                <p style="color: var(--secondary); margin: 0;">Create digital products with unique ideas.</p>
+                <h3 style="color: var(--accent); margin: 0 0 10px 0;">{t['services.design']}</h3>
+                <p style="color: var(--secondary); margin: 0;">{t['services.design.desc']}</p>
             </div>
             <div class="service-card">
-                <h3 style="color: var(--accent); margin: 0 0 10px 0;">Development</h3>
-                <p style="color: var(--secondary); margin: 0;">High performance coding for the web.</p>
+                <h3 style="color: var(--accent); margin: 0 0 10px 0;">{t['services.dev']}</h3>
+                <p style="color: var(--secondary); margin: 0;">{t['services.dev.desc']}</p>
             </div>
         </div>
         
         <div class="intro-text">
-            <h2 style="font-size: 2.5rem; margin-top: 0; color: var(--text);">Hello! I'm Michael.</h2>
+            <h2 style="font-size: 2.5rem; margin-top: 0; color: var(--text);">{t['intro.h2']}</h2>
             <p style="color: var(--text); font-style: italic; font-size: 1.5rem; margin-bottom: 20px;">
-                Every great design begins with an even better story.
+                {t['intro.p1']}
             </p>
             <p style="color: var(--secondary);">
-                Sendo de ascendência europeia e focado no mercado global, trago uma visão técnica e minimalista para cada projeto.
+                {t['intro.p2']}
             </p>
         </div>
     </div>
@@ -237,7 +237,7 @@ const t = isPt ? ui.pt : ui.en;
 
         <main style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
             <section id="works" style="padding: 100px 0;">
-                <h2 style="font-size: 2.5rem; margin-bottom: 40px;">Selected Works</h2>
+                <h2 style="font-size: 2.5rem; margin-bottom: 40px;">{t['works.title']}</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
                     <WorkCard 
                         title="E-commerce Global" 
