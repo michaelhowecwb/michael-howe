@@ -1,6 +1,8 @@
 ---
 import { ui } from '@utils/i18n';
-const t = ui.pt;
+const { pathname } = Astro.url;
+const isPt = pathname.includes('/pt');
+const t = isPt ? ui.pt : ui.en;
 const nome = "Michael Howe";
 ---
 
