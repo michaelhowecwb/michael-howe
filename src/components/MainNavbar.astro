@@ -1,17 +1,21 @@
 ---
-const { pathname } = Astro.url;
-const isHome = pathname === '/' || pathname.endsWith('/pt/') || pathname.endsWith('/en/');
-import { ui } from '@utils/i18n';
-import ThemeToggle from '@components/ThemeToggle.astro';
-import LanguagePicker from '@components/LanguagePicker.astro';
+import { ui } from "@utils/i18n";
+import ThemeToggle from "@components/ThemeToggle.astro";
+import LanguagePicker from "@components/LanguagePicker.astro";
 
-const nome = "Michael Howe";
-const isPt = pathname.includes('/pt');
+const { pathname } = Astro.url;
+const isHome =
+  pathname === "/" ||
+  pathname === "/pt" ||
+  pathname.endsWith("/pt/") ||
+  pathname.endsWith("/en/");
+const isPt = pathname.includes("/pt");
 const t = isPt ? ui.pt : ui.en;
-const baseUrl = isPt ? '/pt/' : '/';
+const baseUrl = isPt ? "/pt/" : "/";
+const nome = "Michael Howe";
 ---
 
-<nav class="mainNav">
+<nav class="mainNav" aria-label="Menu principal">
   <div class="navContainer">
     <div class="brand">
       <a href={baseUrl} style="text-decoration: none;">
@@ -20,30 +24,61 @@ const baseUrl = isPt ? '/pt/' : '/';
     </div>
 
     <div class="navContent">
-<div class="links">
+      <div class="links desktop-only">
         <a href={isHome ? "#home" : `${baseUrl}#home`} class="nav-link">Home</a>
-        <a href={isHome ? "#services" : `${baseUrl}#services`} class="nav-link">{t['nav.services']}</a>
-        <a href={isHome ? "#works" : `${baseUrl}#works`} class="nav-link">{t['nav.works']}</a>
+        <a href={isHome ? "#services" : `${baseUrl}#services`} class="nav-link"
+          >{t["nav.services"]}</a
+        >
+        <a href={isHome ? "#works" : `${baseUrl}#works`} class="nav-link"
+          >{t["nav.works"]}</a
+        >
       </div>
-      
-      <div class="separator"></div>
+
+      <div class="separator desktop-only"></div>
 
       <div class="controls">
         <LanguagePicker />
         <ThemeToggle />
+
+        <button
+          class="hamburger"
+          aria-label="Abrir menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <span class="line"></span>
+          <span class="line"></span>
+          <span class="line"></span>
+        </button>
       </div>
     </div>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href={isHome ? "#home" : `${baseUrl}#home`} class="nav-link mobile-link"
+      >Home</a
+    >
+    <a
+      href={isHome ? "#services" : `${baseUrl}#services`}
+      class="nav-link mobile-link">{t["nav.services"]}</a
+    >
+    <a
+      href={isHome ? "#works" : `${baseUrl}#works`}
+      class="nav-link mobile-link">{t["nav.works"]}</a
+    >
   </div>
 </nav>
 
 <style>
-  /* Base da Navbar */
-.mainNav {
+  /* --- Base da Navbar --- */
+  .mainNav {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 70px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
     z-index: 1000;
-    /* Agora a cor do fundo da nav segue exatamente o tema com opacidade */
-    background: rgba(var(--mainnav-bg-rgb), 0.8); 
+    background: rgba(var(--mainnav-bg-rgb), 0.8);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(var(--text-rgb), 0.1);
@@ -60,9 +95,11 @@ const baseUrl = isPt ? '/pt/' : '/';
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+    z-index: 1001; /* Garante que os controles fiquem acima do menu que desce */
   }
 
-.navName {
+  .navName {
     font-weight: 800;
     font-size: 1.5rem;
     white-space: nowrap;
@@ -80,7 +117,20 @@ const baseUrl = isPt ? '/pt/' : '/';
     gap: 2rem;
   }
 
-  /* Links e Efeitos */
+  /* --- Controles (Idioma, Tema, Hamburger) --- */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+
+  .separator {
+    width: 1px;
+    height: 20px;
+    background: rgba(var(--text-rgb), 0.2);
+  }
+
+  /* --- Links Desktop --- */
   .links {
     display: flex;
     gap: 0.5rem;
@@ -97,9 +147,8 @@ const baseUrl = isPt ? '/pt/' : '/';
     padding: 0 10px;
   }
 
-  /* Linha animada abaixo do link */
   .links a::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 0;
     height: 2px;
@@ -115,28 +164,123 @@ const baseUrl = isPt ? '/pt/' : '/';
     width: 100%;
   }
 
-  .links a:hover, 
+  .links a:hover,
   .links a.active {
     color: var(--accent) !important;
   }
 
-  .separator {
-    width: 1px;
-    height: 20px;
-    /* Separador também se adapta ao tema */
-    background: rgba(var(--text-rgb), 0.2);
+  /* --- Menu Hamburger (Botão) --- */
+  .hamburger {
+    display: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    padding: 0;
+    z-index: 1002;
   }
 
-  .controls {
+  .hamburger .line {
+    width: 100%;
+    height: 2px;
+    background-color: var(--text);
+    border-radius: 2px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-origin: left;
+  }
+
+  /* --- Menu Mobile (Dropdown) --- */
+  .mobile-menu {
+    position: fixed; /* Fixed garante que ele acompanhe a tela */
+    top: 70px; /* Começa exatamente abaixo da altura da barra principal */
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 70px); /* Preenche o resto da tela inteira */
+
+    /* APLICAÇÃO DO EFEITO GLASS */
+    background-color: rgba(
+      var(--mainnav-bg-rgb),
+      0.9
+    ); /* Fundo translúcido (90% opaco) */
+    backdrop-filter: blur(15px); /* Desfoque do conteúdo atrás */
+    -webkit-backdrop-filter: blur(15px); /* Suporte para Safari */
+
+    border-bottom: 1px solid rgba(var(--text-rgb), 0.1);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 1.2rem;
+    padding-top: 50px;
+    gap: 2rem;
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 999;
   }
 
-  /* Ajuste para Mobile */
+  .mobile-menu a {
+    font-size: 1.5rem; /* Aumentei um pouco a fonte para facilitar o clique no celular */
+    font-weight: 600;
+  }
+  /* --- Classes Ativas (JS vai controlar isso) --- */
+  .mobile-menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Animação do X */
+  .hamburger.active .line:nth-child(1) {
+    transform: rotate(45deg);
+  }
+  .hamburger.active .line:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger.active .line:nth-child(3) {
+    transform: rotate(-45deg);
+  }
+
+  /* --- Responsividade --- */
   @media (max-width: 768px) {
-    .links, .separator {
+    .desktop-only {
       display: none;
+    }
+    .hamburger {
+      display: flex;
+    }
+    .navContainer {
+      padding: 0 1.5rem;
     }
   }
 </style>
+
+<script>
+  // Script para controlar a abertura/fechamento do menu
+  const hamburger = document.querySelector(".hamburger");
+  const mobileMenu = document.querySelector(".mobile-menu");
+  const mobileLinks = document.querySelectorAll(".mobile-link");
+
+  if (hamburger && mobileMenu) {
+    // Clique no Hamburger
+    hamburger.addEventListener("click", () => {
+      hamburger.classList.toggle("active");
+      mobileMenu.classList.toggle("open");
+
+      // Acessibilidade: atualiza o aria-expanded
+      const isExpanded = hamburger.getAttribute("aria-expanded") === "true";
+      hamburger.setAttribute("aria-expanded", !isExpanded ? "true" : "false");
+    });
+
+    // Fecha o menu ao clicar em um link
+    mobileLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        hamburger.classList.remove("active");
+        mobileMenu.classList.remove("open");
+        hamburger.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+</script>

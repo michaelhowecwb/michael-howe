@@ -1,33 +1,59 @@
 ---
-import MainNavbar from '@components/MainNavbar.astro';
-import Footer from '@components/Footer.astro';
+import MainNavbar from "@components/MainNavbar.astro";
+import Footer from "@components/Footer.astro";
 
 interface Props {
-  title: string;
+    title: string;
+    lang?: string; // Adicionamos a propriedade lang como opcional
 }
-const { title } = Astro.props;
+// Se não passar a prop lang, ele assume 'en' como padrão
+const { title, lang = "en" } = Astro.props;
 ---
 
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang={lang}>
     <head>
         <script is:inline>
-  const theme = (() => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme');
-    }
-    return 'dark';
-  })();
-  document.documentElement.setAttribute('data-theme', theme);
-</script>
+            // TEMA
+            const theme = (() => {
+                if (
+                    typeof localStorage !== "undefined" &&
+                    localStorage.getItem("theme")
+                ) {
+                    return localStorage.getItem("theme");
+                }
+                return "dark";
+            })();
+            document.documentElement.setAttribute("data-theme", theme);
+
+            // REDIRECIONAMENTO DE IDIOMA
+            const userLang = (
+                window.navigator.language || window.navigator.userLanguage
+            ).toLowerCase();
+            const manualSelection = sessionStorage.getItem(
+                "language_preference",
+            );
+
+            if (
+                userLang.startsWith("pt") &&
+                !manualSelection &&
+                !window.location.pathname.includes("/pt")
+            ) {
+                sessionStorage.setItem("language_preference", "auto-pt");
+                window.location.href = "/pt/";
+            }
+        </script>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <title>{title}</title>
         <link rel="icon" type="image/png" href="/icons/favicon512.png?v=2" />
         <link rel="apple-touch-icon" href="/icons/favicon512.png?v=2" />
         <link rel="shortcut icon" href="/icons/favicon512.png?v=2" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" rel="stylesheet">
-        
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap"
+            rel="stylesheet"
+        />
+
         <style is:global>
             :root {
                 --bg: #0b0b0b;
@@ -50,9 +76,11 @@ const { title } = Astro.props;
                 --links: #00ff9d;
                 --links-text: #111111;
                 --dropshadow-rgb: rgba(0, 255, 157, 0.2);
+                --mainnav-bg: #14171b;
+                --mainnav-bg-rgb: 20, 23, 27;
             }
-            
-            [data-theme='light'] {
+
+            [data-theme="light"] {
                 --bg: #e3e7ec;
                 --bg-rgb: 227, 231, 236;
                 --mainnav-bg: #d7dbe0;
@@ -73,254 +101,222 @@ const { title } = Astro.props;
                 --links: #111111;
                 --links-text: #ffffff;
                 --dropshadow-rgb: rgba(120, 131, 255, 0.2);
+                --mainnav-bg: #d7dbe0;
+                --mainnav-bg-rgb: 215, 219, 224;
             }
 
             html {
-        scroll-behavior: auto !important;
-    }
-body {
-background-color: var(--bg);
-        color: var(--text);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        /* Garante que o scroll aconteça no nível da janela */
-        overflow-x: hidden;
-        overflow-y: auto;
-        min-height: 100vh;
-        scroll-behavior: auto !important;
-    }
+                scroll-behavior: auto !important;
+            }
+            body {
+                background-color: var(--bg);
+                color: var(--text);
+                font-family: "Inter", sans-serif;
+                margin: 0;
+                /* Garante que o scroll aconteça no nível da janela */
+                overflow-x: hidden;
+                overflow-y: auto;
+                min-height: 100vh;
+                scroll-behavior: auto !important;
+            }
 
-            code { font-family: 'Fira Code', monospace; }
+            code {
+                font-family: "Fira Code", monospace;
+            }
             .nav-link {
-    transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    color: var(--secondary); /* Cor padrão (cinza) */
-    text-decoration: none;
-}
+                transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                color: var(--secondary); /* Cor padrão (cinza) */
+                text-decoration: none;
+            }
 
-.nav-link.active {
-    color: var(--accent) !important; /* Cor verde de destaque */
-    font-weight: bold;
-}
+            .nav-link.active {
+                color: var(--accent) !important; /* Cor verde de destaque */
+                font-weight: bold;
+            }
             /* Espaçamento para Navbar Fixa */
-            main { padding-top: 20px; } 
-            section { scroll-margin-top: 100px; }
+            main {
+                padding-top: 20px;
+            }
+            section {
+                scroll-margin-top: 100px;
+            }
             .back-to-top {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background: var(--btt-bg);
-        color: var(--btt-icon);
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        border: 2px solid var(--btt-border);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        opacity: 0;
-        visibility: hidden;
-        z-index: 1000;
-        
-    }
-/*--btt-bg: #111111;
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: var(--btt-bg);
+                color: var(--btt-icon);
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                border: 2px solid var(--btt-border);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                opacity: 0;
+                visibility: hidden;
+                z-index: 1000;
+            }
+            /*--btt-bg: #111111;
                 --btt-icon: #00ff9d;
                 --btt-border: #00ff9d;
                 --btt-bg: #eeeff1;*/
-    .back-to-top.show {
-        opacity: 1;
-        visibility: visible;
-    }
+            .back-to-top.show {
+                opacity: 1;
+                visibility: visible;
+            }
 
-    .back-to-top:hover {
-        transform: translateY(-5px);
-        background: var(--accent);
-        color: var(--links-text);
-        border-color: var(--accent);
-        box-shadow: 0 4px 15px var(--dropshadow-rgb);
-    }
+            .back-to-top:hover {
+                transform: translateY(-5px);
+                background: var(--accent);
+                color: var(--links-text);
+                border-color: var(--accent);
+                box-shadow: 0 4px 15px var(--dropshadow-rgb);
+            }
 
             @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto !important;
-  }
-}
-
-        </style>
-
-<script is:inline>
-    (function() {
-        // --- 1. CONFIGURAÇÕES DE SISTEMA E IDIOMA ---
-        if ('scrollRestoration' in history) { 
-            history.scrollRestoration = 'manual'; 
-        }
-        
-        const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
-        const manualSelection = sessionStorage.getItem('language_preference');
-
-        // Redirecionamento automático para PT
-        if (userLang.startsWith('pt') && !manualSelection && !window.location.pathname.includes('/pt')) {
-            sessionStorage.setItem('language_preference', 'auto-pt');
-            window.location.href = '/pt/';
-            return; // Interrompe para carregar a nova página
-        }
-
-        // Limpa o hash (#) da URL para evitar o pulo nativo no refresh
-        if (window.location.hash) { 
-            history.replaceState(null, null, window.location.pathname); 
-        }
-
-        // --- 2. FORÇAR SCROLL SUAVE (Ignora travas do Windows) ---
-        document.addEventListener('click', function(e) {
-            // Busca se o clique foi em um link de âncora (#)
-            const link = e.target.closest('a[href^="#"]');
-            if (!link) return;
-
-            const targetId = link.getAttribute('href');
-            if (targetId === '#' || !targetId.startsWith('#')) return;
-
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                e.preventDefault(); // Bloqueia o pulo instantâneo do navegador
-
-                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - 80; // 80px de margem da Navbar
-                const startPosition = window.pageYOffset;
-                const distance = targetPosition - startPosition;
-                const duration = 800; // Duração da animação em milissegundos
-                let start = null;
-
-                // Função de animação frame-a-frame
-                function animation(timestamp) {
-                    if (!start) start = timestamp;
-                    const progress = timestamp - start;
-                    const percentage = Math.min(progress / duration, 1);
-                    
-                    // Easing: easeInOutQuad (começa devagar, acelera, termina devagar)
-                    const easing = percentage < 0.5 
-                        ? 2 * percentage * percentage 
-                        : -1 + (4 - 2 * percentage) * percentage;
-
-                    window.scrollTo(0, startPosition + distance * easing);
-
-                    if (progress < duration) {
-                        window.requestAnimationFrame(animation);
-                    }
+                html {
+                    scroll-behavior: auto !important;
                 }
-
-                window.requestAnimationFrame(animation);
             }
-        });
-    })();
-</script>
+        </style>
     </head>
 
     <body>
         <MainNavbar />
-        <slot /> 
+        <slot />
         <Footer />
 
-        <button id="back-to-top" aria-label="Voltar ao topo" class="back-to-top">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m18 15-6-6-6 6"/>
+        <button
+            id="back-to-top"
+            aria-label="Voltar ao topo"
+            class="back-to-top"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            >
+                <path d="m18 15-6-6-6 6"></path>
             </svg>
         </button>
 
-
         <script is:inline>
-    (function() {
-        // 1. Elementos principais
-        const btn = document.getElementById('back-to-top');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const sections = document.querySelectorAll('section[id], header[id], #home');
-
-        if (!btn) return;
-
-        // 2. Função de Scroll Suave Reutilizável
-        function smoothScrollTo(targetPos) {
-            const startPosition = window.pageYOffset;
-            const distance = targetPos - startPosition;
-            const duration = 800;
-            let start = null;
-
-            function animation(timestamp) {
-                if (!start) start = timestamp;
-                const progress = timestamp - start;
-                const percentage = Math.min(progress / duration, 1);
-                const easing = percentage < 0.5 ? 2 * percentage * percentage : -1 + (4 - 2 * percentage) * percentage;
-                window.scrollTo(0, startPosition + distance * easing);
-                if (progress < duration) window.requestAnimationFrame(animation);
-            }
-            window.requestAnimationFrame(animation);
-        }
-
-        // 3. Scroll Spy (Intersection Observer)
-        const observerOptions = {
-            root: null,
-            rootMargin: '-25% 0px -65% 0px', // Ajustado para captar melhor o meio da tela
-            threshold: 0.1
-        };
-
-const observerCallback = (entries) => {
-    entries.forEach(entry => {
-        // Se a seção está visível
-        if (entry.isIntersecting) {
-            const id = entry.target.getAttribute('id');
-            
-            navLinks.forEach(link => {
-                // Remove o active de todos
-                link.classList.remove('active');
-                
-                // Se o link termina com #home, #services, etc.
-                if (link.getAttribute('href').endsWith('#' + id)) {
-                    link.classList.add('active');
+            (function () {
+                // Limpa o hash (#) da URL para evitar o pulo nativo no refresh
+                if (window.location.hash) {
+                    history.replaceState(null, null, window.location.pathname);
                 }
-            });
-        }
-    });
 
-    // Lógica extra: Se estivermos no topo absoluto da página (Y = 0), 
-    // força o "Home" a ficar verde mesmo que o observer hesite.
-    if (window.scrollY < 50) { // scrollY é mais moderno que pageYOffset
-    navLinks.forEach(link => {
-        link.classList.toggle('active', link.getAttribute('href').endsWith('#home'));
-    });
-}
-};
+                if ("scrollRestoration" in history) {
+                    history.scrollRestoration = "manual";
+                }
 
-        const observer = new IntersectionObserver(observerCallback, observerOptions);
-        sections.forEach(section => observer.observe(section));
+                const btn = document.getElementById("back-to-top");
+                const navLinks = document.querySelectorAll(".nav-link");
+                const sections = document.querySelectorAll(
+                    "section[id], header[id], #home",
+                );
 
-        // 4. Lógica de mostrar/esconder botão de topo ao rolar
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                btn.classList.add('show');
-            } else {
-                btn.classList.remove('show');
-            }
-        });
+                // Função ÚNICA de Scroll Suave Reutilizável
+                function smoothScrollTo(targetPos) {
+                    const startPosition = window.scrollY;
+                    const distance = targetPos - startPosition;
+                    const duration = 800;
+                    let start = null;
 
-        // 5. Clique no Botão de Topo
-        btn.addEventListener('click', () => smoothScrollTo(0));
+                    function animation(timestamp) {
+                        if (!start) start = timestamp;
+                        const progress = timestamp - start;
+                        const percentage = Math.min(progress / duration, 1);
+                        const easing =
+                            percentage < 0.5
+                                ? 2 * percentage * percentage
+                                : -1 + (4 - 2 * percentage) * percentage;
+                        window.scrollTo(0, startPosition + distance * easing);
+                        if (progress < duration)
+                            window.requestAnimationFrame(animation);
+                    }
+                    window.requestAnimationFrame(animation);
+                }
 
-        // 6. Clique nos Links da Navbar (Interceptação)
-        document.addEventListener('click', (e) => {
-            const link = e.target.closest('a[href*="#"]');
-            if (!link) return;
+                // Interceptação de cliques em links internos (substitui o script duplicado do head)
+                document.addEventListener("click", (e) => {
+                    const link = e.target.closest('a[href^="#"]');
+                    if (!link) return;
 
-            const href = link.getAttribute('href');
-            const targetId = href.split('#')[1];
-            if (!targetId) return;
+                    const targetId = link.getAttribute("href");
+                    if (targetId === "#") return;
 
-            const targetElement = document.getElementById(targetId);
-            if (targetElement) {
-                e.preventDefault();
-                const targetPos = targetElement.getBoundingClientRect().top + window.pageYOffset - 80;
-                smoothScrollTo(targetPos);
-            }
-        });
-    })();
-</script>
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        e.preventDefault();
+                        const targetPos =
+                            targetElement.getBoundingClientRect().top +
+                            window.scrollY -
+                            80;
+                        smoothScrollTo(targetPos);
+                    }
+                });
 
+                // Scroll Spy (Intersection Observer)
+                const observerOptions = {
+                    root: null,
+                    rootMargin: "-25% 0px -65% 0px",
+                    threshold: 0.1,
+                };
+
+                const observerCallback = (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute("id");
+                            navLinks.forEach((link) => {
+                                link.classList.remove("active");
+                                if (
+                                    link.getAttribute("href").endsWith("#" + id)
+                                ) {
+                                    link.classList.add("active");
+                                }
+                            });
+                        }
+                    });
+
+                    if (window.scrollY < 50) {
+                        navLinks.forEach((link) => {
+                            link.classList.toggle(
+                                "active",
+                                link.getAttribute("href").endsWith("#home"),
+                            );
+                        });
+                    }
+                };
+
+                const observer = new IntersectionObserver(
+                    observerCallback,
+                    observerOptions,
+                );
+                sections.forEach((section) => observer.observe(section));
+
+                // Botão de Topo
+                if (btn) {
+                    window.addEventListener("scroll", () => {
+                        if (window.scrollY > 300) {
+                            btn.classList.add("show");
+                        } else {
+                            btn.classList.remove("show");
+                        }
+                    });
+                    btn.addEventListener("click", () => smoothScrollTo(0));
+                }
+            })();
+        </script>
     </body>
 </html>

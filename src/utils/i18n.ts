@@ -26,7 +26,7 @@ export const ui = {
     'services.dev': 'Desenvolvimento',
     'services.dev.desc': 'Programação de alta performance para a web.',
     'lets.chat': "VAMOS CONVERSAR",
-    'intro.h2': "Olá! Eou sou o Michael.",
+    'intro.h2': "Olá! Eu sou o Michael.",
     'intro.p1': 'Todo grande projeto começa com uma história ainda melhor.',
     'intro.p2': 'Sendo de ascendência europeia e focado no mercado global, trago uma visão técnica e minimalista para cada projeto.',
     'works.title': 'Trabalhos Selecionados',

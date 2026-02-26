@@ -1,44 +1,49 @@
 ---
-import { ui } from '@utils/i18n';
+import { ui } from "@utils/i18n";
 const { pathname } = Astro.url;
-const isPt = pathname.includes('/pt');
+const isPt = pathname.includes("/pt");
 const t = isPt ? ui.pt : ui.en;
 const nome = "Michael Howe";
 ---
 
 <footer class="footer-stripe">
   <div class="footer-container">
-    <h2 class="footer-title">{t['footer.title']}</h2>
-    
+    <h2 class="footer-title">{t["footer.title"]}</h2>
+
     <div class="footer-links">
-        <a href="https://github.com/michaelhowecwb" target="_blank" class="chat-link">GITHUB</a>
-        <a href="https://www.linkedin.com/in/michael-howe-cwb/" target="_blank" class="chat-link">LINKEDIN</a>
+      <a
+        href="https://github.com/michaelhowecwb"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="chat-link">GITHUB</a
+      >
+      <a
+        href="https://www.linkedin.com/in/michael-howe-cwb/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="chat-link">LINKEDIN</a
+      >
     </div>
-    
+
     <p class="footer-copy">
-        © {new Date().getFullYear()} {nome} • {t['footer.copy']}
+      © {new Date().getFullYear()}
+      {nome} • {t["footer.copy"]}
     </p>
   </div>
 </footer>
 
 <style>
-
+  /* 1. O fundo agora ocupa 100% naturalmente sem hacks */
   .footer-stripe {
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
-    
+    width: 100%;
     margin-top: 100px;
-    background-color: var(--footer-bg); 
+    background-color: var(--footer-bg);
     border-top: 1px solid var(--card-border);
     padding: 80px 0;
     transition: background-color 0.3s ease;
   }
 
-  /* 2. O CONTAINER (Conteúdo Centralizado) */
+  /* 2. O CONTAINER (Conteúdo Centralizado) - Removida a duplicata */
   .footer-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -46,16 +51,9 @@ const nome = "Michael Howe";
     text-align: center;
   }
 
-.footer-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    text-align: center;
-  }
-
-.footer-title {
+  .footer-title {
     font-size: 2.5rem;
-    font-weight: 800; /* Um pouco mais de peso para o mercado europeu */
+    font-weight: 800; /* Um pouco mais de peso na fonte fica ótimo */
     margin-bottom: 30px;
     color: var(--text);
     letter-spacing: -1px;
@@ -68,13 +66,13 @@ const nome = "Michael Howe";
     margin-bottom: 50px;
   }
 
-.footer-copy {
+  .footer-copy {
     color: var(--secondary);
     font-size: 0.85rem;
     opacity: 0.8;
   }
 
-.chat-link {
+  .chat-link {
     text-decoration: none;
     display: inline-block;
     padding: 12px 35px;
@@ -82,25 +80,30 @@ const nome = "Michael Howe";
     border-radius: 50px;
     color: var(--accent);
     font-weight: 700;
-    font-family: 'Fira Code', monospace; /* Mantém a estética tech */
+    font-family: "Fira Code", monospace;
     font-size: 0.9rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-.chat-link:hover {
+  .chat-link:hover {
     background: var(--accent);
     color: var(--links-text);
     box-shadow: 0 10px 25px var(--dropshadow-rgb);
     transform: translateY(-5px);
   }
 
-@media (max-width: 768px) {
-    .footer-title { font-size: 1.8rem; }
-    .footer-links { 
-      flex-direction: column; 
-      align-items: center; 
-      gap: 15px; 
+  @media (max-width: 768px) {
+    .footer-title {
+      font-size: 1.8rem;
     }
-    .chat-link { width: 100%; max-width: 250px; }
+    .footer-links {
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    .chat-link {
+      width: 100%;
+      max-width: 250px;
+    }
   }
 </style>

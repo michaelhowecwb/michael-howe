@@ -1,32 +1,33 @@
 ---
-import { ui } from '@utils/i18n';
+import { ui } from "@utils/i18n";
 const { pathname, hash } = Astro.url;
 
-// 1. Detectamos se estamos na rota de português
-const isPt = pathname.includes('/pt');
+const isPt = pathname.includes("/pt");
 
-// 2. Criamos os links dinamicamente
-// Se o usuário clicar em EN, ele vai para a raiz + a seção (ex: /#works)
-// Se clicar em PT, ele vai para /pt/ + a seção (ex: /pt/#works)
 const enLink = isPt ? `/${hash}` : `#home`;
 const ptLink = isPt ? `#home` : `/pt/${hash}`;
 ---
 
-<div class="language-picker" aria-label={isPt ? "Selecionar idioma" : "Select language"}>
-  <a 
-    href={enLink} 
-    class={!isPt ? "active" : ""} 
+<div
+  class="language-picker"
+  aria-label={isPt ? "Selecionar idioma" : "Select language"}
+>
+  <a
+    href={enLink}
+    class={`lang-link ${!isPt ? "active" : ""}`}
     aria-current={!isPt ? "page" : undefined}
+    data-lang="en"
   >
     EN
   </a>
 
   <span class="separator" aria-hidden="true">|</span>
 
-  <a 
-    href={ptLink} 
-    class={isPt ? "active" : ""}
+  <a
+    href={ptLink}
+    class={`lang-link ${isPt ? "active" : ""}`}
     aria-current={isPt ? "page" : undefined}
+    data-lang="pt"
   >
     PT
   </a>
@@ -37,7 +38,7 @@ const ptLink = isPt ? `#home` : `/pt/${hash}`;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 0.85rem;
     font-weight: 700;
     color: var(--text);
@@ -59,6 +60,7 @@ const ptLink = isPt ? `#home` : `/pt/${hash}`;
     opacity: 1;
     color: var(--accent);
     cursor: default;
+    pointer-events: none; /* Impede o clique no idioma que já está ativo */
   }
 
   .separator {
@@ -66,3 +68,24 @@ const ptLink = isPt ? `#home` : `/pt/${hash}`;
     font-weight: 300;
   }
 </style>
+
+<script>
+  // Script para salvar a escolha manual do usuário antes de trocar de página
+  function setupLanguagePicker() {
+    const langLinks = document.querySelectorAll(".lang-link");
+
+    langLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        const selectedLang = link.getAttribute("data-lang");
+        // Salva a escolha no sessionStorage (isso quebra a regra do auto-redirecionamento no Layout)
+        sessionStorage.setItem("language_preference", `manual-${selectedLang}`);
+      });
+    });
+  }
+
+  // Executa na primeira carga
+  setupLanguagePicker();
+
+  // Executa caso o Astro View Transitions esteja ativado
+  document.addEventListener("astro:after-swap", setupLanguagePicker);
+</script>
