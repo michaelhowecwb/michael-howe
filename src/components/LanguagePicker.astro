@@ -1,11 +1,22 @@
 ---
-import { ui } from "@utils/i18n";
-const { pathname, hash } = Astro.url;
+// LanguagePicker.astro
+const { pathname } = Astro.url;
 
-const isPt = pathname.includes("/pt");
+// 1. Detecta se o usuário já está na versão em português
+const isPt = pathname.startsWith('/pt');
 
-const enLink = isPt ? `/${hash}` : `#home`;
-const ptLink = isPt ? `#home` : `/pt/${hash}`;
+// 2. Lógica de tradução de URL (Corrigida)
+// Remove a barra final se existir para evitar links como //pt/
+const cleanPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+
+// Se estou em /work/projeto-x -> vira /pt/work/projeto-x
+// Se estou em /pt/work/projeto-x -> vira /work/projeto-x
+const ptLink = isPt ? cleanPath : `/pt${cleanPath || ''}`;
+const enLink = isPt ? cleanPath.replace(/^\/pt/, '') || '/' : cleanPath;
+
+// Garante que se o link ficar vazio (na home), ele seja pelo menos '/'
+const finalEnLink = enLink === '' ? '/' : enLink;
+const finalPtLink = ptLink === '' ? '/pt' : ptLink;
 ---
 
 <div
@@ -13,7 +24,7 @@ const ptLink = isPt ? `#home` : `/pt/${hash}`;
   aria-label={isPt ? "Selecionar idioma" : "Select language"}
 >
   <a
-    href={enLink}
+    href={finalEnLink}
     class={`lang-link ${!isPt ? "active" : ""}`}
     aria-current={!isPt ? "page" : undefined}
     data-lang="en"
@@ -24,7 +35,7 @@ const ptLink = isPt ? `#home` : `/pt/${hash}`;
   <span class="separator" aria-hidden="true">|</span>
 
   <a
-    href={ptLink}
+    href={finalPtLink}
     class={`lang-link ${isPt ? "active" : ""}`}
     aria-current={isPt ? "page" : undefined}
     data-lang="pt"
@@ -41,7 +52,6 @@ const ptLink = isPt ? `#home` : `/pt/${hash}`;
     font-family: "Inter", sans-serif;
     font-size: 0.85rem;
     font-weight: 700;
-    color: var(--text);
   }
 
   .language-picker a {
@@ -60,32 +70,29 @@ const ptLink = isPt ? `#home` : `/pt/${hash}`;
     opacity: 1;
     color: var(--accent);
     cursor: default;
-    pointer-events: none; /* Impede o clique no idioma que já está ativo */
+    pointer-events: none;
   }
 
   .separator {
     opacity: 0.2;
     font-weight: 300;
+    color: var(--text);
   }
 </style>
 
 <script>
-  // Script para salvar a escolha manual do usuário antes de trocar de página
   function setupLanguagePicker() {
     const langLinks = document.querySelectorAll(".lang-link");
-
     langLinks.forEach((link) => {
       link.addEventListener("click", () => {
         const selectedLang = link.getAttribute("data-lang");
-        // Salva a escolha no sessionStorage (isso quebra a regra do auto-redirecionamento no Layout)
-        sessionStorage.setItem("language_preference", `manual-${selectedLang}`);
+        if (selectedLang) {
+          sessionStorage.setItem("language_preference", `manual-${selectedLang}`);
+        }
       });
     });
   }
 
-  // Executa na primeira carga
   setupLanguagePicker();
-
-  // Executa caso o Astro View Transitions esteja ativado
   document.addEventListener("astro:after-swap", setupLanguagePicker);
 </script>

@@ -1,0 +1,111 @@
+{
+  "$ref": "#/definitions/works",
+  "definitions": {
+    "works": {
+      "type": "object",
+      "properties": {
+        "thumbnail": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "demoLink": {
+          "type": "string"
+        },
+        "repoLink": {
+          "type": "string"
+        },
+        "en": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "shortDescription": {
+              "type": "string"
+            },
+            "fullDescription": {
+              "type": "string"
+            },
+            "detailedSections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "sectionTitle": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default": []
+            }
+          },
+          "required": [
+            "title",
+            "shortDescription"
+          ],
+          "additionalProperties": false
+        },
+        "pt": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "shortDescription": {
+              "type": "string"
+            },
+            "fullDescription": {
+              "type": "string"
+            },
+            "detailedSections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "sectionTitle": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "image": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "default": []
+            }
+          },
+          "required": [
+            "title",
+            "shortDescription"
+          ],
+          "additionalProperties": false
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "en",
+        "pt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

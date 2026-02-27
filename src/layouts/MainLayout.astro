@@ -13,13 +13,25 @@ const { title, lang = "en" } = Astro.props;
 <!doctype html>
 <html lang={lang}>
     <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        
+        <link rel="icon" type="image/png" href="/icons/favicon512.png?v=2" />
+        <link rel="apple-touch-icon" href="/icons/favicon512.png?v=2" />
+        <link rel="shortcut icon" href="/icons/favicon512.png?v=2" />
+
+        <title>{title}</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap"
+            rel="stylesheet"
+        />
         <script is:inline>
             // TEMA
             const theme = (() => {
-                if (
-                    typeof localStorage !== "undefined" &&
-                    localStorage.getItem("theme")
-                ) {
+                if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
                     return localStorage.getItem("theme");
                 }
                 return "dark";
@@ -27,32 +39,17 @@ const { title, lang = "en" } = Astro.props;
             document.documentElement.setAttribute("data-theme", theme);
 
             // REDIRECIONAMENTO DE IDIOMA
-            const userLang = (
-                window.navigator.language || window.navigator.userLanguage
-            ).toLowerCase();
-            const manualSelection = sessionStorage.getItem(
-                "language_preference",
-            );
+            // Só executa se estivermos na raiz exata para evitar loops em subpáginas
+            if (window.location.pathname === "/" || window.location.pathname === "") {
+                const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
+                const manualSelection = sessionStorage.getItem("language_preference");
 
-            if (
-                userLang.startsWith("pt") &&
-                !manualSelection &&
-                !window.location.pathname.includes("/pt")
-            ) {
-                sessionStorage.setItem("language_preference", "auto-pt");
-                window.location.href = "/pt/";
+                if (userLang.startsWith("pt") && !manualSelection) {
+                    sessionStorage.setItem("language_preference", "auto-pt");
+                    window.location.href = "/pt/";
+                }
             }
         </script>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width" />
-        <title>{title}</title>
-        <link rel="icon" type="image/png" href="/icons/favicon512.png?v=2" />
-        <link rel="apple-touch-icon" href="/icons/favicon512.png?v=2" />
-        <link rel="shortcut icon" href="/icons/favicon512.png?v=2" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap"
-            rel="stylesheet"
-        />
 
         <style is:global>
             :root {
@@ -138,7 +135,7 @@ const { title, lang = "en" } = Astro.props;
                 padding-top: 20px;
             }
             section {
-                scroll-margin-top: 100px;
+                scroll-margin-top: 80px;
             }
             .back-to-top {
                 position: fixed;
@@ -269,35 +266,38 @@ const { title, lang = "en" } = Astro.props;
 
                 // Scroll Spy (Intersection Observer)
                 const observerOptions = {
-                    root: null,
-                    rootMargin: "-25% 0px -65% 0px",
-                    threshold: 0.1,
-                };
+    root: null,
+    rootMargin: "-30% 0px -70% 0px", // Ajustado para detectar a seção quando ela ocupa o centro da tela
+    threshold: 0
+};
 
-                const observerCallback = (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            const id = entry.target.getAttribute("id");
-                            navLinks.forEach((link) => {
-                                link.classList.remove("active");
-                                if (
-                                    link.getAttribute("href").endsWith("#" + id)
-                                ) {
-                                    link.classList.add("active");
-                                }
-                            });
-                        }
-                    });
+const observerCallback = (entries) => {
+    entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("id");
+            if (!id) return;
 
-                    if (window.scrollY < 50) {
-                        navLinks.forEach((link) => {
-                            link.classList.toggle(
-                                "active",
-                                link.getAttribute("href").endsWith("#home"),
-                            );
-                        });
-                    }
-                };
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                // Verifica se o href termina com #ID ou é apenas o ID
+                const href = link.getAttribute("href");
+                if (href && (href.endsWith("#" + id) || href === "#" + id)) {
+                    link.classList.add("active");
+                }
+            });
+        }
+    });
+
+    // Fallback para o topo da página (Home)
+    if (window.scrollY < 100) {
+        navLinks.forEach((link) => {
+            link.classList.remove("active");
+            if (link.getAttribute("href").includes("#home")) {
+                link.classList.add("active");
+            }
+        });
+    }
+};
 
                 const observer = new IntersectionObserver(
                     observerCallback,

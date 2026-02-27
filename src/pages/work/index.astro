@@ -1,0 +1,490 @@
+---
+import { getCollection } from 'astro:content';
+import { ui } from "@utils/i18n";
+import MainLayout from "@layouts/MainLayout.astro";
+import WorkCard from "@components/WorkCard.astro";
+
+const nome = "Michael Howe";
+const cargo = "// Full-stack Developer";
+const { pathname } = Astro.url;
+const isPt = pathname.includes("/pt");
+const t = isPt ? ui.pt : ui.en;
+const currentLang = isPt ? "pt-br" : "en";
+
+// 1. Busca os trabalhos e filtra apenas os que possuem os dados novos
+const allWorks = await getCollection('works');
+
+// 2. DEBUG: Olhe o terminal do seu VS Code para ver se os dados estão chegando!
+const debugInfo = JSON.stringify(allWorks, null, 2);
+---
+<MainLayout title={`${nome} | Portfolio`} lang={currentLang}>
+    <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
+    <style>
+        /* Garante que os elementos interativos mostrem o cursor padrão */
+        a,
+        button,
+        .chat-link,
+        .service-card,
+        .work-card,
+        h1,
+        .theme-switch,
+        .slider {
+            cursor: pointer !important;
+        }
+/* Barra de Progresso */
+  .progress-wrap { 
+    position: fixed; 
+    top: 70px; /* Alinhado com a altura da sua Navbar */
+    left: 0; 
+    width: 100%; 
+    height: 2px; 
+    z-index: 1000; 
+    pointer-events: none;
+  }
+  .progress-bar { 
+    height: 100%; 
+    background: var(--accent); 
+    width: 0%; 
+    transition: width 0.1s ease-out; 
+    box-shadow: 0 0 10px var(--accent);
+  }
+
+  /* Efeito de Surgimento (Reveal) */
+  .reveal { 
+    opacity: 0; 
+    transform: translateY(30px); 
+    transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1); 
+  }
+  
+  .reveal.active { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-left: 2rem;
+        }
+
+        section {
+            position: relative;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        /* --- ANIMAÇÕES GERAIS --- */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+      .reveal { 
+  opacity: 0; 
+  transform: translateY(30px); 
+  transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1); 
+  will-change: transform, opacity; /* Melhora a performance */
+}
+
+.reveal.active { 
+  opacity: 1; 
+  transform: translateY(0); 
+}
+
+/* 3. Ajuste para os elementos não encavalarem no delay */
+.reveal:nth-child(2) { transition-delay: 0.1s; }
+.reveal:nth-child(3) { transition-delay: 0.2s; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        #services {
+            padding: 100px 0;
+            width: 100%; /* Ocupa tudo */
+            background-color: var(--section-alt);
+            border-top: 1px solid var(--card-border);
+            border-bottom: 1px solid var(--card-border);
+            transition: background-color 0.3s ease;
+        }
+
+        .services-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 100px;
+        }
+
+        .service-card {
+            background: var(
+                --card-bg
+            ); /* O card volta a ser a cor base do tema para dar contraste */
+            border: 1px solid var(--card-border);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: -3px -3px 0px var(--accent);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .service-card:hover {
+            transform: translate(3px, 3px);
+            box-shadow: 3px 3px 0px var(--accent);
+        }
+
+        /* --- HEADER GRADIENT --- */
+        h1.main-header {
+            font-size: 4.5rem;
+            line-height: 1.1;
+            background: radial-gradient(
+                circle at var(--x, 50%) var(--y, 50%),
+                var(--accent) 0%,
+                var(--text) 100%
+            );
+            filter: drop-shadow(0 2px 10px var(--dropshadow-rgb));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: filter 0.3s ease;
+        }
+
+        /* --- FOTO E EFEITO MAGNÉTICO --- */
+        .hero-container {
+            display: flex;
+            align-items: center;
+            min-height: 85vh;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .visual-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .letsChat {
+            position: relative;
+            text-decoration: none;
+            display: inline-block;
+            padding: 12px 24px;
+            text-decoration: none;
+            border: 2px solid var(--accent);
+            border-radius: 50px;
+            color: var(--accent);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .letsChat:hover {
+            background: var(--accent);
+            color: var(--links-text);
+            box-shadow: 0 0 20px var(--dropshadow-rgb);
+        }
+
+        /* O SENSOR define a área onde o imã funciona */
+        .photo-sensor {
+            position: relative;
+            width: 380px;
+            height: 480px;
+            z-index: 50;
+        }
+
+        /* A FOTO que se move */
+        #profile-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            will-change: transform;
+            pointer-events: none; /* Mouse passa através dela para o sensor */
+            transition: transform 0.1s ease-out; /* Suaviza a volta */
+        }
+
+        #profile-photo img {
+            width: 100%;
+            height: 100%;
+            /*border-radius: 20px;*/
+            object-fit: cover;
+            /*box-shadow: 0 20px 50px rgba(0,0,0,0.5);*/
+        }
+
+        /* ÍCONES FLUTUANTES */
+        .floating-icon {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            z-index: 60;
+            pointer-events: none;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .astro-mask {
+            width: 100%;
+            height: 100%;
+            background: #bc52ee;
+            -webkit-mask: url("/icons/astro.svg") no-repeat center / contain;
+            mask: url("/icons/astro.svg") no-repeat center / contain;
+            filter: drop-shadow(0 0 12px rgba(188, 82, 238, 0.8));
+        }
+        .react-mask {
+            width: 100%;
+            height: 100%;
+            background: #61dafb;
+            -webkit-mask: url("/icons/react.svg") no-repeat center / contain;
+            mask: url("/icons/react.svg") no-repeat center / contain;
+            filter: drop-shadow(0 0 12px rgba(97, 218, 251, 0.8));
+        }
+        @media (max-width: 768px) {
+            h1.main-header {
+                font-size: 3rem;
+            }
+            section {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .photo-sensor {
+                width: 100% !important;
+                max-width: 300px;
+                height: 380px !important;
+            }
+            .glow-astro-container,
+            .glow-react-container,
+            body {
+                cursor: auto;
+            }
+            .controls {
+                margin-left: 1rem;
+                gap: 1rem;
+            }
+            .services-container {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+        }
+    </style>
+
+    <main>
+        <section id="home" class="container reveal">
+            <div class="hero-container">
+                <div style="flex: 1.2;">
+                    <span
+                        style="color: var(--accent); font-family: 'Fira Code', monospace; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem;"
+                    >
+                        {cargo}
+                    </span>
+                    <h1 class="main-header reveal">{t["hero.title"]}</h1>
+                    <p
+                        style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;"
+                    >
+                        {t["hero.subtitle"]}
+                    </p>
+                    <a class="letsChat" href="#contact" style=""
+                        >{t["lets.chat"]}</a
+                    >
+                </div>
+
+                <div class="visual-wrapper">
+                    <div class="floating-icon" style="top: -20px; left: 0;">
+                        <div class="astro-mask"></div>
+                    </div>
+                    <div
+                        class="floating-icon"
+                        style="bottom: 20px; right: 0; animation-delay: -2s;"
+                    >
+                        <div class="react-mask"></div>
+                    </div>
+
+                    <div class="photo-sensor">
+                        <div id="profile-photo">
+                            <img src="/minha-foto3.png" alt={nome} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="reveal">
+            <div class="services-container">
+                <div style="display: flex; flex-direction: column; gap: 40px;">
+                    <div class="service-card reveal">
+                        <h3 class="reveal" style="color: var(--accent); margin: 0 0 10px 0;">
+                            {t["services.design"]}
+                        </h3>
+                        <p style="color: var(--secondary); margin: 0;">
+                            {t["services.design.desc"]}
+                        </p>
+                    </div>
+                    <div class="service-card reveal" class="reveal">
+                        <h3 style="color: var(--accent); margin: 0 0 10px 0;">
+                            {t["services.dev"]}
+                        </h3>
+                        <p style="color: var(--secondary); margin: 0;">
+                            {t["services.dev.desc"]}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="intro-text">
+                    <h2 class="reveal"
+                        style="font-size: 2.5rem; margin-top: 0; color: var(--text);"
+                    >
+                        {t["intro.h2"]}
+                    </h2>
+                    <p
+                        style="color: var(--text); font-style: italic; font-size: 1.5rem; margin-bottom: 20px;"
+                    >
+                        {t["intro.p1"]}
+                    </p>
+                    <p style="color: var(--secondary);">
+                        {t["intro.p2"]}
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="works" class="reveal" style="padding: 100px 0;">
+        <div class="container">
+            <h2 style="font-size: 2.5rem; margin-bottom: 40px;">
+                {t["works.title"]}
+            </h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                {allWorks.map((work) => {
+                    // Seleciona o idioma com segurança para o TypeScript
+                    const lang = (isPt ? 'pt' : 'en') as 'pt' | 'en';
+                    const content = work.data[lang];
+
+                    // Se o projeto for antigo ou não tiver conteúdo no idioma, ignoramos
+                    if (!content) return null;
+
+                    const cleanId = work.id.split('/')[0];
+
+                    return (
+                        <WorkCard
+                            title={content.title}
+                            description={content.shortDescription}
+                            tags={work.data.tags}
+                            thumbnail={work.data.thumbnail}
+                            link={isPt ? `/pt/work/${cleanId}` : `/work/${cleanId}`} 
+                        />
+                    );
+                })}
+            </div>
+        </div>
+    </section>
+
+    </main>
+
+    <script>
+        // Type casting corrigido para TypeScript do Astro
+        const photoEl = document.getElementById("profile-photo") as HTMLElement;
+        const sensor = document.querySelector(".photo-sensor") as HTMLElement;
+        const title = document.querySelector("h1.main-header") as HTMLElement;
+
+        let mouseX = 0,
+            mouseY = 0;
+        let targetX = 0,
+            targetY = 0;
+        let currentX = 0,
+            currentY = 0;
+
+        document.addEventListener("mousemove", (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            if (title) {
+                const rect = title.getBoundingClientRect();
+                const x = ((mouseX - rect.left) / rect.width) * 100;
+                const y = ((mouseY - rect.top) / rect.height) * 100;
+                title.style.setProperty("--x", `${x}%`);
+                title.style.setProperty("--y", `${y}%`);
+            }
+
+            if (sensor) {
+                const rect = sensor.getBoundingClientRect();
+                const isInside =
+                    mouseX >= rect.left &&
+                    mouseX <= rect.right &&
+                    mouseY >= rect.top &&
+                    mouseY <= rect.bottom;
+
+                if (isInside) {
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    targetX = (mouseX - centerX) / 6;
+                    targetY = (mouseY - centerY) / 6;
+                } else {
+                    targetX = 0;
+                    targetY = 0;
+                }
+            }
+        });
+
+        function animate() {
+            // Suavização (Lerp)
+            currentX += (targetX - currentX) * 0.1;
+            currentY += (targetY - currentY) * 0.1;
+
+            if (photoEl) {
+                photoEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(${targetX !== 0 ? 1.05 : 1})`;
+            }
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+        function initScrollEffects() {
+    const bar = document.getElementById('bar');
+
+    window.addEventListener('scroll', () => {
+      // Atualiza barra de progresso
+      if (bar) {
+        const winH = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = window.scrollY;
+        bar.style.width = (scrolled / winH) * 100 + "%";
+      }
+    });
+
+    // Intersection Observer para os elementos surgirem
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { 
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px" // Começa a animar um pouco antes de entrar totalmente na tela
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
+
+  // Inicializa
+  initScrollEffects();
+  
+  // Se você usa View Transitions do Astro:
+  document.addEventListener('astro:after-swap', initScrollEffects);
+    </script>
+</MainLayout>

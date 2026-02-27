@@ -193,21 +193,22 @@ const nome = "Michael Howe";
   }
 
   /* --- Menu Mobile (Dropdown) --- */
-  .mobile-menu {
-    position: fixed; /* Fixed garante que ele acompanhe a tela */
-    top: 70px; /* Começa exatamente abaixo da altura da barra principal */
+.mobile-menu {
+    position: fixed;
+    top: 70px;
     left: 0;
     width: 100%;
-    height: calc(100vh - 70px); /* Preenche o resto da tela inteira */
-
-    /* APLICAÇÃO DO EFEITO GLASS */
-    background-color: rgba(
-      var(--mainnav-bg-rgb),
-      0.9
-    ); /* Fundo translúcido (90% opaco) */
-    backdrop-filter: blur(15px); /* Desfoque do conteúdo atrás */
-    -webkit-backdrop-filter: blur(15px); /* Suporte para Safari */
-
+    height: calc(100vh - 70px);
+    
+    /* 1. PLANO B (Fallback): Cor sólida exata do tema atual */
+    background-color: var(--mainnav-bg); 
+    
+    /* 2. PLANO A: Efeito Glassmorphism (Se a variável rgb estiver correta, substitui a de cima) */
+    background-color: rgba(var(--mainnav-bg-rgb), 0.95); 
+    
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    
     border-bottom: 1px solid rgba(var(--text-rgb), 0.1);
     display: flex;
     flex-direction: column;
