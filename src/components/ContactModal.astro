@@ -24,27 +24,29 @@ const linkWhatsapp = `https://wa.me/${meuNumero}?text=${encodeURIComponent(mensa
           {isPt ? "Mande uma mensagem e responderei em breve." : "Send a message and I'll get back to you shortly."}
         </p>
 
-        <form class="specialist-form">
-          <div class="input-group">
-            <input type="text" id="name" required placeholder=" " />
-            <label for="name">{isPt ? "Nome" : "Name"}</label>
-          </div>
+        <form class="specialist-form" novalidate> <div class="input-group">
+    <input type="text" id="name" required placeholder=" " />
+    <label for="name">{isPt ? "Nome" : "Name"}</label>
+    <span class="error-msg">{isPt ? "Por favor, diga seu nome" : "Please, tell me your name"}</span>
+  </div>
 
-          <div class="input-group">
-            <input type="email" id="email" required placeholder=" " />
-            <label for="email">E-mail</label>
-          </div>
+  <div class="input-group">
+    <input type="email" id="email" required placeholder=" " />
+    <label for="email">E-mail</label>
+    <span class="error-msg">{isPt ? "E-mail inválido" : "Invalid email"}</span>
+  </div>
 
-          <div class="input-group">
-            <textarea id="message" required placeholder=" " rows="6"></textarea>
-            <label for="message">{isPt ? "Sua Mensagem" : "Your Message"}</label>
-          </div>
+  <div class="input-group">
+    <textarea id="message" required placeholder=" " rows="6"></textarea>
+    <label for="message">{isPt ? "Sua Mensagem" : "Your Message"}</label>
+    <span class="error-msg">{isPt ? "A mensagem não pode estar vazia" : "Message cannot be empty"}</span>
+  </div>
 
-          <button type="submit" class="submit-btn">
-            <span class="btn-text">{isPt ? "DISPARAR MENSAGEM" : "SEND MESSAGE"}</span>
-            <div class="btn-shimmer"></div>
-          </button>
-        </form>
+  <button type="submit" class="submit-btn">
+    <div class="btn-background"></div>
+    <span class="btn-text">{isPt ? "DISPARAR MENSAGEM" : "SEND MESSAGE"}</span>
+    <div class="btn-progress"></div> </button>
+</form>
       </div>
 
       <div class="contact-social-side">
@@ -199,6 +201,31 @@ const linkWhatsapp = `https://wa.me/${meuNumero}?text=${encodeURIComponent(mensa
     font-weight: 800;
   }
 
+.input-group.error input, 
+  .input-group.error textarea {
+    border-color: #ff5f56 !important;
+    background: rgba(255, 95, 86, 0.05) !important;
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  .error-msg {
+    color: #ff5f56;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 5px;
+    display: block;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    height: 0;
+  }
+
+  .input-group.error .error-msg {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+    margin-top: 8px;
+  }
   /* --- SEND BUTTON --- */
   .submit-btn {
     position: relative;
@@ -233,6 +260,63 @@ const linkWhatsapp = `https://wa.me/${meuNumero}?text=${encodeURIComponent(mensa
   .submit-btn:hover .btn-shimmer {
     left: 100%;
     transition: all 0.8s;
+  }
+
+.submit-btn {
+    position: relative;
+    background: #111; /* Fundo escuro para o brilho destacar */
+    color: var(--accent);
+    border: 2px solid var(--accent);
+    padding: 1.3rem;
+    border-radius: 14px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .btn-text { position: relative; z-index: 5; transition: all 0.3s; }
+
+  .btn-background {
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    opacity: 0.1;
+    transition: opacity 0.3s;
+  }
+
+  .submit-btn:hover {
+    box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4);
+    color: #000;
+  }
+
+  .submit-btn:hover .btn-background { opacity: 1; }
+
+/* Barra de carregamento interna */
+  .btn-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 0%;
+    background: #fff;
+    box-shadow: 0 0 10px #fff;
+    transition: width 0.3s ease;
+    z-index: 6;
+  }
+
+  .submit-btn.loading .btn-progress {
+    width: 100%;
+    transition: width 2s linear; /* Tempo simulado de disparo */
+  }
+
+  /* Animação de Shake */
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
   }
 
   /* --- SOCIAL SIDE --- */
@@ -297,8 +381,10 @@ const linkWhatsapp = `https://wa.me/${meuNumero}?text=${encodeURIComponent(mensa
     const form = document.querySelector('.specialist-form') as HTMLFormElement;
     const submitBtn = form?.querySelector('.submit-btn') as HTMLButtonElement;
     const btnText = submitBtn?.querySelector('.btn-text');
+    
+    // Detecta o idioma pela URL para as mensagens do botão
+    const isPt = window.location.pathname.includes('/pt');
 
-    // Lógica de abrir/fechar (já tínhamos)
     window.addEventListener('openContactModal', () => {
       modal?.classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -307,21 +393,43 @@ const linkWhatsapp = `https://wa.me/${meuNumero}?text=${encodeURIComponent(mensa
     const closeHandler = () => {
       modal?.classList.remove('open');
       document.body.style.overflow = 'auto';
+      // Limpa erros e campos ao fechar
       form?.reset();
+      form?.querySelectorAll('.input-group').forEach(g => g.classList.remove('error'));
     };
 
     closeBtn?.addEventListener('click', closeHandler);
 
-    // --- LOGICA DE ENVIO VIA API ---
+    // --- LÓGICA DE VALIDAÇÃO E ENVIO ---
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      if (!submitBtn || !btnText) return;
 
-      // Estado de Carregamento
-      const originalText = btnText.textContent;
+      // 1. Reset de estados anteriores
+      const groups = form.querySelectorAll('.input-group');
+      groups.forEach(g => g.classList.remove('error'));
+      let hasError = false;
+
+      // 2. Validação Sênior (Manual)
+      const inputs = form.querySelectorAll('input[required], textarea[required]');
+      inputs.forEach((input: any) => {
+        const value = input.value.trim();
+        const isEmail = input.type === 'email';
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!value || (isEmail && !emailRegex.test(value))) {
+          input.parentElement.classList.add('error');
+          hasError = true;
+        }
+      });
+
+      // Se houver erro, paramos aqui (o CSS cuidará do "shake")
+      if (hasError || !submitBtn || !btnText) return;
+
+      // 3. Início do Envio (Efeito Sabre/Ignição)
+      submitBtn.classList.add('loading');
       submitBtn.disabled = true;
-      btnText.textContent = 'ENVIANDO...';
+      const originalText = btnText.textContent;
+      btnText.textContent = isPt ? 'IGNITANDO...' : 'IGNITING...';
 
       const formData = {
         name: (document.getElementById('name') as HTMLInputElement).value,
@@ -337,27 +445,41 @@ const linkWhatsapp = `https://wa.me/${meuNumero}?text=${encodeURIComponent(mensa
         });
 
         if (response.ok) {
-          btnText.textContent = 'MENSAGEM ENVIADA! ✓';
-          submitBtn.style.background = '#27c93f'; // Verde de sucesso
+          // Sucesso
+          btnText.textContent = isPt ? 'MENSAGEM DISPARADA! ✓' : 'MESSAGE SENT! ✓';
+          submitBtn.style.borderColor = '#27c93f';
+          submitBtn.style.color = '#27c93f';
+          
           setTimeout(() => {
             closeHandler();
-            // Resetar botão após fechar
-            submitBtn.disabled = false;
-            submitBtn.style.background = '';
-            btnText.textContent = originalText;
-          }, 2000);
+            resetButton(submitBtn, btnText, originalText!);
+          }, 2500);
         } else {
           throw new Error();
         }
       } catch (err) {
-        btnText.textContent = 'ERRO AO ENVIAR ✕';
-        submitBtn.style.background = '#ff5f56'; // Vermelho de erro
+        // Erro
+        btnText.textContent = isPt ? 'FALHA NO DISPARO ✕' : 'LAUNCH FAILED ✕';
+        submitBtn.style.borderColor = '#ff5f56';
+        submitBtn.style.color = '#ff5f56';
+        
         setTimeout(() => {
-          btnText.textContent = originalText;
-          submitBtn.disabled = false;
-          submitBtn.style.background = '';
+          resetButton(submitBtn, btnText, originalText!);
         }, 3000);
       }
+    });
+
+    function resetButton(btn: HTMLButtonElement, textEl: Element, oldText: string) {
+      btn.classList.remove('loading');
+      btn.disabled = false;
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      textEl.textContent = oldText;
+    }
+
+    // Fechar ao clicar fora
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeHandler();
     });
   }
 
