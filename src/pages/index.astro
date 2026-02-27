@@ -3,6 +3,7 @@ import { getCollection, getEntry } from "astro:content";
 import { ui } from "@utils/i18n";
 import MainLayout from "@layouts/MainLayout.astro";
 import WorkCard from "@components/WorkCard.astro";
+import ContactModal from "@components/ContactModal.astro";
 
 const nome = "Michael Howe";
 const cargo = "// Full-stack Developer";
@@ -159,7 +160,9 @@ const aboutData = aboutEntry?.data?.[isPt ? "pt" : "en"] || {
                     <h3 style="color: var(--accent); font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: bold;">{cargo}</h3>
                     <h1 class="main-header">{t["hero.title"]}</h1>
                     <p class="hero-subtitle">{t["hero.subtitle"]}</p>
-                    <a class="letsChat magnetic-btn" href="#contact">{t["lets.chat"]}</a>
+                    <button id="hero-chat-btn" class="letsChat magnetic-btn">
+    {t["lets.chat"]}
+</button>
                 </div>
 
                 <div class="visual-wrapper reveal">
@@ -284,6 +287,7 @@ const aboutData = aboutEntry?.data?.[isPt ? "pt" : "en"] || {
             </div>
         </section>
     </main>
+    <ContactModal />
 </MainLayout>
 
 <script>
@@ -295,6 +299,12 @@ const aboutData = aboutEntry?.data?.[isPt ? "pt" : "en"] || {
         const photoSensor = document.querySelector(".photo-sensor");
         const magneticBtns = document.querySelectorAll(".magnetic-btn");
         const spotlightCards = document.querySelectorAll('.spotlight-card');
+
+        const chatBtn = document.getElementById('hero-chat-btn');
+
+document.getElementById('hero-chat-btn')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('openContactModal'));
+});
 
         let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
         const ease = 0.15;
