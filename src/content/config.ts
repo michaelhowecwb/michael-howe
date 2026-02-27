@@ -7,11 +7,10 @@ const worksCollection = defineCollection({
     tags: z.array(z.string()).default([]),
     demoLink: z.string().optional(),
     repoLink: z.string().optional(),
-    // Estrutura Bilíngue
     en: z.object({
       title: z.string(),
       shortDescription: z.string(),
-      fullDescription: z.string().optional(), // NOVO
+      fullDescription: z.string().optional(),
       detailedSections: z.array(z.object({
         sectionTitle: z.string().optional(),
         content: z.string().optional(),
@@ -21,7 +20,7 @@ const worksCollection = defineCollection({
     pt: z.object({
       title: z.string(),
       shortDescription: z.string(),
-      fullDescription: z.string().optional(), // NOVO
+      fullDescription: z.string().optional(),
       detailedSections: z.array(z.object({
         sectionTitle: z.string().optional(),
         content: z.string().optional(),
@@ -31,4 +30,49 @@ const worksCollection = defineCollection({
   }),
 });
 
-export const collections = { 'works': worksCollection };
+const expertiseCollection = defineCollection({
+  type: 'data',
+  schema: z.object({
+    order: z.number(),
+    pt: z.object({ title: z.string(), description: z.string() }),
+    en: z.object({ title: z.string(), description: z.string() }),
+  }),
+});
+
+const aboutCollection = defineCollection({
+  type: 'data',
+  schema: z.object({
+    pt: z.object({
+      heading: z.string(),
+      subheading: z.string(),
+      bio: z.string(),
+      fullBio: z.string(),
+      bioImage: z.string().optional(),
+      experience: z.array(z.object({
+        year: z.string(),
+        company: z.string(),
+        role: z.string(),
+        description: z.string()
+      })).default([]),
+    }),
+    en: z.object({
+      heading: z.string(),
+      subheading: z.string(),
+      bio: z.string(),
+      fullBio: z.string(),
+      bioImage: z.string().optional(),
+      experience: z.array(z.object({
+        year: z.string(),
+        company: z.string(),
+        role: z.string(),
+        description: z.string()
+      })).default([]),
+    }),
+  }),
+});
+
+export const collections = { 
+  'works': worksCollection, 
+  'expertise': expertiseCollection, 
+  'about': aboutCollection 
+};

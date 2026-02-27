@@ -1,0 +1,285 @@
+---
+import { getEntry } from "astro:content";
+import MainLayout from "@layouts/MainLayout.astro";
+
+const nome = "Michael Howe";
+const { pathname } = Astro.url;
+const isPt = pathname.includes("/pt");
+const currentLang = isPt ? "pt-br" : "en";
+
+const aboutEntry = await getEntry("about", "index");
+const data = aboutEntry?.data?.[isPt ? "pt" : "en"];
+
+if (!data) return Astro.redirect(isPt ? "/pt/" : "/");
+const backLink = isPt ? "/pt/" : "/";
+---
+
+<MainLayout title={`About | Michael Howe`} lang={currentLang}>
+    <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
+
+    <div class="bg-glow" id="mouse-glow"></div>
+
+    <style>
+        /* --- PROGRESS BAR --- */
+        .progress-wrap {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* --- BACKGROUND GLOW DINÂMICO --- */
+        .bg-glow {
+            position: fixed; /* Mantém fixo na viewport */
+            top: 0;
+            left: 0;
+            width: 600px; /* Tamanho do blob */
+            height: 600px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0; /* Começa invisível para não dar flash */
+            filter: blur(100px);
+            z-index: -1; /* Fica atrás de tudo */
+            pointer-events: none; /* Mouse ignora ele */
+            
+            /* Performance: Prepara o navegador para animações de transformação */
+            will-change: transform, opacity; 
+            transition: opacity 1s ease; /* Suaviza a aparição */
+        }
+
+        /* Classe adicionada pelo JS quando o mouse move pela primeira vez */
+        .bg-glow.visible {
+            opacity: 0.08; /* Brilho sutil */
+        }
+
+        /* --- LAYOUT --- */
+        .about-page { padding: 120px 0; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        
+        .back-link { 
+            transition: all 0.3s ease;
+        }
+        .back-link:hover { transform: translateX(-8px); opacity: 0.8; }
+
+        h1 { 
+            font-size: clamp(3rem, 8vw, 5.5rem); 
+            margin-bottom: 40px; 
+            color: var(--text); 
+            letter-spacing: -3px; 
+            font-weight: 800; 
+            line-height: 1; 
+        }
+        
+        /* --- BIO SECTION (Corrigida e Polida) --- */
+        .bio-container { margin-bottom: 100px; overflow: visible;} 
+        
+        .bio-photo {
+            float: right;
+            width: 400px;
+            /* Margens ajustadas para respiro e para não cortar o shadow brutalista */
+            margin: 10px 40px 30px 40px; 
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            box-shadow: 10px 10px 0px var(--accent);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .bio-photo:hover { transform: scale(1.03) rotate(2deg); }
+
+        .full-bio { 
+            font-size: 1.15rem; 
+            line-height: 1.9; 
+            color: var(--secondary); 
+            white-space: pre-line;
+            text-align: justify;
+            /* Sua linha verde lateral */
+            border-left: solid 6px var(--accent);
+            padding-left: 20px; 
+        }
+
+        /* --- TIMELINE (Corrigida: Marker Fixo) --- */
+        .timeline-section { margin-top: 120px; }
+        .timeline { position: relative; border-left: 1px solid var(--card-border); padding-left: 0; }
+        
+        .timeline-item { 
+            position: relative; 
+            margin-bottom: 40px; 
+            padding-left: 45px; /* Espaço para o marker */
+        }
+
+        /* O Marker (A bolinha fixa na linha) */
+        .timeline-item::before { 
+            content: ''; 
+            position: absolute; 
+            left: -11px; /* Centraliza na linha de 2px */
+            top: 35px; /* Alinha com o título */
+            width: 20px; 
+            height: 20px; 
+            background: var(--bg); 
+            border: 2px solid var(--accent); 
+            border-radius: 50%; 
+            z-index: 2;
+            transition: all 0.3s ease-out; /* Suaviza o efeito de glow */
+        }
+
+        /* Efeito de Glow no Marker ao dar Hover no Item */
+        .timeline-item:hover::before {
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            transform: scale(1.15); /* Aumenta levemente sem mover de lugar */
+        }
+
+        /* O Conteúdo que se move independently */
+        .timeline-content {
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.02); /* Glassmorphism leve */
+            border-radius: 15px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover .timeline-content {
+            border-color: var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(20px); /* Move apenas o texto */
+        }
+
+        .time-year { font-family: 'Fira Code', monospace; color: var(--accent); font-size: 0.9rem; font-weight: bold; }
+        .time-role { font-size: 1.7rem; color: var(--text); margin: 10px 0; letter-spacing: -1px; }
+
+        /* REVEAL SYSTEM */
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .bio-photo { float: none; width: 100%; margin: 0 0 30px 0; }
+            h1 { font-size: 3rem; }
+            .about-page { padding: 80px 1.5rem; }
+            .timeline-item { padding-left: 30px; }
+            .timeline-item::before { left: -11px; }
+            .timeline-item:hover .timeline-content { transform: translateX(10px); }
+        }
+    </style>
+
+    <main class="container">
+        <div class="about-page">
+            <a href={backLink} class="back-link reveal" style="color: var(--accent); text-decoration: none; font-family: 'Fira Code', monospace; display: flex; align-items: center; gap: 8px; margin-bottom: 40px;">
+                ← {isPt ? "Voltar ao Início" : "Back to Home"}
+            </a>
+            
+            <article class="bio-container reveal">
+                <header>
+                    <span style="color: var(--accent); font-family: 'Fira Code', monospace; font-size: 0.9rem; display: block; margin-bottom: 10px;">
+                        {isPt ? "// A história" : "// The story"}
+                    </span>
+                    <h1>{data.heading}</h1>
+                </header>
+                
+                {data.bioImage && (
+                    <img src={data.bioImage} alt={nome} class="bio-photo reveal" />
+                )}
+
+                <div class="full-bio">
+                    {data.fullBio}
+                </div>
+            </article>
+
+            {data.experience && data.experience.length > 0 && (
+                <section class="timeline-section">
+                    <h2 class="reveal" style="font-size: 2.2rem; margin-bottom: 50px; color: var(--text); letter-spacing: -1.5px;">
+                        {isPt ? "Trajetória Profissional" : "Professional Journey"}
+                    </h2>
+                    <div class="timeline">
+                        {data.experience.map((item) => (
+                            <div class="timeline-item reveal">
+                                <div class="timeline-content">
+                                    <span class="time-year">{item.year}</span>
+                                    <h3 class="time-role">{item.role}</h3>
+                                    <span style="color: var(--accent); font-weight: bold; display: block; margin-bottom: 10px;">{item.company}</span>
+                                    <p class="time-desc" style="color: var(--secondary);">{item.description}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+        </div>
+    </main>
+
+    <script>
+        function initAboutEffects() {
+            // --- 1. BARRA DE PROGRESSO ---
+            const bar = document.getElementById("bar");
+            window.addEventListener("scroll", () => {
+                if (bar) {
+                    const winH = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    bar.style.width = (window.scrollY / winH) * 100 + "%";
+                }
+            });
+
+            // --- 2. GLOW QUE SEGUE O MOUSE (Avançado) ---
+            const glowEl = document.getElementById("mouse-glow") as HTMLElement;
+            
+            // Variáveis para suavização (Lerp)
+            let mouseX = 0, mouseY = 0;
+            let currentX = 0, currentY = 0;
+            const ease = 0.15; // Fator de suavização (0 a 1)
+            let isMoving = false;
+
+            if (glowEl) {
+                // Rastreia a posição do mouse na viewport
+                window.addEventListener("mousemove", (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+
+                    // Na primeira movimentação, torna o brilho visível
+                    if (!isMoving) {
+                        isMoving = true;
+                        glowEl.classList.add('visible');
+                        requestAnimationFrame(animateGlow); // Inicia o loop de animação
+                    }
+                });
+
+                // Função de animação (Roda a cada frame)
+                function animateGlow() {
+                    if (!isMoving) return;
+
+                    // Suavização (Lerp): current ganha uma % da diferença para o target
+                    currentX += (mouseX - currentX) * ease;
+                    currentY += (mouseY - currentY) * ease;
+
+                    // Aplica a transformação. Subtraímos 300px (metade do tamanho)
+                    // para que o centro do blob fique sob o cursor.
+                    // Usamos translate3d para forçar aceleração de hardware.
+                    const x = currentX - 300;
+                    const y = currentY - 300;
+                    
+                    glowEl.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+
+                    requestAnimationFrame(animateGlow); // Loop
+                }
+            }
+
+            // --- 3. REVEAL OBSERVER ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { 
+                    if (entry.isIntersecting) entry.target.classList.add('active'); 
+                });
+            }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        // Inicializa ao carregar e após trocas de página (Astro View Transitions)
+        initAboutEffects();
+        document.addEventListener("astro:after-swap", initAboutEffects);
+    </script>
+</MainLayout>

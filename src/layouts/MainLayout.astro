@@ -66,6 +66,7 @@ const { title, lang = "en" } = Astro.props;
                 --card-border: rgba(255, 255, 255, 0.05);
                 --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
                 --section-alt: #171717;
+                --section-alt-rgba: rgba(23, 23, 23, 0.8);
                 --footer-bg: #14171b;
                 --btt-bg: #111111;
                 --btt-icon: #00ff9d;
@@ -91,6 +92,7 @@ const { title, lang = "en" } = Astro.props;
                 --secondary: #64748b;
                 --card-border: rgba(0, 0, 0, 0.06);
                 --section-alt: #f1f5f9;
+                --section-alt-rgba: rgba(241, 245, 249, 0.8);
                 --footer-bg: #e2e8f0;
                 --btt-bg: #eeeff1;
                 --btt-icon: #111111;
@@ -133,6 +135,8 @@ const { title, lang = "en" } = Astro.props;
             /* Espaçamento para Navbar Fixa */
             main {
                 padding-top: 20px;
+                position: relative;
+                z-index: 1;
             }
             section {
                 scroll-margin-top: 80px;

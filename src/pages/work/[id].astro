@@ -1,7 +1,7 @@
 ---
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { getEntry } from 'astro:content';
 import MainLayout from '@layouts/MainLayout.astro';
-import { ui } from '@utils/i18n';
 
 export async function getStaticPaths() {
   const works = await getCollection('works');
@@ -18,23 +18,18 @@ interface Props {
 const { work } = Astro.props;
 const { pathname } = Astro.url;
 
-// Detecção de idioma pela URL
 const isPt = pathname.includes("/pt");
 const lang = (isPt ? 'pt' : 'en') as 'pt' | 'en';
 const currentLangTag = isPt ? 'pt-br' : 'en';
 
-// Seleção de dados
 const content = work.data[lang];
 const globalData = work.data;
 
 const textBack = isPt ? '← Voltar' : '← Go Back';
 const textDemo = isPt ? 'Acessar Projeto ↗' : 'Live Demo ↗';
 const textRepo = isPt ? 'Repositório ↗' : 'Repository ↗';
-
-// Define para onde o botão "Voltar" deve apontar
 const backLink = isPt ? "/pt/" : "/";
 
-// Função para gerar parágrafos reais e evitar texto "grudado"
 const formatText = (text: string | undefined) => {
   if (!text) return [];
   return text.split('\n').filter(p => p.trim() !== '');
@@ -44,12 +39,14 @@ const formatText = (text: string | undefined) => {
 <MainLayout title={`${content.title} | Portfolio`} lang={currentLangTag}>
   <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
 
+  <div class="bg-glow" id="mouse-glow"></div>
+
   <div class="work-article-container">
-    <header class="project-header reveal">
-      <a href={backLink} class="back-btn">{textBack}</a>
-      <h1 class="hero-title">{content.title}</h1>
+    <header class="project-header">
+      <a href={backLink} class="back-btn reveal">{textBack}</a>
+      <h1 class="hero-title reveal">{content.title}</h1>
       
-      <div class="header-container">
+      <div class="header-container reveal">
         <div class="description-column">
           <div class="description-text">
             {formatText(content.shortDescription).map(p => <p>{p}</p>)}
@@ -99,7 +96,6 @@ const formatText = (text: string | undefined) => {
             <div class="section-text">
               {formatText(section.content).map(p => <p>{p}</p>)}
             </div>
-            <div style="clear: both;"></div>
           </div>
         </section>
       ))}
@@ -108,119 +104,117 @@ const formatText = (text: string | undefined) => {
 </MainLayout>
 
 <style>
+  /* --- 1. CONFIGURAÇÕES TÉCNICAS --- */
   .work-article-container { 
-    max-width: 1000px; /* Reduzi um pouco para ficar mais elegante */
+    max-width: 1000px; 
     margin: 0 auto; 
     padding: 140px 2rem 100px; 
+    position: relative;
+    z-index: 1;
   }
+
+  /* --- 2. BARRA DE PROGRESSO & GLOW --- */
+  .progress-wrap { position: fixed; top: 70px; left: 0; width: 100%; height: 2px; z-index: 1000; pointer-events: none; }
+  .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s ease-out; box-shadow: 0 0 10px var(--accent); }
+
+  .bg-glow {
+    position: fixed; top: 0; left: 0; width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    opacity: 0; filter: blur(100px); z-index: -1; pointer-events: none;
+    will-change: transform, opacity; transition: opacity 1s ease;
+  }
+  .bg-glow.visible { opacity: 0.08; }
+
+  /* --- 3. HEADER & TYPOGRAPHY --- */
+  .back-btn { 
+    color: var(--accent); 
+    text-decoration: none; 
+    font-family: 'Fira Code', monospace; 
+    font-size: 0.85rem; 
+    margin-bottom: 2rem; 
+    display: inline-block;
+    transition: transform 0.3s ease;
+  }
+  .back-btn:hover { transform: translateX(-5px); }
+
+  .hero-title { 
+    font-size: clamp(3rem, 10vw, 5.5rem); 
+    font-weight: 900; 
+    letter-spacing: -4px; 
+    line-height: 0.85; 
+    margin-bottom: 3rem; 
+    color: var(--text); 
+  }
+
+  .description-text {
+    border-left: solid 6px var(--accent);
+    padding-left: 25px;
+    margin-bottom: 3rem;
+  }
+  .description-text p { font-size: 1.3rem; line-height: 1.7; color: var(--secondary); text-align: justify; }
+
+  /* --- 4. BUTTONS & TAGS --- */
+  .work-tag { 
+    font-size: 0.7rem; font-weight: 800; padding: 6px 14px; border-radius: 4px; 
+    background: rgba(var(--text-rgb), 0.03); color: var(--accent); 
+    border: 1px solid var(--card-border); text-transform: uppercase; 
+  }
+
+  .links-row { display: flex; gap: 1.5rem; margin-top: 2rem; }
   
-  /* Progress Bar */
-/* Barra de Progresso */
-  .progress-wrap { 
-    position: fixed; 
-    top: 70px; /* Alinhado com a altura da sua Navbar */
-    left: 0; 
-    width: 100%; 
-    height: 2px; 
-    z-index: 1000; 
-    pointer-events: none;
+  .btn-primary { 
+    background: var(--accent); color: #000; padding: 14px 35px; border-radius: 50px; 
+    text-decoration: none; font-weight: 800; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    border: 2px solid var(--accent);
   }
-  .progress-bar { 
-    height: 100%; 
-    background: var(--accent); 
-    width: 0%; 
-    transition: width 0.1s ease-out; 
-    box-shadow: 0 0 10px var(--accent);
+  .btn-outline { 
+    border: 2px solid var(--accent); color: var(--accent); padding: 14px 35px; border-radius: 50px; 
+    text-decoration: none; font-weight: 800; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
   }
 
-  /* Header Editorial */
-.header-container {
-    width: 100%;
-    margin-bottom: 4rem;
+  .btn-primary:hover, .btn-outline:hover { 
+    transform: translateY(-5px) scale(1.05); 
+    box-shadow: 0 10px 20px var(--dropshadow-rgb); 
   }
 
-  .project-header { margin-bottom: 6rem; }
-  .back-btn { color: var(--secondary); text-decoration: none; font-family: 'Fira Code', monospace; font-size: 0.85rem; margin-bottom: 2rem; display: block; }
-  .hero-title { font-size: clamp(3rem, 10vw, 5.5rem); font-weight: 900; letter-spacing: -3px; line-height: 0.9; margin-bottom: 3rem; color: var(--text); }
-
-  .description-column {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  .description-text p {
-    font-size: 1.25rem;
-    line-height: 1.7;
-    color: var(--secondary);
-    max-width: 800px; /* Evita linhas muito longas e cansativas */
-  }
-  .meta-info {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .tags-row { display: flex; flex-wrap: wrap; gap: 8px; }
-  .work-tag { font-size: 0.75rem; font-weight: 800; padding: 6px 14px; border-radius: 4px; background: rgba(var(--text-rgb), 0.05); color: var(--accent); border: 1px solid var(--card-border); text-transform: uppercase; }
-
-  .links-row { display: flex; gap: 1rem; }
-  .btn-primary { background: var(--accent); color: #000; padding: 14px 30px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 0.9rem; transition: 0.3s; border: 2px solid var(--accent); }
-  .btn-outline { border: 2px solid var(--accent); color: var(--accent); padding: 14px 30px; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 0.9rem; transition: 0.3s; }
-  .btn-primary:hover, .btn-outline:hover { transform: translateY(-4px); box-shadow: 0 15px 30px var(--dropshadow-rgb); }
-
-  /* Hero Image & Parallax */
+  /* --- 5. VISUALS & PARALLAX --- */
   .hero-visual { 
-    width: 100%; 
-    max-width: 800px; /* A imagem não será mais gigante */
-    margin: 0 auto 6rem; /* Centraliza a imagem */
-    border-radius: 20px;
-    overflow: hidden;
+    width: 100%; border-radius: 24px; overflow: hidden; 
+    margin-bottom: 8rem;;
   }
-  .parallax-window {
-    width: 100%;
-    aspect-ratio: 16 / 9; /* Mantém uma proporção de cinema elegante */
-    overflow: hidden;
-  }
-  .parallax-img { 
-    width: 100%; 
-    height: 100%;
-    object-fit: cover; /* Garante que preencha o espaço sem distorcer */
-  }
+  .parallax-window { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+  .parallax-img { width: 100%; height: 120%; object-fit: cover; transition: transform 0.1s ease-out; }
 
-  /* Seções Detalhadas (Float para Texto Contornar Imagem) */
-  .details-stack { display: flex; flex-direction: column; gap: 10rem; }
-  .section-heading { font-size: 2.8rem; font-weight: 800; margin-bottom: 3rem; color: var(--text); position: relative; padding-bottom: 15px; }
-  .section-heading::after { content: ''; position: absolute; left: 0; bottom: 0; width: 60px; height: 4px; background: var(--accent); }
+  /* --- 6. DETAILED SECTIONS --- */
+  .details-stack { display: flex; flex-direction: column; gap: 8rem; }
+  .section-heading { font-size: 2.5rem; font-weight: 900; margin-bottom: 2rem; color: var(--text); letter-spacing: -1.5px; }
 
-  .section-body { width: 100%; position: relative; }
+  .section-body { width: 100%; overflow: visible; }
+  
   .section-image-wrap { 
     width: 45%; 
-    max-width: 500px; 
-    margin-bottom: 2rem; 
-    background: transparent;
-    /* Adicione estas duas linhas abaixo */
-    shape-margin: 2rem; 
+    float: right; 
+    margin: 0 0 20px 40px; 
     border-radius: 20px;
+    border: 1px solid var(--card-border);
+    box-shadow: 4px 4px 0px var(--accent); /* Sombra Brutalista */
+    transition: all 0.4s ease;
   }
+  .is-reversed .section-image-wrap { float: left; margin: 0 40px 20px 0; }
   
-  /* Logica de Float */
-  .detail-section .section-image-wrap { float: right; margin-left: 4rem; }
-  .detail-section.is-reversed .section-image-wrap { float: left; margin-right: 4rem; margin-left: 0; }
+  .section-image-wrap:hover { transform: scale(1.02) rotate(1deg); }
+  .section-image-wrap img { width: 100%; border-radius: 20px; display: block; }
 
-  .section-image-wrap img { width: 100%; border-radius: 20px; display: block; transition: 0.5s; }
-  .section-image-wrap:hover img { transform: translateY(-10px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.3)); }
+  .section-text p { font-size: 1.15rem; line-height: 1.8; color: var(--secondary); margin-bottom: 1.5rem; text-align: justify; }
 
-  .section-text p { font-size: 1.2rem; line-height: 1.9; color: var(--secondary); margin-bottom: 1.8rem; text-align: justify; }
-
-  /* Animações reveal */
-  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+  /* --- 7. ANIMATIONS --- */
+  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1); }
   .reveal.active { opacity: 1; transform: translateY(0); }
 
   @media (max-width: 992px) {
-    .header-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .section-image-wrap { width: 100% !important; float: none !important; margin: 0 0 2rem 0 !important; }
-    .hero-title { font-size: 3.2rem; }
-    .section-text p { text-align: left; }
+    .section-image-wrap { width: 100% !important; float: none !important; margin: 0 0 2rem 0 !important; box-shadow: 6px 6px 0px var(--accent); }
+    .hero-title { font-size: 3.5rem; letter-spacing: -2px; }
+    .description-text { padding-left: 15px; }
     .links-row { flex-direction: column; }
     .btn-primary, .btn-outline { text-align: center; }
   }
@@ -228,32 +222,59 @@ const formatText = (text: string | undefined) => {
 
 <script>
   function initProject() {
+    // --- 1. PROGRESS BAR ---
     const bar = document.getElementById('bar');
     const heroImg = document.getElementById('hero-img');
 
     window.addEventListener('scroll', () => {
-      // 1. Barra de progresso
       if (bar) {
         const winH = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         bar.style.width = (window.scrollY / winH) * 100 + "%";
       }
-      // 2. Parallax
+      // Parallax suave
       if (heroImg) {
-        const speed = 0.1;
-        (heroImg as HTMLElement).style.transform = `translateY(${window.scrollY * speed}px) scale(1.1)`;
+        const speed = 0.15;
+        (heroImg as HTMLElement).style.transform = `translateY(${window.scrollY * speed}px)`;
       }
     });
 
-    // 3. Intersection Observer (Reveal)
+    // --- 2. MOUSE GLOW ---
+    const glowEl = document.getElementById("mouse-glow") as HTMLElement;
+    let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
+    const ease = 0.15;
+    let isMoving = false;
+
+    if (glowEl) {
+        window.addEventListener("mousemove", (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            if (!isMoving) {
+                isMoving = true;
+                glowEl.classList.add('visible');
+                requestAnimationFrame(animateGlow);
+            }
+        });
+
+        function animateGlow() {
+            if (!isMoving) return;
+            currentX += (mouseX - currentX) * ease;
+            currentY += (mouseY - currentY) * ease;
+            glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
+            requestAnimationFrame(animateGlow);
+        }
+    }
+
+    // --- 3. REVEAL OBSERVER ---
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) entry.target.classList.add('active');
       });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   }
 
+  // Inicialização
   initProject();
   document.addEventListener('astro:after-swap', initProject);
 </script>

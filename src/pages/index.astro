@@ -1,5 +1,5 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import { ui } from "@utils/i18n";
 import MainLayout from "@layouts/MainLayout.astro";
 import WorkCard from "@components/WorkCard.astro";
@@ -11,325 +11,219 @@ const isPt = pathname.includes("/pt");
 const t = isPt ? ui.pt : ui.en;
 const currentLang = isPt ? "pt-br" : "en";
 
-// 1. Busca os trabalhos e filtra apenas os que possuem os dados novos
-const allWorks = await getCollection("works");
+const allWorks = await getCollection("works") || [];
+const expertiseEntries = await getCollection("expertise") || [];
+const expertise = expertiseEntries.sort((a, b) => a.data.order - b.data.order);
 
-// 2. DEBUG: Olhe o terminal do seu VS Code para ver se os dados estão chegando!
-const debugInfo = JSON.stringify(allWorks, null, 2);
+const aboutEntry = await getEntry("about", "index");
+const aboutData = aboutEntry?.data?.[isPt ? "pt" : "en"] || {
+    heading: isPt ? "Sobre Mim" : "About Me",
+    subheading: isPt ? "Desenvolvedor focado em performance" : "Performance-focused developer",
+    bio: isPt ? "Preencha sua bio no Keystatic." : "Fill your bio in Keystatic."
+};
 ---
 
 <MainLayout title={`${nome} | Portfolio`} lang={currentLang}>
     <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
+    <div class="bg-glow" id="mouse-glow"></div>
+    
+    <!--<div class="noise-overlay"></div>-->
+
     <style>
-        /* Garante que os elementos interativos mostrem o cursor padrão */
-        a,
-        button,
-        .chat-link,
-        .service-card,
-        .work-card,
-        h1,
-        .theme-switch,
-        .slider {
-            cursor: pointer !important;
-        }
-        /* Barra de Progresso */
-        .progress-wrap {
-            position: fixed;
-            top: 70px; /* Alinhado com a altura da sua Navbar */
-            left: 0;
-            width: 100%;
-            height: 2px;
-            z-index: 1000;
-            pointer-events: none;
-        }
-        .progress-bar {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.1s ease-out;
-            box-shadow: 0 0 10px var(--accent);
-        }
+        /* --- 1. TEXTURA E GERAL --- */
 
-        /* Efeito de Surgimento (Reveal) */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
-        }
+        /*.noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none; z-index: 9999;
+        }*/
 
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .controls {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-left: 2rem;
-        }
+        a, button, .about-card, .work-card, .letsChat { cursor: pointer !important; }
 
-        section {
-            position: relative;
-            border-bottom: 1px solid var(--card-border);
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
 
-        /* --- ANIMAÇÕES GERAIS --- */
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-20px);
-            }
-            100% {
-                transform: translateY(0px);
-            }
-        }
+        section { position: relative; padding: 120px 0; border-bottom: 1px solid var(--card-border); }
 
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
-            will-change: transform, opacity; /* Melhora a performance */
-        }
+        /* --- 2. BARRA DE PROGRESSO & GLOW --- */
+        .progress-wrap { position: fixed; top: 70px; left: 0; width: 100%; height: 2px; z-index: 1000; pointer-events: none; }
+        .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s ease-out; box-shadow: 0 0 10px var(--accent); }
 
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 600px; height: 600px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0; filter: blur(100px); z-index: 0; pointer-events: none;
+            will-change: transform, opacity; transition: opacity 1s ease;
         }
+        .bg-glow.visible { opacity: 0.08; }
 
-        /* 3. Ajuste para os elementos não encavalarem no delay */
-        .reveal:nth-child(2) {
-            transition-delay: 0.1s;
-        }
-        .reveal:nth-child(3) {
-            transition-delay: 0.2s;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        #services {
-            padding: 60px 0;
-            width: 100%; /* Ocupa tudo */
-            background-color: var(--section-alt);
-            border-top: 1px solid var(--card-border);
-            border-bottom: 1px solid var(--card-border);
-            transition: background-color 0.3s ease;
-        }
-
-        .services-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 100px;
-        }
-
-        .service-card {
-            background: var(
-                --card-bg
-            ); /* O card volta a ser a cor base do tema para dar contraste */
-            border: 1px solid var(--card-border);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: -3px -3px 0px var(--accent);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .service-card:hover {
-            transform: translate(3px, 3px);
-            box-shadow: 3px 3px 0px var(--accent);
-        }
-
-        #works {
-            padding: 20px 0 130px 0;
-            border-bottom: none !important;
-        }
-
-        /* --- HEADER GRADIENT --- */
+        /* --- 3. HERO SECTION --- */
+        .hero-container { display: flex; align-items: center; min-height: 85vh; padding-top: 40px; gap: 60px; }
         h1.main-header {
-            font-size: 4.5rem;
-            line-height: 1.1;
-            background: radial-gradient(
-                circle at var(--x, 50%) var(--y, 50%),
-                var(--accent) 0%,
-                var(--text) 100%
-            );
-            filter: drop-shadow(0 2px 10px var(--dropshadow-rgb));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transition: filter 0.3s ease;
+            font-size: clamp(3.5rem, 12vw, 6rem); font-weight: 900; line-height: 0.85; letter-spacing: -4px;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), var(--accent) 0%, var(--text) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 10px var(--dropshadow-rgb)); margin: 20px 0 30px;
         }
 
-        /* --- FOTO E EFEITO MAGNÉTICO --- */
-        .hero-container {
-            display: flex;
-            align-items: center;
-            min-height: 85vh;
-            gap: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
+        .hero-subtitle { color: var(--secondary); font-size: 1.3rem; max-width: 500px; line-height: 1.6; margin-bottom: 40px; }
 
-        .visual-wrapper {
-            position: relative;
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
         .letsChat {
-            position: relative;
-            text-decoration: none;
-            display: inline-block;
-            padding: 12px 24px;
-            text-decoration: none;
-            border: 2px solid var(--accent);
-            border-radius: 50px;
-            color: var(--accent);
-            font-weight: bold;
-            transition: all 0.3s ease;
+            text-decoration: none; display: inline-block; padding: 14px 35px; border: 2px solid var(--accent);
+            border-radius: 50px; color: var(--accent); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: transparent;
         }
         .letsChat:hover {
-            background: var(--accent);
-            color: var(--links-text);
-            box-shadow: 0 0 20px var(--dropshadow-rgb);
+            background: var(--accent); color: #000; transform: translateY(-5px);
+            box-shadow: 0 10px 20px var(--dropshadow-rgb);
         }
 
-        /* O SENSOR define a área onde o imã funciona */
-        .photo-sensor {
-            position: relative;
-            width: 380px;
-            height: 480px;
-            z-index: 50;
-        }
+        /* --- SISTEMA DE ÍCONES FLUTUANTES --- */
+        .visual-wrapper { flex: 1; display: flex; justify-content: center; position: relative; }
+        .photo-sensor { width: 380px; height: 480px; position: relative; z-index: 50; }
+        #profile-photo { position: absolute; width: 100%; height: 100%; transition: transform 0.1s ease-out; border-radius: 20px; overflow: hidden;}
+        #profile-photo img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* A FOTO que se move */
-        #profile-photo {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            will-change: transform;
-            pointer-events: none; /* Mouse passa através dela para o sensor */
-            transition: transform 0.1s ease-out; /* Suaviza a volta */
-        }
-
-        #profile-photo img {
-            width: 100%;
-            height: 100%;
-            /*border-radius: 20px;*/
-            object-fit: cover;
-            /*box-shadow: 0 20px 50px rgba(0,0,0,0.5);*/
-        }
-
-        /* ÍCONES FLUTUANTES */
-        .floating-icon {
-            position: absolute;
-            width: 55px;
-            height: 55px;
-            z-index: 60;
+        .floating-icon { 
+            position: absolute; 
+            z-index: 60; 
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
             pointer-events: none;
-            animation: float 4s ease-in-out infinite;
+            transition: all 0.3s ease;
         }
 
-        @keyframes float {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-15px);
-            }
-        }
+        /* Animações Diferenciadas */
+        @keyframes float-1 { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-20px) rotate(5deg); } }
+        @keyframes float-2 { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(15px) rotate(-8deg); } }
+        @keyframes float-3 { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1) translateY(-10px); } }
 
-        .astro-mask {
-            width: 100%;
-            height: 100%;
-            background: #bc52ee;
-            -webkit-mask: url("/icons/astro.svg") no-repeat center / contain;
-            mask: url("/icons/astro.svg") no-repeat center / contain;
-            filter: drop-shadow(0 0 12px rgba(188, 82, 238, 0.8));
+        .anim-1 { animation: float-1 4s ease-in-out infinite; }
+        .anim-2 { animation: float-2 5s ease-in-out infinite; }
+        .anim-3 { animation: float-3 6s ease-in-out infinite; }
+
+        /* --- 5. ABOUT / EXPERTISE (COM SEU EFEITO DE SOMBRA) --- */
+        #about { background-color: var(--section-alt-rgba); backdrop-filter: blur(10px); }
+        .about-container { display: grid; grid-template-columns: 1fr 1.5fr; gap: 80px; align-items: start; }
+        
+        .about-card {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); padding: 40px;
+            border-radius: 20px; box-shadow: -6px -6px 0px var(--accent);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden; /* Importante para o spotlight não vazar */
         }
-        .react-mask {
-            width: 100%;
-            height: 100%;
-            background: #61dafb;
-            -webkit-mask: url("/icons/react.svg") no-repeat center / contain;
-            mask: url("/icons/react.svg") no-repeat center / contain;
-            filter: drop-shadow(0 0 12px rgba(97, 218, 251, 0.8));
+        /* O EFEITO SPOTLIGHT AQUI */
+        .spotlight-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                600px circle at var(--mouse-x) var(--mouse-y), 
+                rgba(255, 255, 255, 0.08), 
+                transparent 40%
+            );
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
         }
-        @media (max-width: 768px) {
-            h1.main-header {
-                font-size: 3rem;
-            }
-            section {
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
-                position: relative;
-                border-bottom: 1px solid var(--card-border);
-            }
-            section:last-of-type {
-                border-bottom: none;
-            }
-            .photo-sensor {
-                width: 100% !important;
-                max-width: 300px;
-                height: 380px !important;
-            }
-            .glow-astro-container,
-            .glow-react-container,
-            body {
-                cursor: auto;
-            }
-            .controls {
-                margin-left: 1rem;
-                gap: 1rem;
-            }
-            .services-container {
-                grid-template-columns: 1fr;
-                gap: 50px;
-            }
+        .spotlight-card:hover::before { opacity: 1; }
+
+        /* Garante que o texto fique acima da luz */
+        .spotlight-card > * { position: relative; z-index: 1; }
+
+        .about-card:hover { transform: translate(4px, 4px); box-shadow: 6px 6px 0px var(--accent); border: 1px solid var(--accent); }
+
+        .intro-text h2 { font-size: 3rem; font-weight: 900; letter-spacing: -2px; margin-bottom: 20px; }
+        .intro-text .bio-line { border-left: 6px solid var(--accent); padding-left: 25px; margin-top: 30px; }
+
+        /* --- 6. WORKS GRID --- */
+        #works { padding: 60px 0 200px 0; border-bottom: none !important; display: block;}
+        .works-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 992px) {
+            .hero-container, .about-container { flex-direction: column; text-align: center; }
+            .about-card { text-align: left; }
+            .photo-sensor { width: 300px; height: 380px; }
+            .floating-icon { transform: scale(0.7); }
         }
     </style>
 
-    <main>
-        <section id="home" class="container reveal">
+    <main style="position: relative; z-index: 1;">
+        <section id="home" class="container">
             <div class="hero-container">
-                <div style="flex: 1.2;">
-                    <span
-                        style="color: var(--accent); font-family: 'Fira Code', monospace; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem;"
-                    >
-                        {cargo}
-                    </span>
-                    <h1 class="main-header reveal">{t["hero.title"]}</h1>
-                    <p
-                        style="color: var(--secondary); font-size: 1.2rem; max-width: 500px;"
-                    >
-                        {t["hero.subtitle"]}
-                    </p>
-                    <a class="letsChat" href="#contact" style=""
-                        >{t["lets.chat"]}</a
-                    >
+                <div style="flex: 1.2;" class="reveal">
+                    <h3 style="color: var(--accent); font-family: 'Fira Code', monospace; font-size: 1.2rem; font-weight: bold;">{cargo}</h3>
+                    <h1 class="main-header">{t["hero.title"]}</h1>
+                    <p class="hero-subtitle">{t["hero.subtitle"]}</p>
+                    <a class="letsChat magnetic-btn" href="#contact">{t["lets.chat"]}</a>
                 </div>
 
-                <div class="visual-wrapper">
-                    <div class="floating-icon" style="top: -20px; left: 0;">
-                        <div class="astro-mask"></div>
+                <div class="visual-wrapper reveal">
+                    <div class="floating-icon anim-1" style="top: -20px; left: -30px; width: 60px;">
+                        <svg viewBox="0 0 85 107" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M27.5894 91.1365C22.7555 86.7178 21.3444 77.4335 23.3583 70.7072C26.8503 74.948 31.6888 76.2914 36.7005 77.0497C44.4375 78.2199 52.0359 77.7822 59.2232 74.2459C60.0454 73.841 60.8052 73.3027 61.7036 72.7574C62.378 74.714 62.5535 76.6892 62.318 78.6996C61.7452 83.5957 59.3086 87.3778 55.4332 90.2448C53.8835 91.3916 52.2437 92.4167 50.6432 93.4979C45.7262 96.8213 44.3959 100.718 46.2435 106.386C46.2874 106.525 46.3267 106.663 46.426 107C43.9155 105.876 42.0817 104.24 40.6845 102.089C39.2087 99.8193 38.5066 97.3081 38.4696 94.5909C38.4511 93.2686 38.4511 91.9345 38.2733 90.6309C37.8391 87.4527 36.3471 86.0297 33.5364 85.9478C30.6518 85.8636 28.37 87.6469 27.7649 90.4554C27.7187 90.6707 27.6517 90.8837 27.5847 91.1341L27.5894 91.1365Z" fill="url(#astroGrad)"/>
+                            <path d="M0 69.5866C0 69.5866 14.3139 62.6137 28.6678 62.6137L39.4901 29.1204C39.8953 27.5007 41.0783 26.3999 42.4139 26.3999C43.7495 26.3999 44.9325 27.5007 45.3377 29.1204L56.1601 62.6137C73.1601 62.6137 84.8278 69.5866 84.8278 69.5866C84.8278 69.5866 60.5145 3.35233 60.467 3.21944C59.7692 1.2612 58.5911 0 57.0029 0H27.8274C26.2392 0 25.1087 1.2612 24.3634 3.21944C24.3108 3.34983 0 69.5866 0 69.5866Z" fill="white"/>
+                            <defs><linearGradient id="astroGrad" x1="22.4702" y1="107" x2="69.1451" y2="84.9468" gradientUnits="userSpaceOnUse"><stop stop-color="#D83333"/><stop offset="1" stop-color="#F041FF"/></linearGradient></defs>
+                        </svg>
                     </div>
-                    <div
-                        class="floating-icon"
-                        style="bottom: 20px; right: 0; animation-delay: -2s;"
-                    >
-                        <div class="react-mask"></div>
+
+                    <div class="floating-icon anim-2" style="top: 20px; right: -40px; width: 75px;">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" stroke="#00D8FF" stroke-width="1">
+                                <circle cx="12" cy="12" r="2" fill="#00D8FF"/>
+                                <ellipse cx="12" cy="12" rx="10" ry="4.5"/>
+                                <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/>
+                                <ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="floating-icon anim-3" style="top: 50%; right: -65px; width: 55px;">
+                        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="kot1" x1="26.5%" y1="146%" x2="73.8%" y2="52%"><stop stop-color="#0095D5" offset="0%"/><stop stop-color="#806EE3" offset="100%"/></linearGradient>
+                                <linearGradient id="kot2" x1="13.9%" y1="37%" x2="68.6%" y2="-13%"><stop stop-color="#0095D5" offset="0%"/><stop stop-color="#806EE3" offset="100%"/></linearGradient>
+                                <linearGradient id="kot3" x1="-16.8%" y1="91.9%" x2="76.2%" y2="-1.1%"><stop stop-color="#C757BC" offset="0%"/><stop stop-color="#F88909" offset="100%"/></linearGradient>
+                            </defs>
+                            <polygon fill="url(#kot1)" points="0 256 128.4 127.5 256 256"/>
+                            <polygon fill="url(#kot2)" points="0 0 128.4 0 0 138.6"/>
+                            <polygon fill="url(#kot3)" points="128.4 0 0 135.2 0 256 128.4 127.5 256 0"/>
+                        </svg>
+                    </div>
+
+                    <div class="floating-icon anim-3" style="top: 35%; left: -85px; width: 50px;">
+                        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16.0497 8.44062C22.6378 3.32607 19.2566 0 19.2566 0C19.7598 5.28738 13.813 6.53583 12.2189 10.1692C11.1312 12.6485 12.9638 14.8193 16.0475 17.5554C15.7749 16.9494 15.3544 16.3606 14.9288 15.7645C13.4769 13.7313 11.9645 11.6132 16.0497 8.44062Z" fill="#E76F00"/>
+                            <path d="M17.1015 18.677C17.1015 18.677 19.0835 17.0779 17.5139 15.3008C12.1931 9.27186 23.3333 6.53583 23.3333 6.53583C16.5317 9.8125 17.5471 11.7574 19.2567 14.1202C21.0871 16.6538 17.1015 18.677 17.1015 18.677Z" fill="#E76F00"/>
+                            <path d="M22.937 23.4456C29.0423 20.3258 26.2195 17.3278 24.2492 17.7317C23.7662 17.8305 23.5509 17.9162 23.5509 17.9162C23.5509 17.9162 23.7302 17.64 24.0726 17.5204C27.9705 16.1729 30.9682 21.4949 22.8143 23.6028C22.8143 23.6029 22.9088 23.5198 22.937 23.4456Z" fill="#5382A1"/>
+                            <path d="M10.233 19.4969C6.41312 18.9953 12.3275 17.6139 12.3275 17.6139C12.3275 17.6139 10.0307 17.4616 7.20592 18.8043C3.86577 20.3932 15.4681 21.1158 21.474 19.5625C22.0984 19.1432 22.9614 18.7798 22.9614 18.7798C22.9614 18.7798 20.5037 19.2114 18.0561 19.4145C15.0612 19.6612 11.8459 19.7093 10.233 19.4969Z" fill="#5382A1"/>
+                            <path d="M11.6864 22.4758C9.55624 22.2592 10.951 21.2439 10.951 21.2439C5.43898 23.0429 14.0178 25.083 21.7199 22.8682C20.9012 22.5844 20.3806 22.0653 20.3806 22.0653C16.6163 22.7781 14.441 22.7553 11.6864 22.4758Z" fill="#5382A1"/>
+                            <path d="M12.6145 25.6991C10.486 25.4585 11.7295 24.7474 11.7295 24.7474C6.72594 26.1222 14.7729 28.9625 21.1433 26.2777C20.0999 25.8787 19.3528 25.4181 19.3528 25.4181C16.5111 25.9469 15.1931 25.9884 12.6145 25.6991Z" fill="#5382A1"/>
+                            <path d="M25.9387 27.3388C25.9387 27.3388 26.8589 28.0844 24.9252 28.6612C21.2481 29.7566 9.62093 30.0874 6.39094 28.7049C5.22984 28.2082 7.40723 27.5189 8.09215 27.3742C8.80646 27.2219 9.21466 27.2503 9.21466 27.2503C7.9234 26.3558 0.868489 29.0067 5.63111 29.7659C18.6195 31.8372 29.3077 28.8331 25.9387 27.3388Z" fill="#5382A1"/>
+                            <path d="M28 28.9679C27.7869 31.6947 18.7877 32.2683 12.9274 31.8994C9.10432 31.6583 8.33812 31.0558 8.32691 31.047C11.9859 31.6402 18.1549 31.7482 23.1568 30.8225C27.5903 30.0016 28 28.9679 28 28.9679Z" fill="#5382A1"/>
+                        </svg>
+                    </div>
+
+                    <div class="floating-icon anim-1" style="bottom: 60px; left: -60px; width: 50px;">
+                        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h256v256H0z" fill="#F7DF1E"/>
+                            <path d="M67.3 213.9l19.6-11.8c3.8 6.7 7.2 12.4 15.5 12.4 7.9 0 12.9-3.1 12.9-15.1v-81.8h24v81.8c0 24.9-14.6 36.3-35.9 36.3-19.2 0-30.4-10-36.1-22M152.4 211.3l19.6-11.3c5.1 8.4 11.8 14.6 23.7 14.6 10 0 16.3-5 16.3-11.9 0-8.2-6.5-11.2-17.5-16l-6-2.6c-17.4-7.4-28.9-16.7-28.9-36.3 0-18 13.8-31.8 35.2-31.8 15.3 0 26.3 5.3 34.2 19.3l-18.7 12c-4.1-7.4-8.6-10.3-15.5-10.3-7 0-11.5 4.5-11.5 10.3 0 7.2 4.5 10.1 14.8 14.6l6 2.6c20.5 8.7 32 17.7 32 37.8 0 21.6-17 33.5-39.9 33.5-22.3 0-36.7-10.6-43.8-24.6" fill="#000"/>
+                        </svg>
+                    </div>
+
+                    <div class="floating-icon anim-2" style="bottom: -15px; right: -25px; width: 60px;">
+                        <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="pyGrad1" x1="12.5" y1="2" x2="12.5" y2="22.7" gradientUnits="userSpaceOnUse"><stop stop-color="#327EBD"/><stop offset="1" stop-color="#1565A7"/></linearGradient>
+                                <linearGradient id="pyGrad2" x1="19.5" y1="9.3" x2="19.5" y2="30" gradientUnits="userSpaceOnUse"><stop stop-color="#FFDA4B"/><stop offset="1" stop-color="#F9C600"/></linearGradient>
+                            </defs>
+                            <path d="M13 2c-2.2 0-4 1.7-4 3.9V8.5h6.9V9.3H6C3.8 9.3 2 11 2 13.1v5.8c0 2.1 1.8 3.8 4 3.8h2.3v-3.3c0-2.1 1.8-3.8 4-3.8h7.4c1.8 0 3.3-1.4 3.3-3.2V5.9c0-2.1-1.8-3.9-4-3.9H13zm-1 4.7c.8 0 1.4-.6 1.4-1.3s-.6-1.3-1.4-1.3-1.4.6-1.4 1.3.6 1.3 1.4 1.3z" fill="url(#pyGrad1)"/>
+                            <path d="M19 30c2.2 0 4-1.7 4-3.9v-2.6h-6.9v-.8H26c2.2 0 4-1.7 4-3.8v-5.8c0-2.1-1.8-3.8-4-3.8h-2.3v3.3c0 2.1-1.8 3.8-4 3.8h-7.3c-1.9 0-3.4 1.4-3.4 3.2v6.5c0 2.2 1.8 3.9 4 3.9H19zm1-4.7c-.8 0-1.4.6-1.4 1.3s.6 1.3 1.4 1.3 1.4-.6 1.4-1.3-.6-1.3-1.4-1.3z" fill="url(#pyGrad2)"/>
+                        </svg>
                     </div>
 
                     <div class="photo-sensor">
@@ -341,183 +235,146 @@ const debugInfo = JSON.stringify(allWorks, null, 2);
             </div>
         </section>
 
-        <section id="services" class="reveal">
-            <div class="services-container">
+        <section id="about">
+            <div class="container about-container">
                 <div style="display: flex; flex-direction: column; gap: 40px;">
-                    <div class="service-card reveal">
-                        <h3
-                            class="reveal"
-                            style="color: var(--accent); margin: 0 0 10px 0;"
-                        >
-                            {t["services.design"]}
-                        </h3>
-                        <p style="color: var(--secondary); margin: 0;">
-                            {t["services.design.desc"]}
-                        </p>
-                    </div>
-                    <div class="service-card reveal" class="reveal">
-                        <h3 style="color: var(--accent); margin: 0 0 10px 0;">
-                            {t["services.dev"]}
-                        </h3>
-                        <p style="color: var(--secondary); margin: 0;">
-                            {t["services.dev.desc"]}
-                        </p>
-                    </div>
+                    {expertise.map((item) => {
+                        const lang = isPt ? "pt" : "en";
+                        const card = item.data[lang];
+                        return (
+                            <div class="about-card spotlight-card reveal"> 
+                                <h3 style="color: var(--accent); font-size: 1.5rem; margin-bottom: 15px; font-weight: 800;">{card.title}</h3>
+                                <p style="color: var(--secondary); line-height: 1.6; margin: 0;">{card.description}</p>
+                            </div>
+                        )
+                    })}
                 </div>
 
                 <div class="intro-text">
-                    <h2
-                        class="reveal"
-                        style="font-size: 2.5rem; margin-top: 0; color: var(--text);"
-                    >
-                        {t["intro.h2"]}
-                    </h2>
-                    <p
-                        style="color: var(--text); font-style: italic; font-size: 1.5rem; margin-bottom: 20px;"
-                    >
-                        {t["intro.p1"]}
-                    </p>
-                    <p style="color: var(--secondary);">
-                        {t["intro.p2"]}
-                    </p>
+                    <h2 class="reveal">{aboutData.heading}</h2>
+                    <p class="reveal" style="color: var(--text); font-style: italic; font-size: 1.4rem; opacity: 0.8;">{aboutData.subheading}</p>
+                    <div class="bio-line reveal">
+                        <p style="color: var(--secondary); line-height: 1.8; font-size: 1.1rem; margin-bottom: 30px;">{aboutData.bio}</p>
+                        <a href={isPt ? "/pt/about" : "/about"} class="letsChat magnetic-btn">{isPt ? "Mais sobre mim →" : "Learn more about me →"}</a>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section id="works" class="reveal">
-            <div class="container">
-                <h2 style="font-size: 2.5rem; margin-bottom: 40px;">
-                    {t["works.title"]}
-                </h2>
-                <div
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;"
-                >
-                    {
-                        allWorks.map((work) => {
-                            // Seleciona o idioma com segurança para o TypeScript
-                            const lang = (isPt ? "pt" : "en") as "pt" | "en";
-                            const content = work.data[lang];
-
-                            // Se o projeto for antigo ou não tiver conteúdo no idioma, ignoramos
-                            if (!content) return null;
-
-                            const cleanId = work.id.split("/")[0];
-
-                            return (
-                                <WorkCard
-                                    title={content.title}
-                                    description={content.shortDescription}
-                                    tags={work.data.tags}
-                                    thumbnail={work.data.thumbnail}
-                                    link={
-                                        isPt
-                                            ? `/pt/work/${cleanId}`
-                                            : `/work/${cleanId}`
-                                    }
-                                />
-                            );
-                        })
-                    }
-                </div>
+        <section id="works" class="container">
+            <h2 class="reveal" style="font-size: 3rem; font-weight: 900; margin-bottom: 60px; letter-spacing: -2px;">{t["works.title"]}</h2>
+            <div class="works-grid">
+                {allWorks.map((work) => {
+                    const lang = (isPt ? "pt" : "en") as "pt" | "en";
+                    const content = work.data[lang];
+                    if (!content) return null;
+                    const cleanId = work.id.split("/")[0];
+                    return (
+                        <div class="reveal">
+                            <WorkCard
+                                title={content.title}
+                                description={content.shortDescription}
+                                tags={work.data.tags}
+                                thumbnail={work.data.thumbnail}
+                                link={isPt ? `/pt/work/${cleanId}` : `/work/${cleanId}`}
+                            />
+                        </div>
+                    );
+                })}
             </div>
         </section>
     </main>
+</MainLayout>
 
-    <script>
-        // Type casting corrigido para TypeScript do Astro
-        const photoEl = document.getElementById("profile-photo") as HTMLElement;
-        const sensor = document.querySelector(".photo-sensor") as HTMLElement;
+<script>
+    function initHome() {
+        const bar = document.getElementById("bar");
+        const glowEl = document.getElementById("mouse-glow") as HTMLElement;
         const title = document.querySelector("h1.main-header") as HTMLElement;
+        const photoEl = document.getElementById("profile-photo");
+        const photoSensor = document.querySelector(".photo-sensor");
+        const magneticBtns = document.querySelectorAll(".magnetic-btn");
+        const spotlightCards = document.querySelectorAll('.spotlight-card');
 
-        let mouseX = 0,
-            mouseY = 0;
-        let targetX = 0,
-            targetY = 0;
-        let currentX = 0,
-            currentY = 0;
+        let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
+        const ease = 0.15;
+        let isMoving = false;
+        let pTargetX = 0, pTargetY = 0, pCurrX = 0, pCurrY = 0;
 
-        document.addEventListener("mousemove", (e) => {
+        window.addEventListener("mousemove", (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
 
-            if (title) {
-                const rect = title.getBoundingClientRect();
-                const x = ((mouseX - rect.left) / rect.width) * 100;
-                const y = ((mouseY - rect.top) / rect.height) * 100;
-                title.style.setProperty("--x", `${x}%`);
-                title.style.setProperty("--y", `${y}%`);
+            if (glowEl && !isMoving) {
+                isMoving = true;
+                glowEl.classList.add('visible');
+                requestAnimationFrame(animateGlow);
             }
 
-            if (sensor) {
-                const rect = sensor.getBoundingClientRect();
-                const isInside =
-                    mouseX >= rect.left &&
-                    mouseX <= rect.right &&
-                    mouseY >= rect.top &&
-                    mouseY <= rect.bottom;
+            // ATUALIZAÇÃO DAS VARIÁVEIS CSS PARA O SPOTLIGHT
+            spotlightCards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                (card as HTMLElement).style.setProperty('--mouse-x', `${x}px`);
+                (card as HTMLElement).style.setProperty('--mouse-y', `${y}px`);
+            });
 
-                if (isInside) {
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-                    targetX = (mouseX - centerX) / 6;
-                    targetY = (mouseY - centerY) / 6;
+            if (title) {
+                const rect = title.getBoundingClientRect();
+                title.style.setProperty("--x", `${((e.clientX - rect.left) / rect.width) * 100}%`);
+                title.style.setProperty("--y", `${((e.clientY - rect.top) / rect.height) * 100}%`);
+            }
+
+            if (photoSensor) {
+                const rect = photoSensor.getBoundingClientRect();
+                const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+                pTargetX = inside ? (e.clientX - (rect.left + rect.width / 2)) / 7 : 0;
+                pTargetY = inside ? (e.clientY - (rect.top + rect.height / 2)) / 7 : 0;
+            }
+
+            magneticBtns.forEach(btn => {
+                const rect = btn.getBoundingClientRect();
+                const dist = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+                if (dist < 80) {
+                    const bx = (e.clientX - (rect.left + rect.width/2)) * 0.3;
+                    const by = (e.clientY - (rect.top + rect.height/2)) * 0.3;
+                    (btn as HTMLElement).style.transform = `translate3d(${bx}px, ${by}px, 0)`;
                 } else {
-                    targetX = 0;
-                    targetY = 0;
+                    (btn as HTMLElement).style.transform = `translate3d(0, 0, 0)`;
                 }
+            });
+        });
+
+        function animateGlow() {
+            if (!isMoving) return;
+            currentX += (mouseX - currentX) * ease;
+            currentY += (mouseY - currentY) * ease;
+            if (glowEl) glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
+            requestAnimationFrame(animateGlow);
+        }
+
+        function animatePhoto() {
+            pCurrX += (pTargetX - pCurrX) * 0.1;
+            pCurrY += (pTargetY - pCurrY) * 0.1;
+            if (photoEl) (photoEl as HTMLElement).style.transform = `translate3d(${pCurrX}px, ${pCurrY}px, 0) scale(${pTargetX !== 0 ? 1.05 : 1})`;
+            requestAnimationFrame(animatePhoto);
+        }
+        animatePhoto();
+
+        window.addEventListener("scroll", () => {
+            if (bar) {
+                const winH = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                bar.style.width = (window.scrollY / winH) * 100 + "%";
             }
         });
 
-        function animate() {
-            // Suavização (Lerp)
-            currentX += (targetX - currentX) * 0.1;
-            currentY += (targetY - currentY) * 0.1;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("active"); });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+        document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+    }
 
-            if (photoEl) {
-                photoEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(${targetX !== 0 ? 1.05 : 1})`;
-            }
-
-            requestAnimationFrame(animate);
-        }
-        animate();
-        function initScrollEffects() {
-            const bar = document.getElementById("bar");
-
-            window.addEventListener("scroll", () => {
-                // Atualiza barra de progresso
-                if (bar) {
-                    const winH =
-                        document.documentElement.scrollHeight -
-                        document.documentElement.clientHeight;
-                    const scrolled = window.scrollY;
-                    bar.style.width = (scrolled / winH) * 100 + "%";
-                }
-            });
-
-            // Intersection Observer para os elementos surgirem
-            const observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add("active");
-                        }
-                    });
-                },
-                {
-                    threshold: 0.1,
-                    rootMargin: "0px 0px -50px 0px", // Começa a animar um pouco antes de entrar totalmente na tela
-                },
-            );
-
-            document
-                .querySelectorAll(".reveal")
-                .forEach((el) => observer.observe(el));
-        }
-
-        // Inicializa
-        initScrollEffects();
-
-        // Se você usa View Transitions do Astro:
-        document.addEventListener("astro:after-swap", initScrollEffects);
-    </script>
-</MainLayout>
+    initHome();
+    document.addEventListener("astro:after-swap", initHome);
+</script>

@@ -3,166 +3,152 @@ interface Props {
   title: string;
   description: string;
   tags: string[];
-  thumbnail?: string; // Agora é opcional, caso você esqueça de upar no painel
+  thumbnail?: string;
   link: string;
 }
-import { ui } from '@utils/i18n';
+
 const { pathname } = Astro.url;
 const isPt = pathname.includes('/pt');
-const t = isPt ? ui.pt : ui.en;
 const { title, description, tags, thumbnail, link } = Astro.props;
 ---
 
-<div class="work-card">
+<div class="work-card spotlight-card">
     <div class="work-card-inner">
         <div class="work-card-content">
             <h3>{title}</h3>
-            <p>{description}</p>
+
+            {thumbnail && (
+                <div class="work-card-image">
+                    <img src={thumbnail} alt={`Thumbnail do projeto ${title}`} loading="lazy" />
+                </div>
+            )}
+
+            <p class="description">{description}</p>
+            
             <div class="tags">
                 {tags.map((tag) => <span class="tag">{tag}</span>)}
             </div>
-            <a href={link} aria-label={`View project ${title}`}>
-              View Project →
+            
+            <a href={link} class="view-project" aria-label={`View project ${title}`}>
+                {isPt ? "Ver Projeto →" : "View Project →"}
             </a>
         </div>
-        
-        {thumbnail && (
-            <div class="work-card-image">
-                <img src={thumbnail} alt={`Thumbnail do projeto ${title}`} loading="lazy" />
-            </div>
-        )}
+        <div style="clear: both;"></div>
     </div>
 </div>
 
 <style>
     .work-card {
-        background: var(--card-bg);
-        backdrop-filter: blur(12px);
+        background: rgba(var(--card-bg-rgb), 0.4);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
         padding: 2.2rem;
-        border-radius: 15px;
+        border-radius: 20px;
         border: 1px solid var(--card-border);
-        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
+        /* CORREÇÃO 1: hidden para o brilho respeitar o border-radius */
+        overflow: hidden; 
+        display: block;
         height: 100%;
     }
 
-    /* Nova classe para colocar texto e imagem lado a lado no desktop */
+    /* --- CAMADA DO SPOTLIGHT (CORRIGIDA) --- */
+    .work-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        /* CORREÇÃO 2: radial-gradient acima do background do card */
+        background: radial-gradient(
+            600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+            rgba(var(--accent-rgb), 0.15), 
+            transparent 40%
+        );
+        z-index: 1; /* Acima do background do .work-card */
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+
+    .work-card:hover::before {
+        opacity: 1;
+    }
+
+    /* CORREÇÃO 3: O conteúdo deve estar acima do Spotlight */
     .work-card-inner {
-        display: flex;
-        gap: 20px;
-        flex-direction: column; /* Mobile first: imagem embaixo do texto */
-        height: 100%;
+        position: relative;
+        z-index: 2; /* Acima do ::before */
+        display: block;
     }
 
-    .work-card-content {
-        flex: 1; /* Ocupa o espaço que sobrar */
-        display: flex;
-        flex-direction: column;
-    }
-
+    /* --- IMAGEM --- */
     .work-card-image {
         width: 100%;
-        height: 200px; /* Altura fixa para manter o padrão na grade */
-        border-radius: 10px;
+        margin-bottom: 20px;
+        border-radius: 12px;
         overflow: hidden;
+        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        border: 1px solid rgba(var(--text-rgb), 0.05);
     }
 
     .work-card-image img {
         width: 100%;
-        height: 100%;
-        object-fit: cover; /* A imagem preenche a caixa sem distorcer */
-        transition: transform 0.5s ease;
+        height: auto;
+        display: block;
+        transition: transform 0.6s ease;
     }
 
-    /* Animações de Hover */
-    .work-card:hover {
-        transform: translateY(-8px);
-        border-color: var(--accent);
-        box-shadow: 0 15px 35px var(--dropshadow-rgb);
+    /* --- TEXTO --- */
+    h3 { 
+        margin: 0 0 15px 0;
+        color: var(--text); 
+        font-size: 1.6rem; 
+        font-weight: 900; 
+        letter-spacing: -1px; 
     }
     
-    .work-card:hover .work-card-image img {
-        transform: scale(1.05); /* Zoom suave na foto */
+    .description { 
+        color: var(--secondary); 
+        font-size: 1rem; 
+        line-height: 1.7; 
+        text-align: justify;
+        margin: 0;
     }
 
-    /* ... Seus estilos antigos (tags, h3, p, a, hover) continuam iguais ... */
-    
-    .tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 20px 0;
-    }
-
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
     .tag {
-        font-size: 0.7rem;
-        font-weight: 700;
-        background: rgba(var(--text-rgb), 0.08);
-        color: var(--accent);
-        padding: 5px 12px;
-        border-radius: 6px;
-        border: 1px solid rgba(var(--text-rgb), 0.05);
-        transition: all 0.3s ease;
+        font-size: 0.65rem; font-weight: 800; background: rgba(var(--text-rgb), 0.05);
+        color: var(--accent); padding: 6px 14px; border-radius: 8px; border: 1px solid var(--card-border);
         text-transform: uppercase;
-        letter-spacing: 0.8px;
     }
 
-    .work-card:hover .tag {
-        background: var(--accent);
-        color: var(--links-text);
-        border-color: var(--accent);
-    }
-
-    h3 {
-        margin: 0 0 12px 0;
-        color: var(--text);
-        font-size: 1.4rem;
-        letter-spacing: -0.5px;
-    }
-
-    p {
-        color: var(--secondary);
-        font-size: 0.95rem;
-        line-height: 1.6;
-        flex-grow: 1;
-    }
-
-    a {
-        color: var(--text);
-        text-decoration: none;
-        font-weight: 800;
-        font-size: 0.85rem;
-        margin-top: 25px;
-        display: inline-flex;
-        align-items: center;
+    .view-project {
+        color: var(--accent); text-decoration: none; font-weight: 800; font-size: 0.8rem;
+        margin-top: 15px; display: inline-flex; text-transform: uppercase; letter-spacing: 1.5px;
         transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
     }
 
-    a:hover {
-        color: var(--accent);
-        transform: translateX(5px);
+    /* --- HOVERS ADICIONAIS --- */
+    .work-card:hover { 
+        transform: translateY(-12px); 
+        border-color: var(--accent); 
+        box-shadow: 0 20px 40px var(--dropshadow-rgb); 
+    }
+    .work-card:hover .work-card-image img { transform: scale(1.08); }
+
+    /* --- RESPONSIVIDADE --- */
+    @media (min-width: 768px) {
+        .work-card-image {
+            float: right;
+            width: 180px;
+            height: 180px;
+            margin-left: 30px;
+            margin-bottom: 15px;
+            margin-top: 0; 
+        }
     }
 
     :global([data-theme='dark']) .work-card {
-        background: linear-gradient(160deg, var(--card-bg) 0%, rgba(10, 10, 10, 0.8) 100%);
-    }
-
-    /* Responsividade Desktop: Imagem à direita */
-    @media (min-width: 768px) {
-        .work-card-inner {
-            flex-direction: row; /* Texto na esquerda, imagem na direita */
-            align-items: center;
-        }
-        
-        .work-card-image {
-            width: 150px; /* Reduz a largura da imagem no desktop para caber na grid */
-            height: 150px; /* Quadrado */
-            flex-shrink: 0; /* Impede a imagem de encolher */
-        }
+        background: linear-gradient(165deg, rgba(20, 20, 20, 0.7) 0%, rgba(5, 5, 5, 0.9) 100%);
     }
 </style>

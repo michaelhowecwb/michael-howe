@@ -1,82 +1,128 @@
 ---
-// LanguagePicker.astro
 const { pathname } = Astro.url;
 
-// 1. Detecta se o usuário já está na versão em português
+// 1. Detecta o idioma atual
 const isPt = pathname.startsWith('/pt');
 
-// 2. Lógica de tradução de URL (Corrigida)
-// Remove a barra final se existir para evitar links como //pt/
+// 2. Lógica de tradução de URL
 const cleanPath = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 
-// Se estou em /work/projeto-x -> vira /pt/work/projeto-x
-// Se estou em /pt/work/projeto-x -> vira /work/projeto-x
+// URLs Finais
+const enLink = isPt ? cleanPath.replace(/^\/pt/, '') || '/' : cleanPath || '/';
 const ptLink = isPt ? cleanPath : `/pt${cleanPath || ''}`;
-const enLink = isPt ? cleanPath.replace(/^\/pt/, '') || '/' : cleanPath;
 
-// Garante que se o link ficar vazio (na home), ele seja pelo menos '/'
 const finalEnLink = enLink === '' ? '/' : enLink;
 const finalPtLink = ptLink === '' ? '/pt' : ptLink;
 ---
 
-<div
-  class="language-picker"
-  aria-label={isPt ? "Selecionar idioma" : "Select language"}
->
-  <a
-    href={finalEnLink}
-    class={`lang-link ${!isPt ? "active" : ""}`}
-    aria-current={!isPt ? "page" : undefined}
-    data-lang="en"
-  >
-    EN
-  </a>
+<div class="lang-wrapper">
+  <div class="language-picker" role="navigation" aria-label={isPt ? "Selecionar idioma" : "Select language"}>
+    <div class={`lang-indicator ${isPt ? "is-pt" : "is-en"}`}></div>
+    
+    <a
+      href={finalEnLink}
+      class={`lang-link ${!isPt ? "active" : ""}`}
+      data-lang="en"
+    >
+      EN
+    </a>
 
-  <span class="separator" aria-hidden="true">|</span>
-
-  <a
-    href={finalPtLink}
-    class={`lang-link ${isPt ? "active" : ""}`}
-    aria-current={isPt ? "page" : undefined}
-    data-lang="pt"
-  >
-    PT
-  </a>
+    <a
+      href={finalPtLink}
+      class={`lang-link ${isPt ? "active" : ""}`}
+      data-lang="pt"
+    >
+      PT
+    </a>
+  </div>
 </div>
 
 <style>
-  .language-picker {
+  .lang-wrapper {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-family: "Inter", sans-serif;
-    font-size: 0.85rem;
-    font-weight: 700;
   }
 
-  .language-picker a {
-    text-decoration: none;
-    color: var(--text);
-    opacity: 0.4;
+  .language-picker {
+    position: relative;
+    display: flex;
+    background: rgba(var(--text-rgb), 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(var(--text-rgb), 0.1);
+    border-radius: 50px;
+    padding: 4px;
+    gap: 4px;
     transition: all 0.3s ease;
   }
 
-  .language-picker a:hover {
+  .language-picker:hover {
+    border-color: rgba(var(--accent-rgb), 0.3);
+    box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.1);
+    border: 1px solid var(--accent);
+  }
+
+  .lang-link {
+    position: relative;
+    z-index: 2;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 50px;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    opacity: 0.5;
+    letter-spacing: 1px;
+  }
+
+  .lang-link:hover {
     opacity: 1;
     color: var(--accent);
   }
 
-  .language-picker a.active {
+  .lang-link.active {
     opacity: 1;
-    color: var(--accent);
+    color: #000; /* Texto preto para contrastar com o fundo accent no modo ativo */
     cursor: default;
     pointer-events: none;
   }
 
-  .separator {
-    opacity: 0.2;
-    font-weight: 300;
-    color: var(--text);
+  /* O SEGREDO: Indicador deslizante */
+  .lang-indicator {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    width: calc(50% - 6px);
+    background: var(--accent);
+    border-radius: 50px;
+    z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.4);
+  }
+
+  .lang-indicator.is-en {
+    transform: translateX(0);
+  }
+
+  .lang-indicator.is-pt {
+    transform: translateX(100%);
+  }
+
+  /* Ajuste de cor de texto para o tema Dark/Light */
+  :global([data-theme="dark"]) .lang-link.active {
+    color: #000;
+  }
+  
+  :global([data-theme="light"]) .lang-link.active {
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    .lang-link {
+        padding: 5px 12px;
+        font-size: 0.7rem;
+    }
   }
 </style>
 
@@ -84,9 +130,10 @@ const finalPtLink = ptLink === '' ? '/pt' : ptLink;
   function setupLanguagePicker() {
     const langLinks = document.querySelectorAll(".lang-link");
     langLinks.forEach((link) => {
-      link.addEventListener("click", () => {
+      link.addEventListener("click", (e) => {
         const selectedLang = link.getAttribute("data-lang");
         if (selectedLang) {
+          // Armazena a preferência para uso futuro no redirecionamento automático
           sessionStorage.setItem("language_preference", `manual-${selectedLang}`);
         }
       });

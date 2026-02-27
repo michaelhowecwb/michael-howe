@@ -1,5 +1,5 @@
 ---
-// Nenhuma prop necessária
+// ThemeToggle.astro - Refinado com efeitos de aura e mola
 ---
 
 <div class="theme-switch-wrapper">
@@ -11,9 +11,10 @@
         <input type="checkbox" id="theme-checkbox" role="switch" />
         <div class="slider">
             <div id="icon-container">
-                <img id="theme-icon" src="" alt="Ícone do Tema" />
+                <img id="theme-icon" src="" alt="Ícone do Tema" loading="eager" />
             </div>
             <span id="theme-text">DARK SIDE</span>
+            <div class="glow-aura"></div>
         </div>
     </label>
 </div>
@@ -23,158 +24,180 @@
         display: flex;
         align-items: center;
     }
+
     .theme-switch {
         display: inline-block;
-        height: 38px;
+        height: 42px; /* Aumentado levemente para melhor toque */
         position: relative;
-        width: 150px;
+        width: 160px;
+        user-select: none;
     }
+
     .theme-switch input {
         display: none;
     }
 
     .slider {
-        background-color: #1a1a1a;
+        background-color: #0f0f0f;
         bottom: 0;
         cursor: pointer !important;
         left: 0;
         position: absolute;
         right: 0;
         top: 0;
-        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        border-radius: 34px;
+        /* Transição tipo "Mola" (Spring) */
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border-radius: 40px;
         display: flex;
         align-items: center;
-        padding: 0 5px;
-        border: 1px solid #333;
+        padding: 0 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
     }
 
-    .slider:hover {
-        border-color: var(--accent);
-        box-shadow: 0 0 10px var(--dropshadow-rgb);
+    /* Aura de brilho dinâmica */
+    .glow-aura {
+        position: absolute;
+        inset: 0;
+        border-radius: 40px;
+        pointer-events: none;
+        transition: box-shadow 0.4s ease;
+        z-index: 0;
     }
 
-    input:checked + .slider:hover {
+    /* Hover: Efeito de ignição de sabre de luz */
+    .theme-switch:hover .slider {
         border-color: var(--accent);
+        box-shadow: 0 0 15px rgba(var(--accent-rgb), 0.3);
     }
 
     #icon-container {
         background-color: var(--accent);
-        height: 30px;
-        width: 30px;
+        height: 32px;
+        width: 32px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition:
-            transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
-            background-color 0.3s;
+        transition: 
+            transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+            background-color 0.4s ease,
+            box-shadow 0.4s ease;
         z-index: 2;
         overflow: hidden;
+        box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
     }
 
-    /* 3. Estilizando o id diretamente */
     #theme-icon {
-        width: 100%;
-        height: 100%;
+        width: 85%;
+        height: 85%;
         object-fit: contain;
-        /* Suaviza a troca da escala e filtro */
-        transition:
-            transform 0.3s ease,
-            filter 0.3s ease;
+        transition: transform 0.4s ease, filter 0.3s ease;
     }
 
     #theme-text {
-        margin-left: 25px;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 1.5px;
-        transition: 0.4s;
+        position: relative;
+        z-index: 2;
+        margin-left: 20px;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        transition: all 0.4s ease;
         color: #fff;
-        font-family: "Inter", sans-serif;
+        font-family: 'Inter', sans-serif;
+        text-shadow: 0 0 5px rgba(0,0,0,0.5);
     }
 
-    /* Ajustes Light Mode */
+    /* --- ESTADOS DE ATIVAÇÃO --- */
+
+    /* Light Mode (Jedi) */
     input:checked + .slider {
-        background-color: var(--card-bg);
-        border-color: var(--card-border);
+        background-color: #f0f0f0;
+        border-color: #ccc;
+    }
+
+    input:checked + .slider .glow-aura {
+        box-shadow: inset 0 0 20px rgba(0, 150, 255, 0.1);
     }
 
     input:checked + .slider #icon-container {
-        transform: translateX(108px);
+        transform: translateX(114px) rotate(360deg);
+        background-color: #0077ff; /* Azul Jedi */
+        box-shadow: 0 0 15px rgba(0, 119, 255, 0.6);
     }
 
     input:checked + .slider #theme-text {
-        transform: translateX(-35px);
-        color: var(--text);
+        transform: translateX(-42px);
+        color: #333;
     }
 
-    :global([data-theme="light"]) .slider {
-        background-color: var(--card-bg) !important;
-        border-color: var(--card-border) !important;
+    /* Dark Mode (Sith) Custom Accent */
+    :global([data-theme="dark"]) #icon-container {
+        background-color: #ff0000; /* Vermelho Sith */
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
     }
 
-    :global([data-theme="light"]) #theme-text {
-        color: var(--text) !important;
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .theme-switch { width: 140px; height: 38px; }
+        input:checked + .slider #icon-container { transform: translateX(96px) rotate(360deg); }
     }
 </style>
 
 <script>
     function setupTheme() {
-        // Atualizado para pegar os novos IDs
-        const toggleSwitch = document.querySelector(
-            "#theme-checkbox",
-        ) as HTMLInputElement;
+        const toggleSwitch = document.querySelector("#theme-checkbox") as HTMLInputElement;
         const html = document.documentElement;
         const themeText = document.querySelector("#theme-text");
-        const themeIcon = document.querySelector(
-            "#theme-icon",
-        ) as HTMLImageElement;
+        const themeIcon = document.querySelector("#theme-icon") as HTMLImageElement;
 
         const ICON_CONFIG = {
             light: {
-                path: "/icons/jedi-order.svg",
+                path: "/icons/jedi-order.svg", // Certifique-se que o caminho está correto
                 scale: "1.0",
-                filter: "invert(1)",
+                filter: "brightness(0) invert(1)", // Ícone branco no fundo azul
             },
             dark: {
                 path: "/icons/sith.svg",
-                scale: "1.8",
-                filter: "invert(0)",
+                scale: "1.9",
+                filter: "brightness(0) invert(1)", // Ícone branco no fundo vermelho
             },
         };
 
-        // 4. Update UI agora apenas altera os atributos, sem recriar o elemento
         function updateUI(isLight: boolean) {
             if (!themeText || !themeIcon) return;
 
             const config = isLight ? ICON_CONFIG.light : ICON_CONFIG.dark;
             themeText.textContent = isLight ? "LIGHT SIDE" : "DARK SIDE";
-            themeIcon.src = config.path;
-            themeIcon.style.filter = config.filter;
-            themeIcon.style.transform = `scale(${config.scale})`;
+            
+            // Pequeno delay na troca da imagem para sincronizar com o meio do deslize
+            setTimeout(() => {
+                themeIcon.src = config.path;
+                themeIcon.style.filter = config.filter;
+                themeIcon.style.transform = `scale(${config.scale})`;
+            }, 100);
         }
 
-        const currentTheme = html.getAttribute("data-theme") || "dark";
-        const isLight = currentTheme === "light";
-
+        // Inicialização
+        const savedTheme = localStorage.getItem("theme") || "dark";
+        const isInitialLight = savedTheme === "light";
+        
         if (toggleSwitch) {
-            toggleSwitch.checked = isLight;
-            updateUI(isLight);
+            toggleSwitch.checked = isInitialLight;
+            updateUI(isInitialLight);
         }
 
-        // Listener de mudança (só adiciona se o elemento existir)
-        if (toggleSwitch) {
-            // Removido listener duplicado, usamos apenas este
-            toggleSwitch.addEventListener("change", (e) => {
-                const shifted = (e.target as HTMLInputElement).checked;
-                const newTheme = shifted ? "light" : "dark";
+        toggleSwitch?.addEventListener("change", (e) => {
+            const isChecked = (e.target as HTMLInputElement).checked;
+            const newTheme = isChecked ? "light" : "dark";
 
-                html.setAttribute("data-theme", newTheme);
-                localStorage.setItem("theme", newTheme);
-                updateUI(shifted);
-            });
-        }
+            html.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            updateUI(isChecked);
+
+            // Dispatch evento global para outros componentes reagirem se necessário
+            window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: newTheme } }));
+        });
     }
 
     setupTheme();

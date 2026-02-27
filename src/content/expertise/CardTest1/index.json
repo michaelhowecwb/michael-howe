@@ -1,0 +1,11 @@
+{
+  "order": 1,
+  "pt": {
+    "title": "Teste 1 BR",
+    "description": "Card de teste número 1"
+  },
+  "en": {
+    "title": "Test 1 EN",
+    "description": "Card test number 1."
+  }
+}

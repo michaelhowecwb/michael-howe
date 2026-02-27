@@ -15,7 +15,7 @@ const baseUrl = isPt ? "/pt/" : "/";
 const nome = "Michael Howe";
 ---
 
-<nav class="mainNav" aria-label="Menu principal">
+<nav class="mainNav" id="main-nav" aria-label="Menu principal">
   <div class="navContainer">
     <div class="brand">
       <a href={baseUrl} style="text-decoration: none;">
@@ -25,13 +25,9 @@ const nome = "Michael Howe";
 
     <div class="navContent">
       <div class="links desktop-only">
-        <a href={isHome ? "#home" : `${baseUrl}#home`} class="nav-link">Home</a>
-        <a href={isHome ? "#services" : `${baseUrl}#services`} class="nav-link"
-          >{t["nav.services"]}</a
-        >
-        <a href={isHome ? "#works" : `${baseUrl}#works`} class="nav-link"
-          >{t["nav.works"]}</a
-        >
+        <a href={isHome ? "#home" : `${baseUrl}#home`} class="nav-link" data-section="home">Home</a>
+        <a href={isHome ? "#about" : `${baseUrl}#about`} class="nav-link" data-section="about">{t["nav.services"]}</a>
+        <a href={isHome ? "#works" : `${baseUrl}#works`} class="nav-link" data-section="works">{t["nav.works"]}</a>
       </div>
 
       <div class="separator desktop-only"></div>
@@ -46,26 +42,20 @@ const nome = "Michael Howe";
           aria-expanded="false"
           aria-controls="mobile-menu"
         >
-          <span class="line"></span>
-          <span class="line"></span>
-          <span class="line"></span>
+          <div class="hamburger-box">
+            <span class="line"></span>
+            <span class="line"></span>
+            <span class="line"></span>
+          </div>
         </button>
       </div>
     </div>
   </div>
 
   <div class="mobile-menu" id="mobile-menu">
-    <a href={isHome ? "#home" : `${baseUrl}#home`} class="nav-link mobile-link"
-      >Home</a
-    >
-    <a
-      href={isHome ? "#services" : `${baseUrl}#services`}
-      class="nav-link mobile-link">{t["nav.services"]}</a
-    >
-    <a
-      href={isHome ? "#works" : `${baseUrl}#works`}
-      class="nav-link mobile-link">{t["nav.works"]}</a
-    >
+    <a href={isHome ? "#home" : `${baseUrl}#home`} class="mobile-link" data-section="home">Home</a>
+    <a href={isHome ? "#about" : `${baseUrl}#about`} class="mobile-link" data-section="about">{t["nav.services"]}</a>
+    <a href={isHome ? "#works" : `${baseUrl}#works`} class="mobile-link" data-section="works">{t["nav.works"]}</a>
   </div>
 </nav>
 
@@ -76,15 +66,20 @@ const nome = "Michael Howe";
     top: 0;
     left: 0;
     width: 100%;
-    height: 70px;
+    height: 80px;
     z-index: 1000;
-    background: rgba(var(--mainnav-bg-rgb), 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(var(--text-rgb), 0.1);
+    background: rgba(var(--mainnav-bg-rgb), 0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(var(--text-rgb), 0.08);
     display: flex;
     align-items: center;
-    transition: all 0.3s ease;
+    transition: height 0.3s ease, background 0.3s ease;
+  }
+
+  .mainNav.scrolled {
+    height: 65px;
+    background: rgba(var(--mainnav-bg-rgb), 0.9);
   }
 
   .navContainer {
@@ -95,193 +90,207 @@ const nome = "Michael Howe";
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative;
-    z-index: 1001; /* Garante que os controles fiquem acima do menu que desce */
   }
 
   .navName {
-    font-weight: 800;
-    font-size: 1.5rem;
-    white-space: nowrap;
+    font-weight: 900;
+    font-size: 1.8rem;
     color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .navName::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  .links {
+    display: flex;
+    gap: 0.5rem;
+    position: relative;
+    background: rgba(var(--text-rgb), 0.03);
+    padding: 8px 30px;
+    border-radius: 50px;
+    border: 1px solid rgba(var(--text-rgb), 0.05);
+  }
+  
+  .nav-link {
+    position: relative;
+    text-decoration: none;
+    color: var(--secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 0;
     transition: color 0.3s ease;
   }
 
-  .brand:hover .navName {
+  /* Linha embaixo do texto */
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  .nav-link:hover, .nav-link.active {
     color: var(--accent);
   }
 
-  .navContent {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
+  .nav-link:hover::after, .nav-link.active::after {
+    transform: scaleX(1);
+    transform-origin: left;
   }
 
-  /* --- Controles (Idioma, Tema, Hamburger) --- */
-  .controls {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-  }
+  .navContent { display: flex; align-items: center; gap: 2rem; }
+  .controls { display: flex; align-items: center; gap: 1rem; }
 
   .separator {
     width: 1px;
     height: 20px;
-    background: rgba(var(--text-rgb), 0.2);
+    background: rgba(var(--text-rgb), 0.15);
   }
 
-  /* --- Links Desktop --- */
-  .links {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .links a {
-    position: relative;
-    text-decoration: none;
-    color: var(--secondary);
-    font-size: 0.95rem;
-    font-weight: 500;
-    white-space: nowrap;
-    transition: color 0.3s ease;
-    padding: 0 10px;
-  }
-
-  .links a::after {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -5px;
-    left: 50%;
-    background-color: var(--accent);
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-  }
-
-  .links a:hover::after,
-  .links a.active::after {
-    width: 100%;
-  }
-
-  .links a:hover,
-  .links a.active {
-    color: var(--accent) !important;
-  }
-
-  /* --- Menu Hamburger (Botão) --- */
+  /* --- Hamburger (CORRIGIDO: Centralização Total) --- */
   .hamburger {
     display: none;
-    background: transparent;
+    background: rgba(var(--text-rgb), 0.05);
     border: none;
     cursor: pointer;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 30px;
-    height: 21px;
-    padding: 0;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
     z-index: 1002;
+    padding: 0;
+    /* Centraliza a hamburger-box dentro do botão */
+    display: none; 
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hamburger-box {
+    position: relative;
+    width: 24px;
+    height: 14px; /* Altura total das 3 linhas + espaços */
   }
 
   .hamburger .line {
-    width: 100%;
+    position: absolute;
+    left: 0;
+    width: 24px;
     height: 2px;
     background-color: var(--text);
-    border-radius: 2px;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    transform-origin: left;
+    border-radius: 4px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
   }
 
-  /* --- Menu Mobile (Dropdown) --- */
-.mobile-menu {
+  /* Distribuição das linhas */
+  .line:nth-child(1) { top: 0; }
+  .line:nth-child(2) { top: 6px; }
+  .line:nth-child(3) { top: 12px; }
+
+  /* Transformação para o X Perfeito */
+  .hamburger.active .line:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .hamburger.active .line:nth-child(2) { opacity: 0; transform: translateX(10px); }
+  .hamburger.active .line:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  /* --- Menu Mobile (CORRIGIDO: Transparência) --- */
+  .mobile-menu {
     position: fixed;
-    top: 70px;
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100vh - 70px);
-    
-    /* 1. PLANO B (Fallback): Cor sólida exata do tema atual */
-    background-color: var(--mainnav-bg); 
-    
-    /* 2. PLANO A: Efeito Glassmorphism (Se a variável rgb estiver correta, substitui a de cima) */
-    background-color: rgba(var(--mainnav-bg-rgb), 0.95); 
-    
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    
-    border-bottom: 1px solid rgba(var(--text-rgb), 0.1);
+    height: 100vh;
+    background: rgba(var(--mainnav-bg-rgb), 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding-top: 50px;
-    gap: 2rem;
-    transform: translateY(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 2.5rem;
+    clip-path: circle(0% at 90% 5%);
+    transition: clip-path 0.6s cubic-bezier(0.19, 1, 0.22, 1);
     z-index: 999;
   }
+  .mobile-menu.open { clip-path: circle(150% at 90% 5%); }
 
-  .mobile-menu a {
-    font-size: 1.5rem; /* Aumentei um pouco a fonte para facilitar o clique no celular */
-    font-weight: 600;
+  .mobile-link {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.3s ease;
   }
-  /* --- Classes Ativas (JS vai controlar isso) --- */
-  .mobile-menu.open {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-  }
+  .mobile-link:hover { color: var(--accent); }
 
-  /* Animação do X */
-  .hamburger.active .line:nth-child(1) {
-    transform: rotate(45deg);
-  }
-  .hamburger.active .line:nth-child(2) {
-    opacity: 0;
-  }
-  .hamburger.active .line:nth-child(3) {
-    transform: rotate(-45deg);
-  }
-
-  /* --- Responsividade --- */
   @media (max-width: 768px) {
-    .desktop-only {
-      display: none;
-    }
-    .hamburger {
-      display: flex;
-    }
-    .navContainer {
-      padding: 0 1.5rem;
-    }
+    .desktop-only, .separator { display: none; }
+    .hamburger { display: flex; } /* Ativa flex para centralizar */
   }
 </style>
 
 <script>
-  // Script para controlar a abertura/fechamento do menu
-  const hamburger = document.querySelector(".hamburger");
-  const mobileMenu = document.querySelector(".mobile-menu");
-  const mobileLinks = document.querySelectorAll(".mobile-link");
+  function initNav() {
+    const nav = document.getElementById('main-nav');
+    const links = document.querySelectorAll('.nav-link');
+    const hamburger = document.querySelector(".hamburger");
+    const mobileMenu = document.querySelector(".mobile-menu");
+    const mobileLinks = document.querySelectorAll(".mobile-link");
 
-  if (hamburger && mobileMenu) {
-    // Clique no Hamburger
-    hamburger.addEventListener("click", () => {
-      hamburger.classList.toggle("active");
-      mobileMenu.classList.toggle("open");
-
-      // Acessibilidade: atualiza o aria-expanded
-      const isExpanded = hamburger.getAttribute("aria-expanded") === "true";
-      hamburger.setAttribute("aria-expanded", !isExpanded ? "true" : "false");
+    // Compactação no Scroll
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) nav?.classList.add('scrolled');
+      else nav?.classList.remove('scrolled');
+      updateActiveLink();
     });
 
-    // Fecha o menu ao clicar em um link
-    mobileLinks.forEach((link) => {
+    // Scroll Spy
+    function updateActiveLink() {
+      const sections = ['home', 'about', 'works'];
+      let current = 'home';
+
+      sections.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) {
+          const sectionTop = section.offsetTop;
+          if (window.scrollY >= sectionTop - 150) current = id;
+        }
+      });
+
+      links.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-section') === current) link.classList.add('active');
+      });
+    }
+
+    // Toggle Mobile
+    hamburger?.addEventListener("click", () => {
+      hamburger.classList.toggle("active");
+      mobileMenu?.classList.toggle("open");
+    });
+
+    mobileLinks.forEach(link => {
       link.addEventListener("click", () => {
-        hamburger.classList.remove("active");
-        mobileMenu.classList.remove("open");
-        hamburger.setAttribute("aria-expanded", "false");
+        hamburger?.classList.remove("active");
+        mobileMenu?.classList.remove("open");
       });
     });
+
+    updateActiveLink();
   }
+
+  initNav();
+  document.addEventListener("astro:after-swap", initNav);
 </script>
