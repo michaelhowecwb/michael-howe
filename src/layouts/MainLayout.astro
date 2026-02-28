@@ -1,13 +1,36 @@
 ---
 import MainNavbar from "@components/MainNavbar.astro";
 import Footer from "@components/Footer.astro";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
-    title: string;
-    lang?: string; // Adicionamos a propriedade lang como opcional
+    title?: string;
+    description?: string;
+    image?: string;
+    lang?: string;
 }
-// Se não passar a prop lang, ele assume 'en' como padrão
-const { title, lang = "en" } = Astro.props;
+
+const { lang = "en" } = Astro.props;
+
+// Dynamic SEO Defaults
+const defaultTitle = lang.startsWith("pt")
+    ? "Michael Howe | Desenvolvedor Full-stack"
+    : "Michael Howe | Full-stack Developer";
+
+const defaultDesc = lang.startsWith("pt")
+    ? "Desenvolvedor Full-stack focado em interfaces premium, performance e arquitetura moderna."
+    : "Full-stack Developer focused on premium interfaces, performance, and modern architecture.";
+
+const {
+    title = defaultTitle,
+    description = defaultDesc,
+    image = "/og-image.png",
+} = Astro.props;
+
+// Ensures an absolute URL for SEO/Social Media.
+const siteUrl = Astro.site || new URL(Astro.url.origin);
+const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+const ogImageURL = new URL(image, siteUrl);
 ---
 
 <!doctype html>
@@ -15,34 +38,61 @@ const { title, lang = "en" } = Astro.props;
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        
+        <meta name="generator" content={Astro.generator} />
+
         <link rel="icon" type="image/png" href="/icons/favicon512.png?v=2" />
         <link rel="apple-touch-icon" href="/icons/favicon512.png?v=2" />
         <link rel="shortcut icon" href="/icons/favicon512.png?v=2" />
-
+        <link rel="sitemap" href="/sitemap-index.xml" />
         <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalURL} />
+        <meta name="robots" content="index, follow" />
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={ogImageURL} />
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={canonicalURL} />
+        <meta property="twitter:title" content={title} />
+        <meta property="twitter:description" content={description} />
+        <meta property="twitter:image" content={ogImageURL} />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap"
             rel="stylesheet"
         />
+
+        <ClientRouter />
         <script is:inline>
-            // TEMA
+            // Theme Engine (Executes before rendering to avoid FOUC.)
             const theme = (() => {
-                if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
+                if (
+                    typeof localStorage !== "undefined" &&
+                    localStorage.getItem("theme")
+                ) {
                     return localStorage.getItem("theme");
                 }
                 return "dark";
             })();
             document.documentElement.setAttribute("data-theme", theme);
 
-            // REDIRECIONAMENTO DE IDIOMA
-            // Só executa se estivermos na raiz exata para evitar loops em subpáginas
-            if (window.location.pathname === "/" || window.location.pathname === "") {
-                const userLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase();
-                const manualSelection = sessionStorage.getItem("language_preference");
+            // Language Redirection
+            if (
+                window.location.pathname === "/" ||
+                window.location.pathname === ""
+            ) {
+                const userLang = (
+                    window.navigator.language || window.navigator.userLanguage
+                ).toLowerCase();
+                const manualSelection = sessionStorage.getItem(
+                    "language_preference",
+                );
 
                 if (userLang.startsWith("pt") && !manualSelection) {
                     sessionStorage.setItem("language_preference", "auto-pt");
@@ -52,19 +102,20 @@ const { title, lang = "en" } = Astro.props;
         </script>
 
         <style is:global>
+            /* --- Theme Variables --- */
             :root {
                 --bg: #0b0b0b;
                 --bg-rgb: 11, 11, 11;
                 --mainnav-bg: #14171b;
-                --mainnav-bg-rgb: rgb(20, 23, 27);
+                --mainnav-bg-rgb: 20, 23, 27;
                 --card-bg: #141414;
                 --text: #ffffff;
                 --dark-text: #111111;
                 --text-rgb: 255, 255, 255;
                 --accent: #00ff9d;
+                --accent-rgb: 0, 255, 157;
                 --secondary: #a0a0a0;
                 --card-border: rgba(255, 255, 255, 0.05);
-                --noise-pattern: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
                 --section-alt: #171717;
                 --section-alt-rgba: rgba(23, 23, 23, 0.8);
                 --footer-bg: #14171b;
@@ -74,15 +125,13 @@ const { title, lang = "en" } = Astro.props;
                 --links: #00ff9d;
                 --links-text: #111111;
                 --dropshadow-rgb: rgba(0, 255, 157, 0.2);
-                --mainnav-bg: #14171b;
-                --mainnav-bg-rgb: 20, 23, 27;
             }
 
             [data-theme="light"] {
                 --bg: #e3e7ec;
                 --bg-rgb: 227, 231, 236;
                 --mainnav-bg: #d7dbe0;
-                --mainnav-bg-rgb: rgb(215, 219, 224);
+                --mainnav-bg-rgb: 215, 219, 224;
                 --card-bg: #ffffff;
                 --text: #1e293b;
                 --light-text: #ffffff;
@@ -100,10 +149,9 @@ const { title, lang = "en" } = Astro.props;
                 --links: #111111;
                 --links-text: #ffffff;
                 --dropshadow-rgb: rgba(120, 131, 255, 0.2);
-                --mainnav-bg: #d7dbe0;
-                --mainnav-bg-rgb: 215, 219, 224;
             }
 
+            /* --- Structure --- */
             html {
                 scroll-behavior: auto !important;
             }
@@ -112,27 +160,26 @@ const { title, lang = "en" } = Astro.props;
                 color: var(--text);
                 font-family: "Inter", sans-serif;
                 margin: 0;
-                /* Garante que o scroll aconteça no nível da janela */
                 overflow-x: hidden;
                 overflow-y: auto;
                 min-height: 100vh;
-                scroll-behavior: auto !important;
             }
 
             code {
                 font-family: "Fira Code", monospace;
             }
+
             .nav-link {
                 transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                color: var(--secondary); /* Cor padrão (cinza) */
+                color: var(--secondary);
                 text-decoration: none;
             }
 
             .nav-link.active {
-                color: var(--accent) !important; /* Cor verde de destaque */
+                color: var(--accent) !important;
                 font-weight: bold;
             }
-            /* Espaçamento para Navbar Fixa */
+
             main {
                 padding-top: 20px;
                 position: relative;
@@ -141,6 +188,8 @@ const { title, lang = "en" } = Astro.props;
             section {
                 scroll-margin-top: 80px;
             }
+
+            /* --- Back to Top --- */
             .back-to-top {
                 position: fixed;
                 bottom: 30px;
@@ -160,15 +209,11 @@ const { title, lang = "en" } = Astro.props;
                 visibility: hidden;
                 z-index: 1000;
             }
-            /*--btt-bg: #111111;
-                --btt-icon: #00ff9d;
-                --btt-border: #00ff9d;
-                --btt-bg: #eeeff1;*/
+
             .back-to-top.show {
                 opacity: 1;
                 visibility: visible;
             }
-
             .back-to-top:hover {
                 transform: translateY(-5px);
                 background: var(--accent);
@@ -187,7 +232,9 @@ const { title, lang = "en" } = Astro.props;
 
     <body>
         <MainNavbar />
-        <slot />
+        <main>
+            <slot />
+        </main>
         <Footer />
 
         <button
@@ -204,30 +251,16 @@ const { title, lang = "en" } = Astro.props;
                 stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
-                stroke-linejoin="round"
+                stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg
             >
-                <path d="m18 15-6-6-6 6"></path>
-            </svg>
         </button>
 
         <script is:inline>
-            (function () {
-                // Limpa o hash (#) da URL para evitar o pulo nativo no refresh
-                if (window.location.hash) {
-                    history.replaceState(null, null, window.location.pathname);
-                }
+            // Prevents duplication of global events when the SPA navigates between pages.
+            if (!window.customScrollInitialized) {
+                window.customScrollInitialized = true;
 
-                if ("scrollRestoration" in history) {
-                    history.scrollRestoration = "manual";
-                }
-
-                const btn = document.getElementById("back-to-top");
-                const navLinks = document.querySelectorAll(".nav-link");
-                const sections = document.querySelectorAll(
-                    "section[id], header[id], #home",
-                );
-
-                // Função ÚNICA de Scroll Suave Reutilizável
+                // Math scrolling function that bypasses Windows' disabled effects settings.
                 function smoothScrollTo(targetPos) {
                     const startPosition = window.scrollY;
                     const distance = targetPos - startPosition;
@@ -249,59 +282,82 @@ const { title, lang = "en" } = Astro.props;
                     window.requestAnimationFrame(animation);
                 }
 
-                // Interceptação de cliques em links internos (substitui o script duplicado do head)
-                document.addEventListener("click", (e) => {
-                    const link = e.target.closest('a[href^="#"]');
-                    if (!link) return;
+                // Click Interceptor
+                // The `{ capture: true }` attribute makes this script act BEFORE the Astro's native router.
+                document.addEventListener(
+                    "click",
+                    (e) => {
+                        const link = e.target.closest('a[href^="#"]');
+                        if (!link) return;
+                        const targetId = link.getAttribute("href");
+                        if (targetId === "#") return;
 
-                    const targetId = link.getAttribute("href");
-                    if (targetId === "#") return;
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            e.preventDefault();
+                            e.stopPropagation(); // Block Astro from making the instant jump
 
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        e.preventDefault();
-                        const targetPos =
-                            targetElement.getBoundingClientRect().top +
-                            window.scrollY -
-                            80;
-                        smoothScrollTo(targetPos);
-                    }
-                });
+                            // Discreetly updates the URL at the top.
+                            history.pushState(null, null, targetId);
 
-                // Scroll Spy (Intersection Observer)
-                const observerOptions = {
-    root: null,
-    rootMargin: "-30% 0px -70% 0px", // Ajustado para detectar a seção quando ela ocupa o centro da tela
-    threshold: 0
-};
-
-const observerCallback = (entries) => {
-    entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-            const id = entry.target.getAttribute("id");
-            if (!id) return;
-
-            navLinks.forEach((link) => {
-                link.classList.remove("active");
-                // Verifica se o href termina com #ID ou é apenas o ID
-                const href = link.getAttribute("href");
-                if (href && (href.endsWith("#" + id) || href === "#" + id)) {
-                    link.classList.add("active");
-                }
-            });
-        }
-    });
-
-    // Fallback para o topo da página (Home)
-    if (window.scrollY < 100) {
-        navLinks.forEach((link) => {
-            link.classList.remove("active");
-            if (link.getAttribute("href").includes("#home")) {
-                link.classList.add("active");
+                            const targetPos =
+                                targetElement.getBoundingClientRect().top +
+                                window.scrollY -
+                                80;
+                            smoothScrollTo(targetPos);
+                        }
+                    },
+                    { capture: true },
+                );
             }
-        });
-    }
-};
+
+            // Logic that needs to be re-executed for each new page rendered.
+            document.addEventListener("astro:page-load", () => {
+                if ("scrollRestoration" in history) {
+                    history.scrollRestoration = "manual";
+                }
+
+                const btn = document.getElementById("back-to-top");
+                const navLinks = document.querySelectorAll(".nav-link");
+                const sections = document.querySelectorAll(
+                    "section[id], header[id], #home",
+                );
+
+                // Scroll Spy
+                const observerOptions = {
+                    root: null,
+                    rootMargin: "-30% 0px -70% 0px",
+                    threshold: 0,
+                };
+
+                const observerCallback = (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute("id");
+                            if (!id) return;
+                            navLinks.forEach((link) => {
+                                link.classList.remove("active");
+                                const href = link.getAttribute("href");
+                                if (
+                                    href &&
+                                    (href.endsWith("#" + id) ||
+                                        href === "#" + id)
+                                ) {
+                                    link.classList.add("active");
+                                }
+                            });
+                        }
+                    });
+
+                    if (window.scrollY < 100) {
+                        navLinks.forEach((link) => {
+                            link.classList.remove("active");
+                            if (link.getAttribute("href").includes("#home")) {
+                                link.classList.add("active");
+                            }
+                        });
+                    }
+                };
 
                 const observer = new IntersectionObserver(
                     observerCallback,
@@ -309,18 +365,37 @@ const observerCallback = (entries) => {
                 );
                 sections.forEach((section) => observer.observe(section));
 
-                // Botão de Topo
+                // Back to Top Button
                 if (btn) {
                     window.addEventListener("scroll", () => {
-                        if (window.scrollY > 300) {
-                            btn.classList.add("show");
-                        } else {
-                            btn.classList.remove("show");
-                        }
+                        if (window.scrollY > 300) btn.classList.add("show");
+                        else btn.classList.remove("show");
                     });
-                    btn.addEventListener("click", () => smoothScrollTo(0));
+
+                    // Forces smooth scrolling via JS even on the back-to-top button
+                    btn.addEventListener("click", () => {
+                        const startPosition = window.scrollY;
+                        const duration = 800;
+                        let start = null;
+                        function animation(timestamp) {
+                            if (!start) start = timestamp;
+                            const progress = timestamp - start;
+                            const percentage = Math.min(progress / duration, 1);
+                            const easing =
+                                percentage < 0.5
+                                    ? 2 * percentage * percentage
+                                    : -1 + (4 - 2 * percentage) * percentage;
+                            window.scrollTo(
+                                0,
+                                startPosition + (0 - startPosition) * easing,
+                            );
+                            if (progress < duration)
+                                window.requestAnimationFrame(animation);
+                        }
+                        window.requestAnimationFrame(animation);
+                    });
                 }
-            })();
+            });
         </script>
     </body>
 </html>

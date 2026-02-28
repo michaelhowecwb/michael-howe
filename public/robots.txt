@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
+
+# 1. Permite que todos os bots acessem o site e define as regras
+User-agent: *
+Allow: /
+# 2. Bloqueia a indexação de diretórios internos e painéis
+Disallow: /keystatic/
+Disallow: /api/
+
+# 3. Indica onde está o seu mapa do site (Sitemap)
+Sitemap: https://michael-howe.vercel.app/sitemap-index.xml

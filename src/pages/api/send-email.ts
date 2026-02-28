@@ -1,17 +1,28 @@
-export const prerender = false; // Garante que isso rode apenas no servidor
+export const prerender = false; // Ensure that this only runs on the server
 
 import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
+    // Reads the request data (Only ONCE)
     const data = await request.json();
-    const { name, email, message } = data;
+    const { name, email, message, honey } = data; // Extrai o honey aqui
 
+    // Anti-Spam (Honeypot)
+    // If the bot filled in the invisible field, we stop here and lie that it worked
+    if (honey) {
+      return new Response(JSON.stringify({ message: "Mensagem enviada com sucesso!" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // Standard validation (Humans)
     if (!name || !email || !message) {
       return new Response(JSON.stringify({ message: 'Campos faltando' }), { status: 400 });
     }
 
-    // Chamada direta para a API do Resend usando FETCH nativo
+    // Actual call to the Resend API.
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -20,7 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
       },
       body: JSON.stringify({
         from: 'Portfolio <onboarding@resend.dev>',
-        to: ['michael.howecwb@gmail.com'], 
+        to: ['michael.howecwb@gmail.com'],
         subject: `Novo Contato: ${name}`,
         reply_to: email,
         html: `

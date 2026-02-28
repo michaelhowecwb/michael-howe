@@ -1,0 +1,129 @@
+{
+  "$ref": "#/definitions/about",
+  "definitions": {
+    "about": {
+      "type": "object",
+      "properties": {
+        "pt": {
+          "type": "object",
+          "properties": {
+            "heading": {
+              "type": "string"
+            },
+            "subheading": {
+              "type": "string"
+            },
+            "bio": {
+              "type": "string"
+            },
+            "fullBio": {
+              "type": "string"
+            },
+            "bioImage": {
+              "type": "string"
+            },
+            "experience": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "year",
+                  "company",
+                  "role",
+                  "description"
+                ],
+                "additionalProperties": false
+              },
+              "default": []
+            }
+          },
+          "required": [
+            "heading",
+            "subheading",
+            "bio",
+            "fullBio"
+          ],
+          "additionalProperties": false
+        },
+        "en": {
+          "type": "object",
+          "properties": {
+            "heading": {
+              "type": "string"
+            },
+            "subheading": {
+              "type": "string"
+            },
+            "bio": {
+              "type": "string"
+            },
+            "fullBio": {
+              "type": "string"
+            },
+            "bioImage": {
+              "type": "string"
+            },
+            "experience": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "string"
+                  },
+                  "company": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "year",
+                  "company",
+                  "role",
+                  "description"
+                ],
+                "additionalProperties": false
+              },
+              "default": []
+            }
+          },
+          "required": [
+            "heading",
+            "subheading",
+            "bio",
+            "fullBio"
+          ],
+          "additionalProperties": false
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pt",
+        "en"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

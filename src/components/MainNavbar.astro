@@ -4,30 +4,45 @@ import ThemeToggle from "@components/ThemeToggle.astro";
 import LanguagePicker from "@components/LanguagePicker.astro";
 
 const { pathname } = Astro.url;
-const isHome =
-  pathname === "/" ||
-  pathname === "/pt" ||
-  pathname.endsWith("/pt/") ||
-  pathname.endsWith("/en/");
 const isPt = pathname.includes("/pt");
+const normalizedPath = pathname.replace(/\/$/, "");
+const isHome =
+  normalizedPath === "" || normalizedPath === "/" || normalizedPath === "/pt";
+
 const t = isPt ? ui.pt : ui.en;
 const baseUrl = isPt ? "/pt/" : "/";
 const nome = "Michael Howe";
 ---
 
-<nav class="mainNav" id="main-nav" aria-label="Menu principal">
+<nav
+  class="mainNav"
+  id="main-nav"
+  aria-label={isPt ? "Menu Principal" : "Main Menu"}
+>
   <div class="navContainer">
     <div class="brand">
-      <a href={baseUrl} style="text-decoration: none;">
+      <a href={baseUrl} class="brand-link" style="text-decoration: none;">
         <span class="navName">{nome}</span>
       </a>
     </div>
 
     <div class="navContent">
       <div class="links desktop-only">
-        <a href={isHome ? "#home" : `${baseUrl}#home`} class="nav-link" data-section="home">Home</a>
-        <a href={isHome ? "#about" : `${baseUrl}#about`} class="nav-link" data-section="about">{t["nav.services"]}</a>
-        <a href={isHome ? "#works" : `${baseUrl}#works`} class="nav-link" data-section="works">{t["nav.works"]}</a>
+        <a
+          href={isHome ? "#home" : `${baseUrl}#home`}
+          class="nav-link"
+          data-section="home">Home</a
+        >
+        <a
+          href={isHome ? "#about" : `${baseUrl}#about`}
+          class="nav-link"
+          data-section="about">{t["nav.about"]}</a
+        >
+        <a
+          href={isHome ? "#works" : `${baseUrl}#works`}
+          class="nav-link"
+          data-section="works">{t["nav.works"]}</a
+        >
       </div>
 
       <div class="separator desktop-only"></div>
@@ -38,7 +53,7 @@ const nome = "Michael Howe";
 
         <button
           class="hamburger"
-          aria-label="Abrir menu"
+          aria-label={isPt ? "Abrir menu" : "Open menu"}
           aria-expanded="false"
           aria-controls="mobile-menu"
         >
@@ -53,28 +68,40 @@ const nome = "Michael Howe";
   </div>
 
   <div class="mobile-menu" id="mobile-menu">
-    <a href={isHome ? "#home" : `${baseUrl}#home`} class="mobile-link" data-section="home">Home</a>
-    <a href={isHome ? "#about" : `${baseUrl}#about`} class="mobile-link" data-section="about">{t["nav.services"]}</a>
-    <a href={isHome ? "#works" : `${baseUrl}#works`} class="mobile-link" data-section="works">{t["nav.works"]}</a>
+    <a
+      href={isHome ? "#home" : `${baseUrl}#home`}
+      class="mobile-link"
+      data-section="home">Home</a
+    >
+    <a
+      href={isHome ? "#about" : `${baseUrl}#about`}
+      class="mobile-link"
+      data-section="about">{t["nav.about"]}</a
+    >
+    <a
+      href={isHome ? "#works" : `${baseUrl}#works`}
+      class="mobile-link"
+      data-section="works">{t["nav.works"]}</a
+    >
   </div>
 </nav>
 
 <style>
-  /* --- Base da Navbar --- */
+  /* --- Structure --- */
   .mainNav {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 80px;
-    z-index: 1000;
+    z-index: 100;
     background: rgba(var(--mainnav-bg-rgb), 0.75);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(var(--text-rgb), 0.08);
     display: flex;
     align-items: center;
-    transition: height 0.3s ease, background 0.3s ease;
+    transition: all 0.3s ease;
   }
 
   .mainNav.scrolled {
@@ -101,23 +128,23 @@ const nome = "Michael Howe";
     gap: 8px;
   }
   .navName::before {
-    content: '';
+    content: "";
     width: 8px;
     height: 8px;
     background: var(--accent);
     border-radius: 50%;
   }
 
+  /* --- LINKS --- */
   .links {
     display: flex;
-    gap: 0.5rem;
-    position: relative;
+    gap: 2rem;
     background: rgba(var(--text-rgb), 0.03);
     padding: 8px 30px;
     border-radius: 50px;
     border: 1px solid rgba(var(--text-rgb), 0.05);
   }
-  
+
   .nav-link {
     position: relative;
     text-decoration: none;
@@ -130,9 +157,8 @@ const nome = "Michael Howe";
     transition: color 0.3s ease;
   }
 
-  /* Linha embaixo do texto */
   .nav-link::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 0;
@@ -144,25 +170,33 @@ const nome = "Michael Howe";
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   }
 
-  .nav-link:hover, .nav-link.active {
+  .nav-link:hover,
+  .nav-link.active {
     color: var(--accent);
   }
-
-  .nav-link:hover::after, .nav-link.active::after {
+  .nav-link:hover::after,
+  .nav-link.active::after {
     transform: scaleX(1);
     transform-origin: left;
   }
 
-  .navContent { display: flex; align-items: center; gap: 2rem; }
-  .controls { display: flex; align-items: center; gap: 1rem; }
-
+  .navContent {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
   .separator {
     width: 1px;
     height: 20px;
     background: rgba(var(--text-rgb), 0.15);
   }
 
-  /* --- Hamburger (CORRIGIDO: Centralização Total) --- */
+  /* --- Hamburguer --- */
   .hamburger {
     display: none;
     background: rgba(var(--text-rgb), 0.05);
@@ -171,10 +205,9 @@ const nome = "Michael Howe";
     width: 45px;
     height: 45px;
     border-radius: 12px;
-    z-index: 1002;
+    z-index: 100;
     padding: 0;
-    /* Centraliza a hamburger-box dentro do botão */
-    display: none; 
+    margin: 0;
     align-items: center;
     justify-content: center;
   }
@@ -182,7 +215,8 @@ const nome = "Michael Howe";
   .hamburger-box {
     position: relative;
     width: 24px;
-    height: 14px; /* Altura total das 3 linhas + espaços */
+    height: 14px;
+    display: block;
   }
 
   .hamburger .line {
@@ -192,27 +226,40 @@ const nome = "Michael Howe";
     height: 2px;
     background-color: var(--text);
     border-radius: 4px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+    transition:
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.2s ease;
   }
 
-  /* Distribuição das linhas */
-  .line:nth-child(1) { top: 0; }
-  .line:nth-child(2) { top: 6px; }
-  .line:nth-child(3) { top: 12px; }
+  .line:nth-child(1) {
+    top: 0;
+  }
+  .line:nth-child(2) {
+    top: 6px;
+  }
+  .line:nth-child(3) {
+    top: 12px;
+  }
 
-  /* Transformação para o X Perfeito */
-  .hamburger.active .line:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-  .hamburger.active .line:nth-child(2) { opacity: 0; transform: translateX(10px); }
-  .hamburger.active .line:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  .hamburger.active .line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .hamburger.active .line:nth-child(2) {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  .hamburger.active .line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
 
-  /* --- Menu Mobile (CORRIGIDO: Transparência) --- */
+  /* --- Mobile Menu --- */
   .mobile-menu {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100vh;
-    background: rgba(var(--mainnav-bg-rgb), 0.95);
+    background: rgba(var(--mainnav-bg-rgb), 0.98);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     display: flex;
@@ -222,9 +269,11 @@ const nome = "Michael Howe";
     gap: 2.5rem;
     clip-path: circle(0% at 90% 5%);
     transition: clip-path 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-    z-index: 999;
+    z-index: 100;
   }
-  .mobile-menu.open { clip-path: circle(150% at 90% 5%); }
+  .mobile-menu.open {
+    clip-path: circle(150% at 90% 5%);
+  }
 
   .mobile-link {
     font-size: 2.2rem;
@@ -233,64 +282,68 @@ const nome = "Michael Howe";
     text-decoration: none;
     transition: color 0.3s ease;
   }
-  .mobile-link:hover { color: var(--accent); }
+  .mobile-link:hover {
+    color: var(--accent);
+  }
 
   @media (max-width: 768px) {
-    .desktop-only, .separator { display: none; }
-    .hamburger { display: flex; } /* Ativa flex para centralizar */
+    .desktop-only,
+    .separator {
+      display: none;
+    }
+    .hamburger {
+      display: flex;
+    }
   }
 </style>
 
 <script>
-  function initNav() {
-    const nav = document.getElementById('main-nav');
-    const links = document.querySelectorAll('.nav-link');
-    const hamburger = document.querySelector(".hamburger");
+  let scrollHandler: (() => void) | null = null;
+
+  document.addEventListener("astro:page-load", () => {
+    const nav = document.getElementById("main-nav");
+    const links = document.querySelectorAll(".nav-link");
+    const hamburger = document.querySelector(".hamburger") as HTMLElement;
     const mobileMenu = document.querySelector(".mobile-menu");
     const mobileLinks = document.querySelectorAll(".mobile-link");
 
-    // Compactação no Scroll
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) nav?.classList.add('scrolled');
-      else nav?.classList.remove('scrolled');
-      updateActiveLink();
-    });
-
-    // Scroll Spy
-    function updateActiveLink() {
-      const sections = ['home', 'about', 'works'];
-      let current = 'home';
-
-      sections.forEach(id => {
-        const section = document.getElementById(id);
-        if (section) {
-          const sectionTop = section.offsetTop;
-          if (window.scrollY >= sectionTop - 150) current = id;
-        }
-      });
-
-      links.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('data-section') === current) link.classList.add('active');
-      });
+    if (scrollHandler) {
+      window.removeEventListener("scroll", scrollHandler);
     }
 
-    // Toggle Mobile
-    hamburger?.addEventListener("click", () => {
-      hamburger.classList.toggle("active");
-      mobileMenu?.classList.toggle("open");
-    });
+    scrollHandler = () => {
+      if (window.scrollY > 50) nav?.classList.add("scrolled");
+      else nav?.classList.remove("scrolled");
 
-    mobileLinks.forEach(link => {
-      link.addEventListener("click", () => {
-        hamburger?.classList.remove("active");
-        mobileMenu?.classList.remove("open");
+      const sections = ["home", "about", "works"];
+      let current = "home";
+      sections.forEach((id) => {
+        const section = document.getElementById(id);
+        if (section && window.scrollY >= section.offsetTop - 150) current = id;
       });
-    });
+      links.forEach((link) => {
+        link.classList.toggle(
+          "active",
+          link.getAttribute("data-section") === current,
+        );
+      });
+    };
 
-    updateActiveLink();
-  }
+    const toggleMenu = () => {
+      const isOpen = mobileMenu?.classList.toggle("open");
+      hamburger?.classList.toggle("active");
+      hamburger?.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      document.body.style.overflow = isOpen ? "hidden" : "";
+    };
 
-  initNav();
-  document.addEventListener("astro:after-swap", initNav);
+    hamburger?.addEventListener("click", toggleMenu);
+    mobileLinks.forEach((link) =>
+      link.addEventListener("click", () => {
+        if (mobileMenu?.classList.contains("open")) toggleMenu();
+      }),
+    );
+
+    window.addEventListener("scroll", scrollHandler, { passive: true });
+    if (scrollHandler) scrollHandler();
+  });
 </script>

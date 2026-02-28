@@ -1,280 +1,492 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
-import { getEntry } from 'astro:content';
-import MainLayout from '@layouts/MainLayout.astro';
+import { getCollection } from "astro:content";
+import MainLayout from "@layouts/MainLayout.astro";
+
+export const prerender = true;
 
 export async function getStaticPaths() {
-  const works = await getCollection('works');
-  return works.map((work) => ({
-    params: { id: work.id.split('/')[0] },
-    props: { work },
-  }));
-}
-
-interface Props {
-  work: CollectionEntry<'works'>;
+    const works = await getCollection("works");
+    return works.map((work) => ({
+        params: { id: work.id.split("/")[0] },
+        props: { work },
+    }));
 }
 
 const { work } = Astro.props;
-const { pathname } = Astro.url;
 
+if (!work || !work.data) {
+    return Astro.redirect(Astro.url.pathname.includes("/pt") ? "/pt/" : "/");
+}
+
+const { pathname } = Astro.url;
 const isPt = pathname.includes("/pt");
-const lang = (isPt ? 'pt' : 'en') as 'pt' | 'en';
-const currentLangTag = isPt ? 'pt-br' : 'en';
+const lang = (isPt ? "pt" : "en") as "pt" | "en";
+const currentLangTag = isPt ? "pt-br" : "en";
 
 const content = work.data[lang];
 const globalData = work.data;
 
-const textBack = isPt ? '← Voltar' : '← Go Back';
-const textDemo = isPt ? 'Acessar Projeto ↗' : 'Live Demo ↗';
-const textRepo = isPt ? 'Repositório ↗' : 'Repository ↗';
+const textBack = isPt ? "← Voltar" : "← Go Back";
+const textDemo = isPt ? "Acessar Projeto ↗" : "Live Demo ↗";
+const textRepo = isPt ? "Repositório ↗" : "Repository ↗";
 const backLink = isPt ? "/pt/" : "/";
 
 const formatText = (text: string | undefined) => {
-  if (!text) return [];
-  return text.split('\n').filter(p => p.trim() !== '');
+    if (!text) return [];
+    return text.split("\n").filter((p) => p.trim() !== "");
 };
 ---
 
-<MainLayout title={`${content.title} | Portfolio`} lang={currentLangTag}>
-  <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
+<MainLayout
+    title={`${content.title} | Portfolio`}
+    lang={currentLangTag}
+    description={content.shortDescription}
+>
+    <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
+    <div class="bg-glow" id="mouse-glow"></div>
 
-  <div class="bg-glow" id="mouse-glow"></div>
+    <div class="work-article-container">
+        <header class="project-header">
+            <a href={backLink} class="back-btn reveal">{textBack}</a>
+            <h1 class="hero-title reveal">{content.title}</h1>
 
-  <div class="work-article-container">
-    <header class="project-header">
-      <a href={backLink} class="back-btn reveal">{textBack}</a>
-      <h1 class="hero-title reveal">{content.title}</h1>
-      
-      <div class="header-container reveal">
-        <div class="description-column">
-          <div class="description-text">
-            {formatText(content.shortDescription).map(p => <p>{p}</p>)}
-          </div>
-          
-          <div class="meta-info">
-            <div class="tags-row">
-              {globalData.tags.map(tag => <span class="work-tag">{tag}</span>)}
+            <div class="header-container reveal">
+                <div class="description-column">
+                    <div class="description-text">
+                        {
+                            formatText(content.shortDescription).map((p) => (
+                                <p>{p}</p>
+                            ))
+                        }
+                    </div>
+
+                    <div class="meta-info">
+                        <div class="tags-row">
+                            {
+                                globalData.tags.map((tag) => (
+                                    <span class="work-tag">{tag}</span>
+                                ))
+                            }
+                        </div>
+
+                        <div class="links-row">
+                            {
+                                globalData.demoLink && (
+                                    <a
+                                        href={globalData.demoLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="btn-primary"
+                                    >
+                                        {textDemo}
+                                    </a>
+                                )
+                            }
+                            {
+                                globalData.repoLink && (
+                                    <a
+                                        href={globalData.repoLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="btn-outline"
+                                    >
+                                        {textRepo}
+                                    </a>
+                                )
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="links-row">
-              {globalData.demoLink && (
-                <a href={globalData.demoLink} target="_blank" class="btn-primary">
-                  {textDemo}
-                </a>
-              )}
-              {globalData.repoLink && (
-                <a href={globalData.repoLink} target="_blank" class="btn-outline">
-                  {textRepo}
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
+        </header>
 
-    {globalData.thumbnail && (
-      <div class="hero-visual reveal">
-        <div class="parallax-window">
-            <img src={globalData.thumbnail} alt={content.title} class="parallax-img" id="hero-img" />
-        </div>
-      </div>
-    )}
+        {
+            globalData.thumbnail && (
+                <div class="hero-visual reveal">
+                    <div class="parallax-window">
+                        <img
+                            src={globalData.thumbnail}
+                            alt={content.title}
+                            class="parallax-img"
+                            id="hero-img"
+                            loading="eager"
+                            fetchpriority="high"
+                            decoding="sync"
+                        />
+                    </div>
+                </div>
+            )
+        }
 
-    <article class="details-stack">
-      {content.detailedSections.map((section, index) => (
-        <section class={`detail-section reveal ${index % 2 !== 0 ? 'is-reversed' : ''}`}>
-          {section.sectionTitle && <h2 class="section-heading">{section.sectionTitle}</h2>}
-          
-          <div class="section-body">
-            {section.image && (
-              <div class="section-image-wrap">
-                <img src={section.image} alt={section.sectionTitle} loading="lazy" />
-              </div>
-            )}
-            <div class="section-text">
-              {formatText(section.content).map(p => <p>{p}</p>)}
-            </div>
-          </div>
-        </section>
-      ))}
-    </article>
-  </div>
+        <article class="details-stack">
+            {
+                /* detailedSections is now in globalData and contains pt/en objects within it. */
+            }
+            {
+                globalData.detailedSections.map((section, index) => {
+                    const sectionTexts = section[lang]; // Pull the title and content from the current language.
+                    return (
+                        <section
+                            class={`detail-section reveal ${index % 2 !== 0 ? "is-reversed" : ""}`}
+                        >
+                            {sectionTexts.title && (
+                                <div class="separator"></div>
+                                <h2 class="section-heading">
+                                    <span class="custom-underline">{sectionTexts.title}</span>
+                                </h2>
+                            )}
+
+                            <div class="section-body">
+                                {section.sectionImage && (
+                                    <div class="section-image-wrap">
+                                        <img
+                                            src={section.sectionImage}
+                                            alt={sectionTexts.title}
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    </div>
+                                )}
+                                <div class="section-text">
+                                    {formatText(sectionTexts.content).map(
+                                        (p) => (
+                                            <p>{p}</p>
+                                        ),
+                                    )}
+                                </div>
+                            </div>
+                        </section>
+                    );
+                })
+            }
+        </article>
+    </div>
 </MainLayout>
 
 <style>
-  /* --- 1. CONFIGURAÇÕES TÉCNICAS --- */
-  .work-article-container { 
-    max-width: 1000px; 
-    margin: 0 auto; 
-    padding: 140px 2rem 100px; 
-    position: relative;
-    z-index: 1;
-  }
+    .text-accent {
+        color: var(--accent);
+    }
+    .text-gradient {
+        background: linear-gradient(to right, var(--accent), #fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: bold;
+    }
+    .text-underline {
+        border-bottom: 2px solid var(--accent);
+    }
+    .custom-underline {
+        position: relative;
+        display: inline-block;
+    }
+    .custom-underline::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 70%;
+        bottom: -10px;
+        height: 4px;
+        background-color: var(--accent);
+        border-radius: 2px;
+        z-index: -1;
+        transition: width 0.3s ease;
+    }
+    .separator{border-top: 1px solid grey; width: 100%; opacity: 0.4; position: absolute; margin-top: -1.5rem;}
 
-  /* --- 2. BARRA DE PROGRESSO & GLOW --- */
-  .progress-wrap { position: fixed; top: 70px; left: 0; width: 100%; height: 2px; z-index: 1000; pointer-events: none; }
-  .progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s ease-out; box-shadow: 0 0 10px var(--accent); }
+    .work-article-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 140px 2rem 100px;
+        position: relative;
+        z-index: 1;
+    }
+    /* --- Progress Bar --- */
+    .progress-wrap {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        z-index: 1000;
+        pointer-events: none;
+    }
+    .progress-bar {
+        height: 100%;
+        background: var(--accent);
+        width: 0%;
+        transition: width 0.1s ease-out;
+        box-shadow: 0 0 10px var(--accent);
+    }
+    /* --- Background Glow --- */
+    .bg-glow {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+        opacity: 0;
+        filter: blur(100px);
+        z-index: -1;
+        pointer-events: none;
+        will-change: transform, opacity;
+        transition: opacity 1s ease;
+    }
+    .bg-glow.visible {
+        opacity: 0.08;
+    }
 
-  .bg-glow {
-    position: fixed; top: 0; left: 0; width: 600px; height: 600px;
-    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-    opacity: 0; filter: blur(100px); z-index: -1; pointer-events: none;
-    will-change: transform, opacity; transition: opacity 1s ease;
-  }
-  .bg-glow.visible { opacity: 0.08; }
+    .back-btn {
+        color: var(--accent);
+        text-decoration: none;
+        font-family: "Fira Code", monospace;
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+    .back-btn:hover {
+        color: var(--text);
+        font-weight: 300;
+    }
 
-  /* --- 3. HEADER & TYPOGRAPHY --- */
-  .back-btn { 
-    color: var(--accent); 
-    text-decoration: none; 
-    font-family: 'Fira Code', monospace; 
-    font-size: 0.85rem; 
-    margin-bottom: 2rem; 
-    display: inline-block;
-    transition: transform 0.3s ease;
-  }
-  .back-btn:hover { transform: translateX(-5px); }
+    .hero-title {
+        font-size: clamp(3rem, 10vw, 5.5rem);
+        font-weight: 900;
+        letter-spacing: -4px;
+        line-height: 0.85;
+        margin-bottom: 3rem;
+        color: var(--text);
+    }
+    .description-text {
+        border-left: solid 6px var(--accent);
+        padding-left: 25px;
+        margin-bottom: 3rem;
+    }
+    .description-text p {
+        font-size: 1.3rem;
+        line-height: 1.7;
+        color: var(--secondary);
+        text-align: justify;
+    }
 
-  .hero-title { 
-    font-size: clamp(3rem, 10vw, 5.5rem); 
-    font-weight: 900; 
-    letter-spacing: -4px; 
-    line-height: 0.85; 
-    margin-bottom: 3rem; 
-    color: var(--text); 
-  }
+    /* --- Tags --- */
+    .tags-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 25px;
+    }
+    .work-tag {
+        font-size: 0.65rem;
+        font-weight: 800;
+        background: rgba(var(--text-rgb), 0.05);
+        color: var(--accent);
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--card-border);
+        text-transform: uppercase;
+    }
+    .work-tag:hover {
+        color: var(--dark-text);
+        background-color: var(--accent);
+        transition: ease 0.6s;
+    }
 
-  .description-text {
-    border-left: solid 6px var(--accent);
-    padding-left: 25px;
-    margin-bottom: 3rem;
-  }
-  .description-text p { font-size: 1.3rem; line-height: 1.7; color: var(--secondary); text-align: justify; }
+    .links-row {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    .btn-primary,
+    .btn-outline {
+        padding: 14px 35px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 800;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: inline-block;
+    }
+    .btn-primary {
+        background: var(--accent);
+        color: #000;
+        border: 2px solid var(--accent);
+    }
+    .btn-outline {
+        border: 2px solid var(--accent);
+        color: var(--accent);
+    }
+    .btn-primary:hover,
+    .btn-outline:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 10px 20px var(--dropshadow-rgb);
+    }
+    .hero-visual {
+        width: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        margin-bottom: 8rem;
+    }
+    .parallax-window {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+    }
+    .parallax-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease-out;
+    }
+    .details-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 4rem;
+    }
+    .section-heading {
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 2rem;
+        color: var(--text);
+        letter-spacing: -1.0px;
+    }
+    .section-body {
+        width: 100%;
+        overflow: visible;
+    }
+    .section-image-wrap {
+        width: 45%;
+        float: right;
+        margin: 0 0 20px 40px;
+        border-radius: 20px;
+        border: 1px solid var(--card-border);
+        box-shadow: 4px 4px 0px var(--accent);
+        transition: all 0.4s ease;
+    }
+    .is-reversed .section-image-wrap {
+        float: left;
+        margin: 0 40px 20px 0;
+    }
+    .section-image-wrap:hover {
+        transform: scale(1.02) rotate(1deg);
+    }
+    .section-image-wrap img {
+        width: 100%;
+        border-radius: 20px;
+        display: block;
+    }
+    .section-text p {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        color: var(--secondary);
+        margin-bottom: 1.5rem;
+        text-align: justify;
+    }
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+    }
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-  /* --- 4. BUTTONS & TAGS --- */
-  .work-tag { 
-    font-size: 0.7rem; font-weight: 800; padding: 6px 14px; border-radius: 4px; 
-    background: rgba(var(--text-rgb), 0.03); color: var(--accent); 
-    border: 1px solid var(--card-border); text-transform: uppercase; 
-  }
-
-  .links-row { display: flex; gap: 1.5rem; margin-top: 2rem; }
-  
-  .btn-primary { 
-    background: var(--accent); color: #000; padding: 14px 35px; border-radius: 50px; 
-    text-decoration: none; font-weight: 800; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-    border: 2px solid var(--accent);
-  }
-  .btn-outline { 
-    border: 2px solid var(--accent); color: var(--accent); padding: 14px 35px; border-radius: 50px; 
-    text-decoration: none; font-weight: 800; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-  }
-
-  .btn-primary:hover, .btn-outline:hover { 
-    transform: translateY(-5px) scale(1.05); 
-    box-shadow: 0 10px 20px var(--dropshadow-rgb); 
-  }
-
-  /* --- 5. VISUALS & PARALLAX --- */
-  .hero-visual { 
-    width: 100%; border-radius: 24px; overflow: hidden; 
-    margin-bottom: 8rem;;
-  }
-  .parallax-window { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
-  .parallax-img { width: 100%; height: 120%; object-fit: cover; transition: transform 0.1s ease-out; }
-
-  /* --- 6. DETAILED SECTIONS --- */
-  .details-stack { display: flex; flex-direction: column; gap: 8rem; }
-  .section-heading { font-size: 2.5rem; font-weight: 900; margin-bottom: 2rem; color: var(--text); letter-spacing: -1.5px; }
-
-  .section-body { width: 100%; overflow: visible; }
-  
-  .section-image-wrap { 
-    width: 45%; 
-    float: right; 
-    margin: 0 0 20px 40px; 
-    border-radius: 20px;
-    border: 1px solid var(--card-border);
-    box-shadow: 4px 4px 0px var(--accent); /* Sombra Brutalista */
-    transition: all 0.4s ease;
-  }
-  .is-reversed .section-image-wrap { float: left; margin: 0 40px 20px 0; }
-  
-  .section-image-wrap:hover { transform: scale(1.02) rotate(1deg); }
-  .section-image-wrap img { width: 100%; border-radius: 20px; display: block; }
-
-  .section-text p { font-size: 1.15rem; line-height: 1.8; color: var(--secondary); margin-bottom: 1.5rem; text-align: justify; }
-
-  /* --- 7. ANIMATIONS --- */
-  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.2, 0.6, 0.2, 1); }
-  .reveal.active { opacity: 1; transform: translateY(0); }
-
-  @media (max-width: 992px) {
-    .section-image-wrap { width: 100% !important; float: none !important; margin: 0 0 2rem 0 !important; box-shadow: 6px 6px 0px var(--accent); }
-    .hero-title { font-size: 3.5rem; letter-spacing: -2px; }
-    .description-text { padding-left: 15px; }
-    .links-row { flex-direction: column; }
-    .btn-primary, .btn-outline { text-align: center; }
-  }
+    @media (max-width: 992px) {
+        .work-article-container {
+            padding-top: 100px;
+        }
+        .section-image-wrap {
+            width: 100% !important;
+            float: none !important;
+            margin: 0 0 2rem 0 !important;
+            box-shadow: 6px 6px 0px var(--accent);
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            letter-spacing: -2px;
+        }
+        .description-text {
+            padding-left: 15px;
+        }
+        .links-row {
+            flex-direction: column;
+        }
+        .btn-primary,
+        .btn-outline {
+            text-align: center;
+        }
+        .details-stack {
+            gap: 4rem;
+        }
+        .hero-visual {
+            margin-bottom: 4rem;
+        }
+    }
 </style>
 
 <script>
-  function initProject() {
-    // --- 1. PROGRESS BAR ---
-    const bar = document.getElementById('bar');
-    const heroImg = document.getElementById('hero-img');
+    function initProject() {
+        const bar = document.getElementById("bar");
+        const heroImg = document.getElementById("hero-img") as HTMLElement;
+        const glowEl = document.getElementById("mouse-glow") as HTMLElement;
+        const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
-    window.addEventListener('scroll', () => {
-      if (bar) {
-        const winH = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        bar.style.width = (window.scrollY / winH) * 100 + "%";
-      }
-      // Parallax suave
-      if (heroImg) {
-        const speed = 0.15;
-        (heroImg as HTMLElement).style.transform = `translateY(${window.scrollY * speed}px)`;
-      }
-    });
-
-    // --- 2. MOUSE GLOW ---
-    const glowEl = document.getElementById("mouse-glow") as HTMLElement;
-    let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
-    const ease = 0.15;
-    let isMoving = false;
-
-    if (glowEl) {
-        window.addEventListener("mousemove", (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            if (!isMoving) {
-                isMoving = true;
-                glowEl.classList.add('visible');
-                requestAnimationFrame(animateGlow);
+        window.addEventListener("scroll", () => {
+            if (bar) {
+                const winH =
+                    document.documentElement.scrollHeight -
+                    document.documentElement.clientHeight;
+                bar.style.width = (window.scrollY / winH) * 100 + "%";
+            }
+            if (heroImg && !isTouch) {
+                const speed = 0.15;
+                heroImg.style.transform = `translate3d(0, ${window.scrollY * speed}px, 0)`;
             }
         });
 
-        function animateGlow() {
-            if (!isMoving) return;
-            currentX += (mouseX - currentX) * ease;
-            currentY += (mouseY - currentY) * ease;
-            glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
-            requestAnimationFrame(animateGlow);
+        let mouseX = 0,
+            mouseY = 0,
+            currentX = 0,
+            currentY = 0;
+        const ease = 0.15;
+        let isMoving = false;
+
+        if (glowEl && !isTouch) {
+            window.addEventListener("mousemove", (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                if (!isMoving) {
+                    isMoving = true;
+                    glowEl.classList.add("visible");
+                    requestAnimationFrame(animateGlow);
+                }
+            });
+
+            function animateGlow() {
+                if (!isMoving || !glowEl) return;
+                currentX += (mouseX - currentX) * ease;
+                currentY += (mouseY - currentY) * ease;
+                glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
+                requestAnimationFrame(animateGlow);
+            }
         }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting)
+                        entry.target.classList.add("active");
+                });
+            },
+            { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
+        );
+
+        document
+            .querySelectorAll(".reveal")
+            .forEach((el) => observer.observe(el));
     }
 
-    // --- 3. REVEAL OBSERVER ---
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('active');
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  }
-
-  // Inicialização
-  initProject();
-  document.addEventListener('astro:after-swap', initProject);
+    document.addEventListener("astro:page-load", initProject);
 </script>

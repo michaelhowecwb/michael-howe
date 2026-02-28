@@ -1,6 +1,6 @@
 export const ui = {
   en: {
-    'nav.services': 'Services',
+    'nav.about': 'About',
     'nav.works': 'Works',
     'hero.title': 'Talk is cheap. Show me the code',
     'hero.subtitle': 'I design and code beautifully simple things, and I love what I do.',
@@ -17,7 +17,7 @@ export const ui = {
     'footer.copy': 'Based in Brazil, looking for global opportunities.',
   },
   pt: {
-    'nav.services': 'Serviços',
+    'nav.about': 'Sobre',
     'nav.works': 'Trabalhos',
     'hero.title': 'Falar é fácil. Mostre-me o código',
     'hero.subtitle': 'Eu projeto e programo coisas belas e simples, e amo o que faço.',

@@ -1,8 +1,6 @@
 ---
-import { ui } from "@utils/i18n";
 const { pathname } = Astro.url;
 const isPt = pathname.includes("/pt");
-const t = isPt ? ui.pt : ui.en;
 const nome = "Michael Howe";
 ---
 
@@ -14,42 +12,96 @@ const nome = "Michael Howe";
         {isPt ? "Disponível para novos projetos" : "Available for new projects"}
       </span>
       <h2 class="cta-title">
-        {isPt ? "Vamos criar algo incrível?" : "Let's build something great?"}
+        {
+          isPt ? (
+            <>
+              Vamos criar algo incrível<span class="text-accent"> ?</span>
+            </>
+          ) : (
+            <>
+              Let's build something great<span class="text-accent"> ?</span>
+            </>
+          )
+        }
       </h2>
-      
-      <a href="mailto:michaelhowecwb@gmail.com" class="main-contact-link">
+
+      <button
+        id="footer-contact-btn"
+        class="main-contact-link"
+        aria-label={isPt ? "Abrir formulário de contato" : "Open contact form"}
+      >
         <span class="btn-content">
-          {isPt ? "ME MANDE UM E-MAIL" : "SEND ME AN EMAIL"}
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mail-icon" aria-hidden="true">
-            <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          {isPt ? "ME ENVIE UMA MENSAGEM" : "SEND ME A MESSAGE"}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="mail-icon"
+            aria-hidden="true"
+          >
+            <rect width="20" height="16" x="2" y="4" rx="2"></rect><path
+              d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
           </svg>
         </span>
-      </a>
+      </button>
     </div>
 
     <div class="footer-bottom-grid">
       <div class="footer-info reveal">
         <div class="info-item">
           <span class="info-label">{isPt ? "LOCALIZAÇÃO" : "LOCATION"}</span>
-          <span class="info-value">Curitiba, PR — Brazil 🇧🇷</span>
+          <address class="info-value">Curitiba, PR — Brazil 🇧🇷</address>
         </div>
-        
+
         <div class="info-item">
           <span class="info-label">{isPt ? "SOCIAL" : "FOLLOW ME"}</span>
           <div class="social-links">
-            <a href="https://github.com/michaelhowecwb" target="_blank" rel="noopener noreferrer" class="social-item-wrap">
+            <a
+              href="https://github.com/michaelhowecwb"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="social-item-wrap"
+              aria-label="GitHub"
+            >
               <div class="icon-box github-box">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="social-svg" aria-hidden="true">
-                  <path d="M12 1A10.89 10.89 0 0 0 1 11.77 10.79 10.79 0 0 0 8.52 22c.55.1.75-.23.75-.52v-1.83c-3.06.65-3.71-1.44-3.71-1.44a2.86 2.86 0 0 0-1.22-1.58c-1-.66.08-.65.08-.65a2.31 2.31 0 0 1 1.68 1.11 2.37 2.37 0 0 0 3.2.89 2.33 2.33 0 0 1 .7-1.44c-2.44-.27-5-1.19-5-5.32a4.15 4.15 0 0 1 1.11-2.91 3.78 3.78 0 0 1 .11-2.84s.93-.29 3 1.1a10.68 10.68 0 0 1 5.5 0c2.1-1.39 3-1.1 3-1.1a3.78 3.78 0 0 1 .11 2.84A4.15 4.15 0 0 1 19 11.2c0 4.14-2.58 5.05-5 5.32a2.5 2.5 0 0 1 .75 2v2.95c0 .35.2.63.75.52A10.8 10.8 0 0 0 23 11.77 10.89 10.89 0 0 0 12 1"/>
+                <svg
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="social-svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 1A10.89 10.89 0 0 0 1 11.77 10.79 10.79 0 0 0 8.52 22c.55.1.75-.23.75-.52v-1.83c-3.06.65-3.71-1.44-3.71-1.44a2.86 2.86 0 0 0-1.22-1.58c-1-.66.08-.65.08-.65a2.31 2.31 0 0 1 1.68 1.11 2.37 2.37 0 0 0 3.2.89 2.33 2.33 0 0 1 .7-1.44c-2.44-.27-5-1.19-5-5.32a4.15 4.15 0 0 1 1.11-2.91 3.78 3.78 0 0 1 .11-2.84s.93-.29 3 1.1a10.68 10.68 0 0 1 5.5 0c2.1-1.39 3-1.1 3-1.1a3.78 3.78 0 0 1 .11 2.84A4.15 4.15 0 0 1 19 11.2c0 4.14-2.58 5.05-5 5.32a2.5 2.5 0 0 1 .75 2v2.95c0 .35.2.63.75.52A10.8 10.8 0 0 0 23 11.77 10.89 10.89 0 0 0 12 1"
+                  ></path>
                 </svg>
               </div>
               <span class="social-label">GitHub</span>
             </a>
 
-            <a href="https://www.linkedin.com/in/michael-howe-cwb/" target="_blank" rel="noopener noreferrer" class="social-item-wrap">
+            <a
+              href="https://www.linkedin.com/in/michael-howe-cwb/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="social-item-wrap"
+              aria-label="LinkedIn"
+            >
               <div class="icon-box linkedin-box">
-                <svg viewBox="0 0 99.59 99.59" xmlns="http://www.w3.org/2000/svg" class="social-svg" aria-hidden="true">
-                  <path fill="currentColor" d="M49.795,0A49.795,49.795,0,1,0,99.59,49.795,49.795,49.795,0,0,0,49.795,0ZM36.509,73.868H25.575V38.547H36.509ZM30.991,33.921a6.518,6.518,0,1,1,6.465-6.517A6.492,6.492,0,0,1,30.991,33.921ZM77.481,73.868H66.591V55.328c0-5.085-1.932-7.924-5.953-7.924-4.376,0-6.662,2.956-6.662,7.924V73.868H43.5V38.547H53.986v4.757a12.319,12.319,0,0,1,10.644-5.835c7.49,0,12.851,4.573,12.851,14.034V73.868Z"/>
+                <svg
+                  viewBox="0 0 99.59 99.59"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="social-svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M49.795,0A49.795,49.795,0,1,0,99.59,49.795,49.795,49.795,0,0,0,49.795,0ZM36.509,73.868H25.575V38.547H36.509ZM30.991,33.921a6.518,6.518,0,1,1,6.465-6.517A6.492,6.492,0,0,1,30.991,33.921ZM77.481,73.868H66.591V55.328c0-5.085-1.932-7.924-5.953-7.924-4.376,0-6.662,2.956-6.662,7.924V73.868H43.5V38.547H53.986v4.757a12.319,12.319,0,0,1,10.644-5.835c7.49,0,12.851,4.573,12.851,14.034V73.868Z"
+                  ></path>
                 </svg>
               </div>
               <span class="social-label">LinkedIn</span>
@@ -59,9 +111,7 @@ const nome = "Michael Howe";
       </div>
 
       <div class="footer-copy-area reveal">
-        <p class="footer-copy">
-          © {new Date().getFullYear()} — {nome}
-        </p>
+        <p class="footer-copy">© {new Date().getFullYear()} — {nome}</p>
         <p class="footer-tagline">
           {isPt ? "Feito com Astro & Paixão" : "Built with Astro & Passion"}
         </p>
@@ -71,50 +121,296 @@ const nome = "Michael Howe";
 </footer>
 
 <style>
-  /* ... Estilos base mantidos ... */
-  .footer-stripe { width: 100%; background-color: var(--footer-bg); border-top: 1px solid var(--card-border); padding: 120px 0 60px; position: relative; overflow: hidden; }
-  .footer-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 2; }
-  .footer-cta { text-align: center; margin-bottom: 120px; }
-  .status-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(var(--accent-rgb), 0.1); color: var(--accent); padding: 8px 20px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 30px; }
-  .ping { width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; position: relative; }
-  .ping::after { content: ''; position: absolute; width: 100%; height: 100%; background: var(--accent); border-radius: 50%; animation: ping-anim 1.5s infinite; }
-  @keyframes ping-anim { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; } }
-  .cta-title { font-size: clamp(2.5rem, 8vw, 5rem); font-weight: 900; letter-spacing: -4px; line-height: 0.9; margin-bottom: 60px; color: var(--text); }
-  .main-contact-link { display: inline-block; text-decoration: none; border-radius: 100px; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  .btn-content { display: flex; align-items: center; gap: 15px; border: 2px solid var(--accent); color: var(--accent); padding: 18px 45px; border-radius: 100px; font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; transition: all 0.4s ease; }
-  .mail-icon { transition: transform 0.4s ease; }
-  .main-contact-link:hover { transform: translateY(-5px); }
-  .main-contact-link:hover .btn-content { background: var(--accent); color: #000; box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.4); }
-  .main-contact-link:hover .mail-icon { transform: rotate(10deg) scale(1.1); }
-  .footer-bottom-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: flex-end; border-top: 1px solid var(--card-border); padding-top: 60px; }
-  .info-item { margin-bottom: 30px; }
-  .info-label { display: block; font-size: 0.7rem; font-weight: 700; color: var(--accent); margin-bottom: 15px; letter-spacing: 2px; }
-  .info-value { font-size: 1.1rem; color: var(--text); font-weight: 500; }
-  .social-links { display: flex; gap: 40px; margin-top: 10px; }
-  .social-item-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; text-decoration: none; }
-  .icon-box { width: 60px; height: 60px; background: transparent; border: 1px solid var(--card-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-  /* --- AJUSTE DOS ÍCONES --- */
-  .social-svg { width: 34px; height: 34px; fill: var(--accent); transition: all 0.3s ease; }
-  
-  .github-box .social-svg { width: 38px; height: 38px; }
-  
-  /* Ajuste de escala para o novo LinkedIn redondo ficar harmônico com o GitHub */
-  .linkedin-box .social-svg { 
-    width: 36px; 
-    height: 36px; 
-    color: var(--accent); /* O path usa currentColor */
+  .text-accent {
+    color: var(--accent);
+  }
+  .text-gradient {
+    background: linear-gradient(to right, var(--accent), #fff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: bold;
+  }
+  .text-underline {
+    border-bottom: 2px solid var(--accent);
+  }
+  .custom-underline {
+    position: relative;
+    display: inline-block;
+  }
+  .custom-underline::after {
+    content: "";
+    position: absolute;
+    left: 20%;
+    right: 0;
+    bottom: -2px;
+    height: 4px;
+    background-color: var(--accent);
+    border-radius: 2px;
+    z-index: -1;
+    transition: width 0.3s ease;
   }
 
-  .social-label { font-family: 'Fira Code', monospace; font-size: 0.75rem; font-weight: 600; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; }
-  .social-item-wrap:hover .icon-box { background: var(--accent); border-color: var(--accent); transform: translateY(-8px) scale(1.1); box-shadow: 0 10px 20px var(--dropshadow-rgb); }
-  .social-item-wrap:hover .social-svg { fill: #000; color: #000; }
-  .social-item-wrap:hover .social-label { color: var(--accent); letter-spacing: 2px; }
-  .footer-copy-area { text-align: right; }
-  .footer-copy { font-size: 1rem; color: var(--text); font-weight: 600; }
-  .footer-tagline { font-size: 0.8rem; color: var(--secondary); margin-top: 5px; }
-  .reveal { opacity: 0; transform: translateY(20px); transition: all 0.8s ease; }
-  .reveal.active { opacity: 1; transform: translateY(0); }
+  .footer-stripe {
+    width: 100%;
+    background-color: var(--footer-bg);
+    border-top: 1px solid var(--card-border);
+    padding: 120px 0 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+  }
 
-  @media (max-width: 768px) { .footer-bottom-grid { grid-template-columns: 1fr; text-align: center; } .social-links { justify-content: center; } .footer-copy-area { text-align: center; margin-top: 40px; } .cta-title { letter-spacing: -2px; } }
+  .footer-cta {
+    text-align: center;
+    margin-bottom: 120px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--accent);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 30px;
+  }
+
+  .ping {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent);
+    border-radius: 50%;
+    position: relative;
+  }
+  .ping::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: ping-anim 1.5s infinite;
+  }
+  @keyframes ping-anim {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+  .cta-title {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -4px;
+    line-height: 0.9;
+    margin-bottom: 60px;
+    color: var(--text);
+  }
+
+  .main-contact-link {
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 100px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    padding: 18px 45px;
+    border-radius: 100px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    transition: all 0.4s ease;
+  }
+
+  .main-contact-link:hover {
+    transform: translateY(-5px);
+  }
+  .main-contact-link:hover .btn-content {
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.4);
+  }
+  .main-contact-link:hover .mail-icon {
+    transform: rotate(10deg) scale(1.1);
+    transition: 0.3s;
+  }
+
+  .footer-bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: flex-end;
+    border-top: 1px solid var(--card-border);
+    padding-top: 60px;
+  }
+
+  .info-item {
+    margin-bottom: 30px;
+  }
+  .info-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+  }
+  .info-value {
+    font-size: 1.1rem;
+    color: var(--text);
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 40px;
+    margin-top: 10px;
+  }
+  .social-item-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .icon-box {
+    width: 60px;
+    height: 60px;
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .social-svg {
+    width: 34px;
+    height: 34px;
+    fill: var(--accent);
+    transition: 0.3s;
+  }
+  .github-box .social-svg {
+    width: 38px;
+    height: 38px;
+  }
+  .linkedin-box .social-svg {
+    width: 36px;
+    height: 36px;
+    color: var(--accent);
+  }
+
+  .social-label {
+    font-family: "Fira Code", monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: 0.3s;
+  }
+
+  .social-item-wrap:hover .icon-box {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-8px) scale(1.1);
+    box-shadow: 0 10px 20px var(--dropshadow-rgb);
+  }
+  .social-item-wrap:hover .social-svg {
+    fill: #000;
+    color: #000;
+  }
+  .social-item-wrap:hover .social-label {
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .footer-copy-area {
+    text-align: right;
+  }
+  .footer-copy {
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 600;
+    margin: 0;
+  }
+  .footer-tagline {
+    font-size: 0.8rem;
+    color: var(--secondary);
+    margin-top: 5px;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s ease;
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    .footer-stripe {
+      padding: 80px 0 40px;
+    }
+    .footer-bottom-grid {
+      grid-template-columns: 1fr;
+      text-align: center;
+      gap: 40px;
+    }
+    .social-links {
+      justify-content: center;
+    }
+    .footer-copy-area {
+      text-align: center;
+    }
+    .cta-title {
+      letter-spacing: -2px;
+      margin-bottom: 40px;
+    }
+    .btn-content {
+      padding: 16px 30px;
+      font-size: 1rem;
+    }
+  }
 </style>
+
+<script>
+  // Adapted for Astro 5 SPA and with memory leak prevention.
+  document.addEventListener("astro:page-load", () => {
+    const footerBtn = document.getElementById("footer-contact-btn");
+
+    if (footerBtn && !footerBtn.hasAttribute("data-listener-attached")) {
+      footerBtn.addEventListener("click", () => {
+        window.dispatchEvent(new CustomEvent("openContactModal"));
+      });
+      footerBtn.setAttribute("data-listener-attached", "true");
+    }
+  });
+</script>

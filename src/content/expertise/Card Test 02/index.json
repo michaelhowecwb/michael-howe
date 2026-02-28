@@ -1,0 +1,11 @@
+{
+  "order": 2,
+  "pt": {
+    "title": "Card Teste 02 - BR",
+    "description": "O Lorem Ipsum é um texto modelo da indústria tipográfica e de impressão. O Lorem Ipsum tem vindo a ser o texto padrão usado por estas indústrias desde o ano de 1500, quando uma misturou os caracteres de um texto para criar um espécime de livro."
+  },
+  "en": {
+    "title": "Card Test 02 - EN",
+    "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+  }
+}
