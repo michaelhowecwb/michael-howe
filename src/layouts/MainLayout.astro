@@ -2,6 +2,7 @@
 import MainNavbar from "@components/MainNavbar.astro";
 import Footer from "@components/Footer.astro";
 import { ClientRouter } from "astro:transitions";
+import ContactModal from "@components/ContactModal.astro";
 
 interface Props {
     title?: string;
@@ -234,6 +235,7 @@ const ogImageURL = new URL(image, siteUrl);
         <MainNavbar />
         <main>
             <slot />
+            <ContactModal />
         </main>
         <Footer />
 

@@ -3,7 +3,6 @@ import { getCollection, getEntry } from "astro:content";
 import { ui } from "@utils/i18n";
 import MainLayout from "@layouts/MainLayout.astro";
 import WorkCard from "@components/WorkCard.astro";
-import ContactModal from "@components/ContactModal.astro";
 
 const nome = "Michael Howe";
 const cargo = "< Full-stack Developer />";
@@ -711,7 +710,6 @@ const jsonLd = JSON.stringify(schema);
             </div>
         </section>
     </main>
-    <ContactModal />
 </MainLayout>
 
 <script>
