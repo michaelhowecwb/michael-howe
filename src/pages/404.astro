@@ -17,10 +17,10 @@ const backLink = isPt ? "/pt" : "/";
 
 <MainLayout title={title} lang={isPt ? "pt-br" : "en"}>
   <main class="error-page">
-    <div class="grid-overlay"></div>
+    <div class="grid-overlay" aria-hidden="true"></div>
 
     <div class="glass-card reveal">
-      <div class="terminal-header">
+      <div class="terminal-header" aria-hidden="true">
         <div class="terminal-dots">
           <span class="dot red"></span>
           <span class="dot yellow"></span>
@@ -39,9 +39,9 @@ const backLink = isPt ? "/pt" : "/";
       </div>
 
       <div class="btn-wrapper">
-        <a href={backLink} class="back-btn magnetic-btn" data-strength="30">
+        <a href={backLink} class="back-btn magnetic-btn" data-strength="30" aria-label={btnText}>
           <span class="btn-text">{btnText}</span>
-          <div class="btn-glow"></div>
+          <div class="btn-glow" aria-hidden="true"></div>
         </a>
       </div>
     </div>
@@ -55,9 +55,10 @@ const backLink = isPt ? "/pt" : "/";
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    background: #050505;
+    background: var(--bg);
     position: relative;
     overflow: hidden;
+    transition: background 0.3s ease;
   }
 
   /* Background Grid Effect */
@@ -73,10 +74,10 @@ const backLink = isPt ? "/pt" : "/";
   }
 
   .glass-card {
-    background: rgba(15, 15, 15, 0.7);
+    background: rgba(var(--bg-rgb), 0.7);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--card-border);
     padding: clamp(2rem, 5vw, 4rem);
     border-radius: clamp(20px, 4vw, 32px);
     text-align: center;
@@ -84,7 +85,15 @@ const backLink = isPt ? "/pt" : "/";
     width: 100%;
     position: relative;
     z-index: 10;
-    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease, background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .glass-card.active {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   /* --- Terminal Header --- */
@@ -143,7 +152,8 @@ const backLink = isPt ? "/pt" : "/";
     left: 0;
     width: 100%;
     height: 100%;
-    background: #050505;
+    background: var(--bg);
+    transition: background 0.3s ease;
   }
 
   .error-code::before {
@@ -182,7 +192,7 @@ const backLink = isPt ? "/pt" : "/";
     font-size: clamp(0.9rem, 1.5vw, 1rem);
   }
 
-  /* --- Magnetic Button Stylin --- */
+  /* --- Magnetic Button Styling --- */
   .btn-wrapper {
     position: relative;
     display: inline-block;
@@ -201,7 +211,7 @@ const backLink = isPt ? "/pt" : "/";
     text-decoration: none;
     position: relative;
     overflow: hidden;
-    transition: border 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.7, 0, 0.2, 1), border 0.3s ease;
   }
 
   .btn-text {
@@ -223,7 +233,7 @@ const backLink = isPt ? "/pt" : "/";
     border-color: var(--accent);
   }
   .back-btn:hover .btn-text {
-    color: #000;
+    color: var(--bg);
   }
   .back-btn:hover .btn-glow {
     transform: translateY(0);
@@ -278,11 +288,8 @@ const backLink = isPt ? "/pt" : "/";
       padding: 2.5rem 1.5rem;
     }
     .typewriter {
-      white-space: normal;
-      border-right: none;
-      width: 100%;
-      animation: none;
-    } /* Remove typewriter no mobile para evitar quebra de layout */
+      font-size: clamp(0.7rem, 3.5vw, 1rem); /* Mantém na mesma linha sem quebrar layout */
+    }
     .error-code {
       letter-spacing: -2px;
     }
@@ -291,20 +298,29 @@ const backLink = isPt ? "/pt" : "/";
 
 <script>
   function init404() {
-    // Reveal Observer
+    // Reveal Observer - Otimizado com Unobserve (Anti Memory Leak)
     const observer = new IntersectionObserver(
-      (entries) => {
+      (entries, obs) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add("active");
+          if (entry.isIntersecting) {
+            entry.target.classList.add("active");
+            obs.unobserve(entry.target); // Libera o thread assim que animado
+          }
         });
       },
       { threshold: 0.1 },
     );
+    
     document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
-    // Magnetic Button Logic
+    // Magnetic Button Logic - Otimizado para Transições Fluídas e Idempotência
     const mBtn = document.querySelector(".magnetic-btn") as HTMLElement;
+    
     if (mBtn && window.innerWidth > 768) {
+      // Evita duplicação de listeners no Astro View Transitions
+      if (mBtn.dataset.magneticInit === "true") return;
+      mBtn.dataset.magneticInit = "true";
+
       mBtn.addEventListener("mousemove", (e) => {
         const rect = mBtn.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
@@ -313,10 +329,14 @@ const backLink = isPt ? "/pt" : "/";
           ? parseInt(mBtn.dataset.strength)
           : 40;
 
+        // Desativa a transição durante o movimento para remover "engasgos"
+        mBtn.style.transition = "none";
         mBtn.style.transform = `translate3d(${x / strength}px, ${y / strength}px, 0)`;
       });
 
       mBtn.addEventListener("mouseleave", () => {
+        // Restaura a transição para o retorno elástico suave
+        mBtn.style.transition = "transform 0.4s cubic-bezier(0.7, 0, 0.2, 1), border 0.3s ease";
         mBtn.style.transform = `translate3d(0, 0, 0)`;
       });
     }

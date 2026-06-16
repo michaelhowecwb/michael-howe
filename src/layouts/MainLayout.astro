@@ -64,6 +64,11 @@ const ogImageURL = new URL(image, siteUrl);
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link 
+            rel="preload" 
+            as="style" 
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap" 
+        />
         <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Fira+Code&display=swap"
             rel="stylesheet"
@@ -150,6 +155,19 @@ const ogImageURL = new URL(image, siteUrl);
                 --links: #111111;
                 --links-text: #ffffff;
                 --dropshadow-rgb: rgba(120, 131, 255, 0.2);
+            }
+
+            /* --- Custom Focus / UI --- */
+            *:focus {
+                outline: none !important;
+            }
+
+            *:focus-visible {
+                outline: 2px solid var(--accent) !important;
+                outline-offset: 4px;
+                border-radius: 4px;
+                box-shadow: 0 0 10px var(--dropshadow-rgb);
+                transition: outline-color 0.2s ease, box-shadow 0.2s ease;
             }
 
             /* --- Structure --- */
@@ -253,23 +271,40 @@ const ogImageURL = new URL(image, siteUrl);
                 stroke="currentColor"
                 stroke-width="2"
                 stroke-linecap="round"
-                stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg
-            >
+                stroke-linejoin="round"
+                aria-hidden="true"
+                focusable="false"
+            ><path d="m18 15-6-6-6 6"></path></svg>
         </button>
 
-        <script is:inline>
+        <script>
+            // Window Interface Extension for TypeScript Strict Mode
+            declare global {
+                interface Window {
+                    customScrollInitialized?: boolean;
+                }
+            }
+
+            // Module Script - Bundled and optimized by Astro.
             // Prevents duplication of global events when the SPA navigates between pages.
             if (!window.customScrollInitialized) {
                 window.customScrollInitialized = true;
 
                 // Math scrolling function that bypasses Windows' disabled effects settings.
-                function smoothScrollTo(targetPos) {
+                function smoothScrollTo(targetPos: number) {
+                    // A11y: Check for reduced motion preference
+                    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                    if (prefersReducedMotion) {
+                        window.scrollTo(0, targetPos);
+                        return;
+                    }
+
                     const startPosition = window.scrollY;
                     const distance = targetPos - startPosition;
                     const duration = 800;
-                    let start = null;
+                    let start: number | null = null;
 
-                    function animation(timestamp) {
+                    function animation(timestamp: number) {
                         if (!start) start = timestamp;
                         const progress = timestamp - start;
                         const percentage = Math.min(progress / duration, 1);
@@ -288,11 +323,14 @@ const ogImageURL = new URL(image, siteUrl);
                 // The `{ capture: true }` attribute makes this script act BEFORE the Astro's native router.
                 document.addEventListener(
                     "click",
-                    (e) => {
-                        const link = e.target.closest('a[href^="#"]');
+                    (e: MouseEvent) => {
+                        const target = e.target;
+                        if (!(target instanceof Element)) return;
+
+                        const link = target.closest('a[href^="#"]');
                         if (!link) return;
-                        const targetId = link.getAttribute("href");
-                        if (targetId === "#") return;
+                        const targetId = link.getAttribute("href") || "";
+                        if (targetId === "#" || targetId === "") return;
 
                         const targetElement = document.querySelector(targetId);
                         if (targetElement) {
@@ -300,7 +338,7 @@ const ogImageURL = new URL(image, siteUrl);
                             e.stopPropagation(); // Block Astro from making the instant jump
 
                             // Discreetly updates the URL at the top.
-                            history.pushState(null, null, targetId);
+                            history.pushState(null, "", targetId);
 
                             const targetPos =
                                 targetElement.getBoundingClientRect().top +
@@ -332,7 +370,7 @@ const ogImageURL = new URL(image, siteUrl);
                     threshold: 0,
                 };
 
-                const observerCallback = (entries) => {
+                const observerCallback = (entries: IntersectionObserverEntry[]) => {
                     entries.forEach((entry) => {
                         if (entry.isIntersecting) {
                             const id = entry.target.getAttribute("id");
@@ -354,7 +392,8 @@ const ogImageURL = new URL(image, siteUrl);
                     if (window.scrollY < 100) {
                         navLinks.forEach((link) => {
                             link.classList.remove("active");
-                            if (link.getAttribute("href").includes("#home")) {
+                            const href = link.getAttribute("href");
+                            if (href && href.includes("#home")) {
                                 link.classList.add("active");
                             }
                         });
@@ -369,17 +408,28 @@ const ogImageURL = new URL(image, siteUrl);
 
                 // Back to Top Button
                 if (btn) {
-                    window.addEventListener("scroll", () => {
+                    // Extracting function to prevent duplicated listeners logic issues on routing
+                    const handleScroll = () => {
                         if (window.scrollY > 300) btn.classList.add("show");
                         else btn.classList.remove("show");
-                    });
+                    };
+
+                    window.addEventListener("scroll", handleScroll);
 
                     // Forces smooth scrolling via JS even on the back-to-top button
                     btn.addEventListener("click", () => {
+                        // A11y: Check for reduced motion preference
+                        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                        if (prefersReducedMotion) {
+                            window.scrollTo(0, 0);
+                            return;
+                        }
+
                         const startPosition = window.scrollY;
                         const duration = 800;
-                        let start = null;
-                        function animation(timestamp) {
+                        let start: number | null = null;
+                        
+                        function animation(timestamp: number) {
                             if (!start) start = timestamp;
                             const progress = timestamp - start;
                             const percentage = Math.min(progress / duration, 1);

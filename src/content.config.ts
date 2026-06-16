@@ -1,7 +1,9 @@
+// src/content.config.ts
 import { z, defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const worksCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/works' }),
   schema: z.object({
     title_slug: z.string(),
     thumbnail: z.string(),
@@ -27,7 +29,7 @@ const worksCollection = defineCollection({
 });
 
 const expertiseCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/expertise' }),
   schema: z.object({
     admin_label: z.string().optional(),
     order: z.number(),
@@ -37,7 +39,7 @@ const expertiseCollection = defineCollection({
 });
 
 const aboutCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/*.{json,yaml,yml}', base: './src/content/about' }),
   schema: z.object({
     bioImage: z.string(),
     pt: z.object({

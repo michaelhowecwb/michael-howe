@@ -26,8 +26,8 @@ const seoDesc = isPt
 ---
 
 <MainLayout title={seoTitle} description={seoDesc} lang={currentLang}>
-    <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
-    <div class="bg-glow" id="mouse-glow"></div>
+    <div class="progress-wrap" aria-hidden="true"><div class="progress-bar" id="bar"></div></div>
+    <div class="bg-glow" id="mouse-glow" aria-hidden="true"></div>
 
     <style>
         .text-accent {
@@ -93,12 +93,11 @@ const seoDesc = isPt
             width: 600px;
             height: 600px;
             background: radial-gradient(
-                circle,
+                circle closest-side,
                 var(--accent) 0%,
-                transparent 70%
+                transparent 100%
             );
             opacity: 0;
-            filter: blur(100px);
             z-index: -1;
             pointer-events: none;
             will-change: transform, opacity;
@@ -168,6 +167,9 @@ const seoDesc = isPt
         .timeline {
             position: relative;
             border-left: 1px solid var(--card-border);
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
         .timeline-item {
@@ -308,9 +310,9 @@ const seoDesc = isPt
                                     ? "Trajetória Profissional"
                                     : "Professional Journey"}
                             </h2>
-                            <div class="timeline">
+                            <ol class="timeline">
                                 {localizedData.experience.map((item) => (
-                                    <div class="timeline-item reveal">
+                                    <li class="timeline-item reveal">
                                         <div class="timeline-content">
                                             <span class="time-year">
                                                 {item.year}
@@ -328,9 +330,9 @@ const seoDesc = isPt
                                                 {item.description}
                                             </p>
                                         </div>
-                                    </div>
+                                    </li>
                                 ))}
-                            </div>
+                            </ol>
                         </section>
                     )
             }
@@ -338,20 +340,56 @@ const seoDesc = isPt
     </main>
 
     <script>
+        // Variáveis persistentes para gerenciar os listeners e requests
+        let scrollHandler: ((this: Window, ev: Event) => any) | null = null;
+        let mouseHandler: ((this: Window, ev: MouseEvent) => any) | null = null;
+        let animationFrameId: number | null = null;
+        let observer: IntersectionObserver | null = null;
+
+        function cleanupAboutEffects() {
+            if (scrollHandler) {
+                window.removeEventListener("scroll", scrollHandler);
+                scrollHandler = null;
+            }
+            if (mouseHandler) {
+                window.removeEventListener("mousemove", mouseHandler);
+                mouseHandler = null;
+            }
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            if (observer) {
+                observer.disconnect();
+                observer = null;
+            }
+        }
+
         function initAboutEffects() {
+            // Garantir que a memória está limpa antes de criar novas instâncias em transições do Astro
+            cleanupAboutEffects();
+
             const bar = document.getElementById("bar");
             const glowEl = document.getElementById("mouse-glow") as HTMLElement;
             const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
-            // Progress Bar
-            window.addEventListener("scroll", () => {
-                if (bar) {
-                    const winH =
-                        document.documentElement.scrollHeight -
-                        document.documentElement.clientHeight;
-                    bar.style.width = (window.scrollY / winH) * 100 + "%";
+            // Progress Bar (Otimizado com requestAnimationFrame)
+            let isScrolling = false;
+            scrollHandler = () => {
+                if (!isScrolling) {
+                    window.requestAnimationFrame(() => {
+                        if (bar) {
+                            const winH =
+                                document.documentElement.scrollHeight -
+                                document.documentElement.clientHeight;
+                            bar.style.width = (window.scrollY / winH) * 100 + "%";
+                        }
+                        isScrolling = false;
+                    });
+                    isScrolling = true;
                 }
-            });
+            };
+            window.addEventListener("scroll", scrollHandler, { passive: true });
 
             // Glow (Lerp Engine) - Desktop Only
             let mouseX = 0,
@@ -362,28 +400,32 @@ const seoDesc = isPt
             let isMoving = false;
 
             if (glowEl && !isTouch) {
-                window.addEventListener("mousemove", (e) => {
+                mouseHandler = (e: MouseEvent) => {
                     mouseX = e.clientX;
                     mouseY = e.clientY;
 
                     if (!isMoving) {
                         isMoving = true;
                         glowEl.classList.add("visible");
-                        requestAnimationFrame(animateGlow);
+                        animationFrameId = requestAnimationFrame(animateGlow);
                     }
-                });
+                };
+                window.addEventListener("mousemove", mouseHandler, { passive: true });
 
                 function animateGlow() {
                     if (!isMoving) return;
                     currentX += (mouseX - currentX) * ease;
                     currentY += (mouseY - currentY) * ease;
-                    glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
-                    requestAnimationFrame(animateGlow);
+                    
+                    if (glowEl) {
+                        glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
+                    }
+                    animationFrameId = requestAnimationFrame(animateGlow);
                 }
             }
 
             // Reveal System
-            const observer = new IntersectionObserver(
+            observer = new IntersectionObserver(
                 (entries) => {
                     entries.forEach((entry) => {
                         if (entry.isIntersecting)
@@ -395,9 +437,12 @@ const seoDesc = isPt
 
             document
                 .querySelectorAll(".reveal")
-                .forEach((el) => observer.observe(el));
+                .forEach((el) => observer!.observe(el));
         }
 
+        // Registrar inicialização da página
         document.addEventListener("astro:page-load", initAboutEffects);
+        // Registrar limpeza de memória (prevenção de Leak) antes da troca de página via transição
+        document.addEventListener("astro:before-swap", cleanupAboutEffects);
     </script>
 </MainLayout>
