@@ -157,6 +157,17 @@ const ogImageURL = new URL(image, siteUrl);
                 --dropshadow-rgb: rgba(120, 131, 255, 0.2);
             }
 
+            /* --- Global Image Theme Support --- */
+            .astro-dark { display: none; }
+            @media (prefers-color-scheme: dark) {
+                .astro-light { display: none; }
+                .astro-dark { display: block; }
+            }
+            html[data-theme="dark"] .astro-light { display: none !important; }
+            html[data-theme="dark"] .astro-dark { display: block !important; }
+            html[data-theme="light"] .astro-light { display: block !important; }
+            html[data-theme="light"] .astro-dark { display: none !important; }
+
             /* --- Custom Focus / UI --- */
             *:focus {
                 outline: none !important;
