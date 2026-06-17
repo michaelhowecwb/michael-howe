@@ -3,6 +3,7 @@ import { getCollection, getEntry } from "astro:content";
 import { ui } from "@utils/i18n";
 import MainLayout from "@layouts/MainLayout.astro";
 import WorkCard from "@components/WorkCard.astro";
+import { Image } from "astro:assets"; // Adicionado para otimização futura, caso adote assets locais
 
 const nome = "Michael Howe";
 const cargo = "< Full-stack Developer />";
@@ -147,6 +148,7 @@ const jsonLd = JSON.stringify(schema);
             border-bottom: 1px solid var(--card-border);
         }
 
+        /* --- Scroll Progress Otimizado (CSS Animation Timeline) --- */
         .progress-wrap {
             position: fixed;
             top: 70px;
@@ -155,13 +157,26 @@ const jsonLd = JSON.stringify(schema);
             height: 2px;
             z-index: 1000;
             pointer-events: none;
+            background: transparent;
         }
         .progress-bar {
             height: 100%;
             background: var(--accent);
             width: 0%;
-            transition: width 0.1s ease-out;
             box-shadow: 0 0 10px var(--accent);
+            transform-origin: left;
+        }
+        @supports (animation-timeline: scroll()) {
+            .progress-bar {
+                width: 100%;
+                transform: scaleX(0);
+                animation: scroll-progress linear;
+                animation-timeline: scroll();
+            }
+            @keyframes scroll-progress {
+                0% { transform: scaleX(0); }
+                100% { transform: scaleX(1); }
+            }
         }
 
         .bg-glow {
@@ -180,7 +195,7 @@ const jsonLd = JSON.stringify(schema);
             z-index: 0;
             pointer-events: none;
             will-change: transform, opacity;
-            transition: opacity 1s ease;
+            transition: opacity 0.8s ease-out;
         }
         .bg-glow.visible {
             opacity: 0.08;
@@ -221,6 +236,7 @@ const jsonLd = JSON.stringify(schema);
             filter: drop-shadow(0 2px 10px var(--dropshadow-rgb));
             margin: 20px 0 30px;
             padding: 20px 0;
+            will-change: background;
         }
         .hero-subtitle {
             color: var(--secondary);
@@ -242,12 +258,13 @@ const jsonLd = JSON.stringify(schema);
             letter-spacing: 1px;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             background: transparent;
+            will-change: transform;
         }
         .letsChat:hover,
         .letsChat:focus-visible {
             background: var(--accent);
             color: #000;
-            transform: translateY(-5px);
+            transform: translateY(-5px) !important;
             box-shadow: 0 10px 20px var(--dropshadow-rgb);
         }
 
@@ -271,7 +288,7 @@ const jsonLd = JSON.stringify(schema);
             transition: transform 0.1s ease-out;
             border-radius: 20px;
             overflow: hidden;
-            /*background-color: var(--card-border);*/ /* Evita CLS e FOUC */
+            will-change: transform;
         }
         #profile-photo img {
             width: 100%;
@@ -285,44 +302,30 @@ const jsonLd = JSON.stringify(schema);
             filter: drop-shadow(0 0px 25px rgba(var(--accent-rgb), 0.3));
             pointer-events: none;
             transition: all 0.3s ease;
+            will-change: transform;
         }
 
         @keyframes float-1 {
-            0%,
-            100% {
-                transform: translateY(0) rotate(0);
-            }
-            50% {
-                transform: translateY(-20px) rotate(5deg);
-            }
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-20px) rotate(5deg); }
         }
         @keyframes float-2 {
-            0%,
-            100% {
-                transform: translateY(0) rotate(0);
-            }
-            50% {
-                transform: translateY(15px) rotate(-8deg);
-            }
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(15px) rotate(-8deg); }
         }
         @keyframes float-3 {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1) translateY(-10px);
-            }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1) translateY(-10px); }
         }
 
-        .anim-1 {
-            animation: float-1 4s ease-in-out infinite;
-        }
-        .anim-2 {
-            animation: float-2 5s ease-in-out infinite;
-        }
-        .anim-3 {
-            animation: float-3 6s ease-in-out infinite;
+        .anim-1 { animation: float-1 4s ease-in-out infinite; }
+        .anim-2 { animation: float-2 5s ease-in-out infinite; }
+        .anim-3 { animation: float-3 6s ease-in-out infinite; }
+
+        /* Utilitário para Pixel Art no Design de Interação */
+        .pixel-art-rendering {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
         /* --- About Section --- */
@@ -350,13 +353,14 @@ const jsonLd = JSON.stringify(schema);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
+            will-change: transform, box-shadow;
         }
         .spotlight-card::before {
             content: "";
             position: absolute;
             inset: 0;
             background: radial-gradient(
-                600px circle at var(--mouse-x) var(--mouse-y),
+                600px circle at var(--mouse-x, -100%) var(--mouse-y, -100%),
                 rgba(255, 255, 255, 0.08),
                 transparent 40%
             );
@@ -364,6 +368,7 @@ const jsonLd = JSON.stringify(schema);
             opacity: 0;
             transition: opacity 0.5s ease;
             pointer-events: none;
+            will-change: background;
         }
         .spotlight-card:hover::before {
             opacity: 1;
@@ -380,12 +385,16 @@ const jsonLd = JSON.stringify(schema);
             font-size: 1.5rem;
             margin-bottom: 15px;
             font-weight: 800;
+            position: relative;
+            z-index: 1;
         }
 
         .about-card-desc {
             color: var(--secondary);
             line-height: 1.6;
             margin: 0;
+            position: relative;
+            z-index: 1;
         }
 
         .intro-text h2 {
@@ -443,9 +452,7 @@ const jsonLd = JSON.stringify(schema);
         }
 
         @media (max-width: 992px) {
-            section {
-                padding: 60px 0;
-            }
+            section { padding: 60px 0; }
             .hero-container {
                 flex-direction: column;
                 text-align: center;
@@ -479,9 +486,7 @@ const jsonLd = JSON.stringify(schema);
                 transform: scale(0.7);
                 opacity: 0.8;
             }
-            .intro-text h2 {
-                font-size: 2.2rem;
-            }
+            .intro-text h2 { font-size: 2.2rem; }
         }
     </style>
 
@@ -492,35 +497,35 @@ const jsonLd = JSON.stringify(schema);
                     <h3 class="hero-cargo">{cargo}</h3>
                     <h1 class="main-header">{t["hero.title"]}</h1>
                     <p class="hero-subtitle">{t["hero.subtitle"]}</p>
-                    <button id="hero-chat-btn" class="letsChat magnetic-btn">
+                    <button id="hero-chat-btn" class="letsChat magnetic-btn" aria-label="Abrir modal de contato">
                         {t["lets.chat"]}
                     </button>
                 </div>
 
                 <div class="visual-wrapper reveal">
                     <div class="floating-icon anim-1" style="top: -20px; left: -30px; width: 60px;">
-                        <img src="/src/assets/icons/Astro_LightMode.svg" class="astro-light" alt="Astro Logo" style="width: 100%; height: auto;" />
-                        <img src="/src/assets/icons/Astro_DarkMode.svg" class="astro-dark" alt="Astro Logo" style="width: 100%; height: auto;" />
+                        <img src="/src/assets/icons/Astro_LightMode.svg" class="astro-light" alt="Astro Logo" loading="lazy" decoding="async" style="width: 100%; height: auto;" />
+                        <img src="/src/assets/icons/Astro_DarkMode.svg" class="astro-dark" alt="Astro Logo" loading="lazy" decoding="async" style="width: 100%; height: auto;" />
                     </div>
 
                     <div class="floating-icon anim-2" style="top: 20px; right: -40px; width: 75px;">
-                        <img src="/src/assets/icons/React.svg" alt="React Logo" style="width: 100%; height: auto;" />
+                        <img src="/src/assets/icons/React.svg" alt="React Logo" loading="lazy" decoding="async" style="width: 100%; height: auto;" />
                     </div>
 
                     <div class="floating-icon anim-3" style="top: 50%; right: -65px; width: 55px;">
-                        <img src="/src/assets/icons/Kotlin.svg" alt="Kotlin Logo" style="width: 100%; height: auto;" />
+                        <img src="/src/assets/icons/Kotlin.svg" alt="Kotlin Logo" loading="lazy" decoding="async" style="width: 100%; height: auto;" />
                     </div>
 
                     <div class="floating-icon anim-3" style="top: 35%; left: -85px; width: 50px;">
-                        <img src="/src/assets/icons/Java.svg" alt="Java Logo" style="width: 100%; height: auto;" />
+                        <img src="/src/assets/icons/Java.svg" alt="Java Logo" loading="lazy" decoding="async" style="width: 100%; height: auto;" />
                     </div>
 
                     <div class="floating-icon anim-1" style="bottom: 60px; left: -60px; width: 50px;">
-                        <img src="/src/assets/icons/JavaScript.svg" alt="Python Logo" style="width: 100%; height: auto;" />
+                        <img src="/src/assets/icons/JavaScript.svg" alt="JavaScript Logo" loading="lazy" decoding="async" style="width: 100%; height: auto;" />
                     </div>
 
                     <div class="floating-icon anim-2" style="bottom: -15px; right: -25px; width: 60px;">
-                        <img src="/src/assets/icons/Python.svg" alt="Python Logo" style="width: 100%; height: auto;" />
+                        <img src="/src/assets/icons/Python.svg" alt="Python Logo" loading="lazy" decoding="async" style="width: 100%; height: auto;" />
                     </div>
 
                     <div class="photo-sensor">
@@ -650,7 +655,6 @@ const jsonLd = JSON.stringify(schema);
             cachedRects.btns = Array.from(magneticBtns).map(el => el.getBoundingClientRect());
         }
 
-        // Debounce nativo para mitigar problemas de performance no Resize (Evita congelamento da tela)
         function debounce(func: Function, wait: number) {
             let timeout: ReturnType<typeof setTimeout>;
             return function(this: any, ...args: any[]) {
@@ -661,7 +665,6 @@ const jsonLd = JSON.stringify(schema);
 
         const debouncedUpdateCache = debounce(updateCache, 150);
 
-        // Inicializa cache e atualiza no resize com debounce
         updateCache();
         window.addEventListener('resize', debouncedUpdateCache);
         window.addEventListener('scroll', updateCache, { passive: true });
@@ -674,122 +677,112 @@ const jsonLd = JSON.stringify(schema);
             });
 
         const isTouch = window.matchMedia("(pointer: coarse)").matches;
-        let mouseX = 0,
-            mouseY = 0,
-            currentX = 0,
-            currentY = 0;
+        
+        // Variáveis de Estado para o Game Loop do Evento de Mouse
+        let mouseX = 0, mouseY = 0;
+        let currentX = 0, currentY = 0;
+        let pTargetX = 0, pTargetY = 0;
+        let pCurrX = 0, pCurrY = 0;
         const ease = 0.15;
-        let isMoving = false;
-        let pTargetX = 0,
-            pTargetY = 0,
-            pCurrX = 0,
-            pCurrY = 0;
+        let isAnimating = false;
 
+        // Otimização Crucial: Separação de Cálculo (Listener) e Renderização (rAF)
         if (!isTouch) {
             window.addEventListener("mousemove", (e) => {
                 mouseX = e.clientX;
                 mouseY = e.clientY;
 
-                if (glowEl && !isMoving) {
-                    isMoving = true;
-                    glowEl.classList.add("visible");
-                    requestAnimationFrame(animateGlow);
+                if (!isAnimating) {
+                    isAnimating = true;
+                    if (glowEl) glowEl.classList.add("visible");
+                    requestAnimationFrame(renderLoop);
+                }
+            }, { passive: true });
+
+            function renderLoop() {
+                if (!isAnimating) return;
+
+                // 1. Atualização do Background Glow
+                currentX += (mouseX - currentX) * ease;
+                currentY += (mouseY - currentY) * ease;
+                if (glowEl) {
+                    glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
                 }
 
-                // Spotlight Cards (Performance otimizada)
+                // 2. Atualização dos Spotlight Cards
                 spotlightCards.forEach((card, index) => {
                     const rect = cachedRects.cards[index];
                     if (rect) {
-                        (card as HTMLElement).style.setProperty(
-                            "--mouse-x",
-                            `${e.clientX - rect.left}px`
-                        );
-                        (card as HTMLElement).style.setProperty(
-                            "--mouse-y",
-                            `${e.clientY - rect.top}px`
-                        );
+                        (card as HTMLElement).style.setProperty("--mouse-x", `${mouseX - rect.left}px`);
+                        (card as HTMLElement).style.setProperty("--mouse-y", `${mouseY - rect.top}px`);
                     }
                 });
 
-                // Title Gradient 
+                // 3. Atualização do Gradiente do Título Principal
                 if (title && cachedRects.title) {
                     const rect = cachedRects.title;
-                    title.style.setProperty(
-                        "--x",
-                        `${((e.clientX - rect.left) / rect.width) * 100}%`
-                    );
-                    title.style.setProperty(
-                        "--y",
-                        `${((e.clientY - rect.top) / rect.height) * 100}%`
-                    );
+                    title.style.setProperty("--x", `${((mouseX - rect.left) / rect.width) * 100}%`);
+                    title.style.setProperty("--y", `${((mouseY - rect.top) / rect.height) * 100}%`);
                 }
 
-                // Profile Photo Sensor
-                if (photoSensor && cachedRects.photoSensor) {
+                // 4. Cálculo de Interseção do Sensor de Foto (Hero)
+                if (isHeroVisible && photoSensor && cachedRects.photoSensor) {
                     const rect = cachedRects.photoSensor;
                     const inside =
-                        e.clientX >= rect.left &&
-                        e.clientX <= rect.right &&
-                        e.clientY >= rect.top &&
-                        e.clientY <= rect.bottom;
-                    pTargetX = inside
-                        ? (e.clientX - (rect.left + rect.width / 2)) / 7
-                        : 0;
-                    pTargetY = inside
-                        ? (e.clientY - (rect.top + rect.height / 2)) / 7
-                        : 0;
+                        mouseX >= rect.left &&
+                        mouseX <= rect.right &&
+                        mouseY >= rect.top &&
+                        mouseY <= rect.bottom;
+                    
+                    pTargetX = inside ? (mouseX - (rect.left + rect.width / 2)) / 7 : 0;
+                    pTargetY = inside ? (mouseY - (rect.top + rect.height / 2)) / 7 : 0;
                 }
 
-                // Magnetic Buttons
+                // 5. Atualização dos Botões Magnéticos
                 magneticBtns.forEach((btn, index) => {
                     const rect = cachedRects.btns[index];
                     if (rect) {
                         const dist = Math.hypot(
-                            e.clientX - (rect.left + rect.width / 2),
-                            e.clientY - (rect.top + rect.height / 2),
+                            mouseX - (rect.left + rect.width / 2),
+                            mouseY - (rect.top + rect.height / 2),
                         );
                         if (dist < 80) {
-                            const bx = (e.clientX - (rect.left + rect.width / 2)) * 0.3;
-                            const by = (e.clientY - (rect.top + rect.height / 2)) * 0.3;
+                            const bx = (mouseX - (rect.left + rect.width / 2)) * 0.3;
+                            const by = (mouseY - (rect.top + rect.height / 2)) * 0.3;
                             (btn as HTMLElement).style.transform = `translate3d(${bx}px, ${by}px, 0)`;
                         } else {
                             (btn as HTMLElement).style.transform = `translate3d(0, 0, 0)`;
                         }
                     }
                 });
-            });
 
-            function animateGlow() {
-                if (!isMoving) return;
-                currentX += (mouseX - currentX) * ease;
-                currentY += (mouseY - currentY) * ease;
-                if (glowEl)
-                    glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
-                requestAnimationFrame(animateGlow);
+                // Loop Contínuo
+                requestAnimationFrame(renderLoop);
             }
 
+            // Loop Independente para Interpolação Linear da Foto (Evita Stuttering)
             function animatePhoto() {
-                if (!isHeroVisible) {
-                    requestAnimationFrame(animatePhoto);
-                    return;
+                if (isHeroVisible) {
+                    pCurrX += (pTargetX - pCurrX) * 0.1;
+                    pCurrY += (pTargetY - pCurrY) * 0.1;
+                    if (photoEl) {
+                        photoEl.style.transform = `translate3d(${pCurrX}px, ${pCurrY}px, 0) scale(${pTargetX !== 0 ? 1.05 : 1})`;
+                    }
                 }
-                pCurrX += (pTargetX - pCurrX) * 0.1;
-                pCurrY += (pTargetY - pCurrY) * 0.1;
-                if (photoEl)
-                    photoEl.style.transform = `translate3d(${pCurrX}px, ${pCurrY}px, 0) scale(${pTargetX !== 0 ? 1.05 : 1})`;
                 requestAnimationFrame(animatePhoto);
             }
             animatePhoto();
         }
 
-        window.addEventListener("scroll", () => {
-            if (bar) {
-                const winH =
-                    document.documentElement.scrollHeight -
-                    document.documentElement.clientHeight;
-                bar.style.width = (window.scrollY / winH) * 100 + "%";
-            }
-        }, { passive: true });
+        // Fallback JS para Scroll Progress caso o Browser não suporte Animation Timeline
+        if (!CSS.supports("animation-timeline", "scroll()")) {
+            window.addEventListener("scroll", () => {
+                if (bar) {
+                    const winH = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    bar.style.width = (window.scrollY / winH) * 100 + "%";
+                }
+            }, { passive: true });
+        }
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -801,9 +794,7 @@ const jsonLd = JSON.stringify(schema);
             { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
         );
 
-        document
-            .querySelectorAll(".reveal")
-            .forEach((el) => observer.observe(el));
+        document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
     }
 
     document.addEventListener("astro:page-load", initHome);

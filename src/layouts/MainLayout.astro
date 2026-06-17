@@ -87,24 +87,6 @@ const ogImageURL = new URL(image, siteUrl);
                 return "dark";
             })();
             document.documentElement.setAttribute("data-theme", theme);
-
-            // Language Redirection
-            if (
-                window.location.pathname === "/" ||
-                window.location.pathname === ""
-            ) {
-                const userLang = (
-                    window.navigator.language || window.navigator.userLanguage
-                ).toLowerCase();
-                const manualSelection = sessionStorage.getItem(
-                    "language_preference",
-                );
-
-                if (userLang.startsWith("pt") && !manualSelection) {
-                    sessionStorage.setItem("language_preference", "auto-pt");
-                    window.location.href = "/pt/";
-                }
-            }
         </script>
 
         <style is:global>
@@ -301,9 +283,8 @@ const ogImageURL = new URL(image, siteUrl);
             if (!window.customScrollInitialized) {
                 window.customScrollInitialized = true;
 
-                // Math scrolling function that bypasses Windows' disabled effects settings.
+                // Math scrolling function optimized for 60fps
                 function smoothScrollTo(targetPos: number) {
-                    // A11y: Check for reduced motion preference
                     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
                     if (prefersReducedMotion) {
                         window.scrollTo(0, targetPos);
@@ -316,22 +297,40 @@ const ogImageURL = new URL(image, siteUrl);
                     let start: number | null = null;
 
                     function animation(timestamp: number) {
-                        if (!start) start = timestamp;
+                        if (start === null) start = timestamp;
                         const progress = timestamp - start;
-                        const percentage = Math.min(progress / duration, 1);
+                        let percentage = progress / duration;
+                        
+                        if (percentage > 1) percentage = 1;
+
                         const easing =
                             percentage < 0.5
                                 ? 2 * percentage * percentage
                                 : -1 + (4 - 2 * percentage) * percentage;
+                        
                         window.scrollTo(0, startPosition + distance * easing);
-                        if (progress < duration)
+                        
+                        if (progress < duration) {
                             window.requestAnimationFrame(animation);
+                        }
                     }
                     window.requestAnimationFrame(animation);
                 }
 
+                // Global Scroll Listener (Passive for performance) - Back to top behavior only
+                window.addEventListener("scroll", () => {
+                    const btn = document.getElementById("back-to-top");
+                    if (btn) {
+                        if (window.scrollY > 300) {
+                            btn.classList.add("show");
+                        } else {
+                            btn.classList.remove("show");
+                        }
+                    }
+                }, { passive: true });
+
                 // Click Interceptor
-                // The `{ capture: true }` attribute makes this script act BEFORE the Astro's native router.
+                // The `{ capture: true }` attribute makes this script act BEFORE Astro's native router.
                 document.addEventListener(
                     "click",
                     (e: MouseEvent) => {
@@ -346,9 +345,8 @@ const ogImageURL = new URL(image, siteUrl);
                         const targetElement = document.querySelector(targetId);
                         if (targetElement) {
                             e.preventDefault();
-                            e.stopPropagation(); // Block Astro from making the instant jump
+                            e.stopPropagation();
 
-                            // Discreetly updates the URL at the top.
                             history.pushState(null, "", targetId);
 
                             const targetPos =
@@ -369,67 +367,10 @@ const ogImageURL = new URL(image, siteUrl);
                 }
 
                 const btn = document.getElementById("back-to-top");
-                const navLinks = document.querySelectorAll(".nav-link");
-                const sections = document.querySelectorAll(
-                    "section[id], header[id], #home",
-                );
 
-                // Scroll Spy
-                const observerOptions = {
-                    root: null,
-                    rootMargin: "-30% 0px -70% 0px",
-                    threshold: 0,
-                };
-
-                const observerCallback = (entries: IntersectionObserverEntry[]) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            const id = entry.target.getAttribute("id");
-                            if (!id) return;
-                            navLinks.forEach((link) => {
-                                link.classList.remove("active");
-                                const href = link.getAttribute("href");
-                                if (
-                                    href &&
-                                    (href.endsWith("#" + id) ||
-                                        href === "#" + id)
-                                ) {
-                                    link.classList.add("active");
-                                }
-                            });
-                        }
-                    });
-
-                    if (window.scrollY < 100) {
-                        navLinks.forEach((link) => {
-                            link.classList.remove("active");
-                            const href = link.getAttribute("href");
-                            if (href && href.includes("#home")) {
-                                link.classList.add("active");
-                            }
-                        });
-                    }
-                };
-
-                const observer = new IntersectionObserver(
-                    observerCallback,
-                    observerOptions,
-                );
-                sections.forEach((section) => observer.observe(section));
-
-                // Back to Top Button
+                // Back to Top Button Interaction logic for Current Page
                 if (btn) {
-                    // Extracting function to prevent duplicated listeners logic issues on routing
-                    const handleScroll = () => {
-                        if (window.scrollY > 300) btn.classList.add("show");
-                        else btn.classList.remove("show");
-                    };
-
-                    window.addEventListener("scroll", handleScroll);
-
-                    // Forces smooth scrolling via JS even on the back-to-top button
                     btn.addEventListener("click", () => {
-                        // A11y: Check for reduced motion preference
                         const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
                         if (prefersReducedMotion) {
                             window.scrollTo(0, 0);
@@ -441,19 +382,25 @@ const ogImageURL = new URL(image, siteUrl);
                         let start: number | null = null;
                         
                         function animation(timestamp: number) {
-                            if (!start) start = timestamp;
+                            if (start === null) start = timestamp;
                             const progress = timestamp - start;
-                            const percentage = Math.min(progress / duration, 1);
+                            let percentage = progress / duration;
+                            
+                            if (percentage > 1) percentage = 1;
+
                             const easing =
                                 percentage < 0.5
                                     ? 2 * percentage * percentage
                                     : -1 + (4 - 2 * percentage) * percentage;
+                                    
                             window.scrollTo(
                                 0,
                                 startPosition + (0 - startPosition) * easing,
                             );
-                            if (progress < duration)
+                            
+                            if (progress < duration) {
                                 window.requestAnimationFrame(animation);
+                            }
                         }
                         window.requestAnimationFrame(animation);
                     });
