@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+
 interface Props {
     title: string;
     description: string;
@@ -19,17 +21,17 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         {
             thumbnail && (
                 <div class="work-card-image">
-                    <img
+                    <Image
                         src={thumbnail}
                         alt={
                             isPt
                                 ? `Miniatura do projeto ${title}`
                                 : `Project thumbnail ${title}`
                         }
+                        width={400}
+                        height={225}
                         loading="lazy"
                         decoding="async"
-                        width="400"
-                        height="225"
                     />
                 </div>
             )
@@ -49,16 +51,17 @@ const { title, description, tags, thumbnail, link } = Astro.props;
                     ? `Ver projeto ${title}`
                     : `View project ${title}`}
             >
-                <span class="view-project-text"
-                    >{isPt ? "Ver Projeto" : "View Project"}</span
-                >
-                <span class="view-project-icon">
+                <span class="view-project-text">
+                    {isPt ? "Ver Projeto" : "View Project"}
+                </span>
+                <span class="view-project-icon" aria-hidden="true">
                     <svg
                         width="18"
                         height="18"
                         viewBox="0 0 24 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
+                        focusable="false"
                     >
                         <path
                             d="M5 12H19M19 12L12 5M19 12L12 19"
@@ -68,42 +71,13 @@ const { title, description, tags, thumbnail, link } = Astro.props;
                             stroke-linejoin="round"></path>
                     </svg>
                 </span>
-                <div class="view-project-bg"></div>
+                <div class="view-project-bg" aria-hidden="true"></div>
             </a>
         </div>
     </div>
 </div>
 
 <style>
-    .text-accent {
-        color: var(--accent);
-    }
-    .text-gradient {
-        background: linear-gradient(to right, var(--accent), #fff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: bold;
-    }
-    .text-underline {
-        border-bottom: 2px solid var(--accent);
-    }
-    .custom-underline {
-        position: relative;
-        display: inline-block;
-    }
-    .custom-underline::after {
-        content: "";
-        position: absolute;
-        left: 20%;
-        right: 0;
-        bottom: -2px;
-        height: 4px;
-        background-color: var(--accent);
-        border-radius: 2px;
-        z-index: -1;
-        transition: width 0.3s ease;
-    }
-    
     .work-card {
         background: rgba(var(--card-bg-rgb), 0.4);
         backdrop-filter: blur(15px);
@@ -181,6 +155,7 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         transition: transform 0.6s ease;
         object-fit: cover;
     }
+
     /* --- Card Content --- */
     .work-card-content {
         display: block;
@@ -212,7 +187,12 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         border: 1px solid var(--card-border);
         text-transform: uppercase;
     }
-    .work-card:hover .tag{color: var(--dark-text); background-color: var(--accent); transition: ease 0.6s;}
+    
+    .work-card:hover .tag {
+        color: var(--dark-text);
+        background-color: var(--accent);
+        transition: ease 0.6s;
+    }
 
     /* --- View Project Button --- */
     .view-project {
@@ -257,13 +237,16 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         border-color: var(--accent);
         transform: scale(1.02);
     }
+    
     .view-project:hover .view-project-text,
     .view-project:hover .view-project-icon {
         color: #000;
     }
+    
     .view-project:hover .view-project-bg {
         transform: translateY(0);
     }
+    
     .view-project:hover .view-project-icon {
         transform: translateX(5px);
     }
@@ -273,6 +256,7 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         border-color: var(--accent);
         box-shadow: 0 20px 40px var(--dropshadow-rgb);
     }
+    
     .work-card:hover .work-card-image img {
         transform: scale(1.05);
     }
@@ -327,3 +311,31 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         );
     }
 </style>
+
+<script>
+    // Gerenciador encapsulado para o efeito de Spotlight
+    function initSpotlightCards() {
+        const cards = document.querySelectorAll<HTMLElement>('.spotlight-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    }
+
+    // Inicialização segura compatível com Astro View Transitions
+    document.addEventListener('astro:page-load', initSpotlightCards);
+    
+    // Fallback de inicialização padrão
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        initSpotlightCards();
+    } else {
+        document.addEventListener('DOMContentLoaded', initSpotlightCards);
+    }
+</script>

@@ -34,19 +34,14 @@ const nome = "Michael Howe";
           {isPt ? "ME ENVIE UMA MENSAGEM" : "SEND ME A MESSAGE"}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            fill="var(--accent)"
             class="mail-icon"
             aria-hidden="true"
           >
-            <rect width="20" height="16" x="2" y="4" rx="2"></rect><path
-              d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            <use href="/icons/EmailFill.svg"></use>
           </svg>
         </span>
       </button>
@@ -112,6 +107,16 @@ const nome = "Michael Howe";
     </div>
   </div>
 </footer>
+
+<noscript>
+  <style>
+    /* Fallback de segurança: Garante que o footer apareça caso o JavaScript esteja desativado */
+    .reveal {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+  </style>
+</noscript>
 
 <style>
   .text-accent {
@@ -249,7 +254,14 @@ const nome = "Michael Howe";
   }
   .main-contact-link:hover .mail-icon {
     transform: rotate(10deg) scale(1.1);
+    fill: #000;
     transition: 0.3s;
+  }
+
+  /* A11y: Foco visível para navegação por teclado */
+  .main-contact-link:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
   }
 
   .footer-bottom-grid {
@@ -289,6 +301,13 @@ const nome = "Michael Howe";
     align-items: center;
     gap: 12px;
     text-decoration: none;
+  }
+
+  /* A11y: Foco visível ajustado para os links sociais */
+  .social-item-wrap:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 6px;
+    border-radius: 8px;
   }
 
   .icon-box {
@@ -367,6 +386,15 @@ const nome = "Michael Howe";
   .reveal.active {
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Fallback: Acessibilidade para usuários com preferência de movimento reduzido */
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      transition: none !important;
+    }
   }
 
   @media (max-width: 768px) {

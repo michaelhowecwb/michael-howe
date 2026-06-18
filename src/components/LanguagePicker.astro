@@ -27,6 +27,7 @@ const finalPtLink = ptLink || "/pt";
       data-lang="en"
       hreflang="en"
       lang="en"
+      aria-current={!isPt ? "page" : undefined}
     >
       EN
     </a>
@@ -37,6 +38,7 @@ const finalPtLink = ptLink || "/pt";
       data-lang="pt"
       hreflang="pt-br"
       lang="pt"
+      aria-current={isPt ? "page" : undefined}
     >
       PT
     </a>
@@ -130,7 +132,7 @@ const finalPtLink = ptLink || "/pt";
         if (selectedLang) {
           // Gravação via Cookie para leitura no Edge Middleware da Vercel
           // Validade: 1 ano (31536000 segundos)
-          document.cookie = `language_preference=${selectedLang}; path=/; max-age=31536000; SameSite=Lax`;
+          document.cookie = `language_preference=${selectedLang}; path=/; max-age=31536000; SameSite=Lax; Secure`;
         }
       });
     });

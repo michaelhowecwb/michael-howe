@@ -67,7 +67,7 @@ const nome = "Michael Howe";
     </div>
   </div>
 
-  <div class="mobile-menu" id="mobile-menu">
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label={isPt ? "Navegação Mobile" : "Mobile Navigation"}>
     <a
       href={isHome ? "#home" : `${baseUrl}#home`}
       class="mobile-link"
@@ -258,7 +258,7 @@ const nome = "Michael Howe";
     top: 0;
     left: 0;
     width: 100%;
-    height: 100vh;
+    height: 100dvh; /* Otimização: Respeita a interface dinâmica dos navegadores mobile */
     background: rgba(var(--mainnav-bg-rgb), 0.98);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -270,9 +270,11 @@ const nome = "Michael Howe";
     clip-path: circle(0% at 90% 5%);
     transition: clip-path 0.6s cubic-bezier(0.19, 1, 0.22, 1);
     z-index: 100;
+    visibility: hidden; /* A11y: Esconde do foco quando fechado */
   }
   .mobile-menu.open {
     clip-path: circle(150% at 90% 5%);
+    visibility: visible;
   }
 
   .mobile-link {
@@ -302,57 +304,57 @@ const nome = "Michael Howe";
   declare global {
     interface Window {
       navScrollInitialized?: boolean;
+      navA11yInitialized?: boolean;
     }
   }
 
-  // Variáveis de estado fora do escopo da página para persistir durante a SPA (ClientRouter)
+  // Variáveis de estado para persistir durante a SPA (ClientRouter)
   let isHomeRoute = false;
   let cachedLinks: NodeListOf<Element> | null = null;
+  let sectionObserver: IntersectionObserver | null = null;
 
-  // Lógica de Scroll e Spy globalizada para alta performance
+  // Lógica visual do Header simplificada e ultra-leve
   const handleNavScroll = () => {
     const nav = document.getElementById("main-nav");
-    if (!nav) return; // Aborta silenciosamente se a página mudou e o nav não montou
-
-    // Efeitos Visuais do Header (Scrolled State)
+    if (!nav) return;
     if (window.scrollY > 50) nav.classList.add("scrolled");
     else nav.classList.remove("scrolled");
-
-    // ScrollSpy Dinâmico - Habilitado APENAS se estiver na página Home ("One-Page Mode")
-    if (isHomeRoute && cachedLinks) {
-      const scrollY = window.scrollY;
-      let current = "home";
-      
-      ["home", "about", "works"].forEach((id) => {
-        const section = document.getElementById(id);
-        if (section && scrollY >= section.offsetTop - 150) {
-          current = id;
-        }
-      });
-      
-      cachedLinks.forEach((link) => {
-        link.classList.toggle(
-          "active",
-          link.getAttribute("data-section") === current
-        );
-      });
-    }
   };
 
-  // Registra o evento global APENAS UMA VEZ na vida da aplicação (Prevenção de Mem Leak)
+  // Inicialização de Eventos Globais Únicos (Prevenção de Mem Leak)
   if (!window.navScrollInitialized) {
     window.addEventListener("scroll", handleNavScroll, { passive: true });
     window.navScrollInitialized = true;
   }
 
-  // Funções que precisam re-conectar nos nós do DOM cada vez que o Astro renderiza uma nova View
+  if (!window.navA11yInitialized) {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        const mobileMenu = document.getElementById("mobile-menu");
+        const hamburger = document.querySelector(".hamburger") as HTMLButtonElement | null;
+        
+        if (mobileMenu?.classList.contains("open") && hamburger) {
+          hamburger.click(); // Dispara o toggle de forma segura acionando o botão
+        }
+      }
+    });
+    window.navA11yInitialized = true;
+  }
+
+  // Previne memory leak limpando o Observer antes do swap de ViewTransitions
+  document.addEventListener("astro:before-swap", () => {
+    if (sectionObserver) {
+      sectionObserver.disconnect();
+      sectionObserver = null;
+    }
+  });
+
   document.addEventListener("astro:page-load", () => {
     // 1. Deteção Híbrida de Rota
     const pathname = window.location.pathname;
     const normalizedPath = pathname.replace(/\/$/, "");
     isHomeRoute = normalizedPath === "" || normalizedPath === "/" || normalizedPath === "/pt";
 
-    // Cacheia os links (Desktop e Mobile) para evitar buscas pesadas no DOM a cada pixel de scroll
     cachedLinks = document.querySelectorAll(".nav-link, .mobile-link");
 
     // 2. Comportamento Multi-Page: Ativação estática baseada na URL
@@ -369,12 +371,43 @@ const nome = "Michael Howe";
       });
     }
 
-    // Força uma checagem visual e de posição no carregamento inicial da rota
-    handleNavScroll(); 
+    // Força checagem visual inicial
+    handleNavScroll();
 
-    // 3. Re-anexação de Lógica do Mobile Menu
-    const hamburger = document.querySelector(".hamburger");
-    const mobileMenu = document.querySelector(".mobile-menu");
+    // 3. Otimização Perfeccionista: ScrollSpy com IntersectionObserver (Performance nível A)
+    if (isHomeRoute && cachedLinks) {
+      const sections = ["home", "about", "works"]
+        .map((id) => document.getElementById(id))
+        .filter((el): el is HTMLElement => el !== null);
+
+      if (sections.length > 0) {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-40% 0px -60% 0px", // Engatilha quando a seção cruza o meio da tela
+          threshold: 0
+        };
+
+        sectionObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const currentId = entry.target.id;
+              cachedLinks?.forEach((link) => {
+                link.classList.toggle(
+                  "active",
+                  link.getAttribute("data-section") === currentId
+                );
+              });
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => sectionObserver!.observe(section));
+      }
+    }
+
+    // 4. Lógica do Menu Mobile e Acessibilidade (A11y Focus Management)
+    const hamburger = document.querySelector(".hamburger") as HTMLButtonElement | null;
+    const mobileMenu = document.getElementById("mobile-menu");
     const mobileLinks = document.querySelectorAll(".mobile-link");
 
     const toggleMenu = () => {
@@ -382,6 +415,14 @@ const nome = "Michael Howe";
       hamburger?.classList.toggle("active");
       hamburger?.setAttribute("aria-expanded", isOpen ? "true" : "false");
       document.body.style.overflow = isOpen ? "hidden" : "";
+      
+      // Acessibilidade: Gerencia o foco do teclado
+      if (isOpen) {
+        const firstLink = mobileLinks[0] as HTMLElement | undefined;
+        if (firstLink) setTimeout(() => firstLink.focus(), 100); 
+      } else {
+        hamburger?.focus();
+      }
     };
 
     hamburger?.addEventListener("click", toggleMenu);

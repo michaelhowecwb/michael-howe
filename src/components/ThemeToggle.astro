@@ -1,5 +1,4 @@
 ---
-// ThemeToggle.astro - Refinado com efeitos de aura e mola (Star Wars Edition)
 ---
 
 <div class="theme-switch-wrapper">
@@ -9,13 +8,23 @@
             id="theme-checkbox"
             role="switch"
             aria-label="Alternar entre Lado Luminoso e Sombrio"
+            aria-checked="false"
         />
         <div class="slider">
             <div id="icon-container">
                 <img
-                    id="theme-icon"
-                    src=""
-                    alt=""
+                    id="theme-icon-dark"
+                    class="theme-icon"
+                    src="/icons/Sith.svg"
+                    alt="Sith"
+                    loading="eager"
+                    decoding="async"
+                />
+                <img
+                    id="theme-icon-light"
+                    class="theme-icon"
+                    src="/icons/JediOrder.svg"
+                    alt="Jedi Order"
                     loading="eager"
                     decoding="async"
                 />
@@ -57,6 +66,12 @@
         display: none;
     }
 
+    /* Acessibilidade: Indicador visual para navegação por teclado */
+    .theme-switch input:focus-visible + .slider {
+        outline: 2px solid var(--jedi-blue);
+        outline-offset: 4px;
+    }
+
     .slider {
         background-color: var(--switch-bg);
         bottom: 0;
@@ -95,6 +110,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
         transition:
             transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55),
             background-color 0.4s ease,
@@ -103,13 +119,25 @@
         box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.5);
     }
 
-    #theme-icon {
+    /* Otimização de Performance: Transição via CSS em vez de troca de src via JS */
+    .theme-icon {
         width: 85%;
         height: 85%;
         object-fit: contain;
-        transition:
-            transform 0.4s ease,
-            filter 0.3s ease;
+        position: absolute;
+        transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        filter: brightness(0) invert(1);
+    }
+
+    /* Estados iniciais (Sith/Dark mode) */
+    #theme-icon-light {
+        opacity: 0;
+        transform: scale(0.5) rotate(-90deg);
+    }
+
+    #theme-icon-dark {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
     }
 
     #theme-text {
@@ -147,6 +175,17 @@
         box-shadow: 0 0 15px rgba(0, 119, 255, 0.6);
     }
 
+    /* Transição visual suave acelerada por GPU para Jedi Mode */
+    input:checked + .slider #icon-container #theme-icon-dark {
+        opacity: 0;
+        transform: scale(0.5) rotate(90deg);
+    }
+
+    input:checked + .slider #icon-container #theme-icon-light {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+
     input:checked + .slider #theme-text {
         transform: translateX(-42px);
     }
@@ -176,40 +215,18 @@
 </style>
 
 <script>
-    const ICON_CONFIG = {
-        light: {
-            path: "/icons/JediOrder.svg",
-            scale: "1.0",
-            filter: "brightness(0) invert(1)",
-        },
-        dark: {
-            path: "/icons/Sith.svg",
-            scale: "1.0",
-            filter: "brightness(0) invert(1)",
-        },
-    };
-
     document.addEventListener("astro:page-load", () => {
         const toggleSwitch = document.querySelector(
             "#theme-checkbox",
         ) as HTMLInputElement;
         const html = document.documentElement;
         const themeText = document.querySelector("#theme-text");
-        const themeIcon = document.querySelector(
-            "#theme-icon",
-        ) as HTMLImageElement;
 
-        if (!toggleSwitch || !themeIcon || !themeText) return;
+        if (!toggleSwitch || !themeText) return;
 
         function updateUI(isLight: boolean) {
-            const config = isLight ? ICON_CONFIG.light : ICON_CONFIG.dark;
             themeText!.textContent = isLight ? "LIGHT SIDE" : "DARK SIDE";
-
-            setTimeout(() => {
-                themeIcon.src = config.path;
-                themeIcon.style.filter = config.filter;
-                themeIcon.style.transform = `scale(${config.scale})`;
-            }, 150);
+            toggleSwitch.setAttribute("aria-checked", isLight.toString());
         }
 
         const currentTheme = localStorage.getItem("theme") || "dark";
