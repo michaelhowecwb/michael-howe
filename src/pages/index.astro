@@ -3,7 +3,7 @@ import { getCollection, getEntry } from "astro:content";
 import { ui } from "@utils/i18n";
 import MainLayout from "@layouts/MainLayout.astro";
 import WorkCard from "@components/WorkCard.astro";
-import { Image } from "astro:assets"; // Adicionado para otimização futura, caso adote assets locais
+import { Image } from "astro:assets";
 
 const nome = "Michael Howe";
 const cargo = "< Full-stack Developer />";
@@ -429,11 +429,15 @@ const jsonLd = JSON.stringify(schema);
             padding: 60px 0 200px 0;
             border-bottom: none !important;
         }
+        
         .works-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 40px;
+            /* Garante que todos os elementos diretos do grid (a div .reveal) estiquem */
+            align-items: stretch;
         }
+        
         .selected-works-title {
             padding-left: 2rem;
             font-size: 3rem;
@@ -599,7 +603,7 @@ const jsonLd = JSON.stringify(schema);
                         const content = work.data[isPt ? "pt" : "en"];
                         const cleanId = work.id.split("/")[0];
                         return (
-                            <div class="reveal">
+                            <div class="reveal" style="display: flex; flex-direction: column;">
                                 <WorkCard
                                     title={content.title}
                                     description={content.shortDescription}

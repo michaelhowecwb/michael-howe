@@ -12,38 +12,49 @@ interface Props {
 const { pathname } = Astro.url;
 const isPt = pathname.includes("/pt");
 const { title, description, tags, thumbnail, link } = Astro.props;
+
+// Função de truncamento inteligente: Corta no espaço mais próximo para não quebrar palavras.
+const truncateText = (text: string, maxLength: number = 280) => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    const truncated = text.substring(0, maxLength);
+    return truncated.substring(0, Math.min(truncated.length, truncated.lastIndexOf(" "))) + "...";
+};
+
+const displayDescription = truncateText(description);
 ---
 
 <div class="work-card spotlight-card">
     <div class="work-card-inner">
         <h3 class="project-title">{title}</h3>
 
-        {
-            thumbnail && (
-                <div class="work-card-image">
-                    <Image
-                        src={thumbnail}
-                        alt={
-                            isPt
-                                ? `Miniatura do projeto ${title}`
-                                : `Project thumbnail ${title}`
-                        }
-                        width={400}
-                        height={225}
-                        loading="lazy"
-                        decoding="async"
-                    />
-                </div>
-            )
-        }
+        <div class="work-card-body">
+            {
+                thumbnail && (
+                    <div class="work-card-image">
+                        <Image
+                            src={thumbnail}
+                            alt={
+                                isPt
+                                    ? `Miniatura do projeto ${title}`
+                                    : `Project thumbnail ${title}`
+                            }
+                            width={400}
+                            height={225}
+                            loading="lazy"
+                            decoding="async"
+                        />
+                    </div>
+                )
+            }
+            <p class="description">{displayDescription}</p>
+        </div>
 
-        <div class="work-card-content">
-            <p class="description">{description}</p>
+        <div class="tags">
+            {tags.map((tag) => <span class="tag">{tag}</span>)}
+        </div>
 
-            <div class="tags">
-                {tags.map((tag) => <span class="tag">{tag}</span>)}
-            </div>
-
+        <div class="work-card-footer">
             <a
                 href={link}
                 class="view-project"
@@ -88,8 +99,11 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         position: relative;
         overflow: hidden;
-        display: block;
-        height: 100%;
+        /* Flexbox principal: absorve o stretch do grid pai, mas não quebra o conteúdo (min-content) */
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: min-content; 
     }
 
     /* --- Spotlight --- */
@@ -117,14 +131,9 @@ const { title, description, tags, thumbnail, link } = Astro.props;
     .work-card-inner {
         position: relative;
         z-index: 2;
-        display: block;
-    }
-
-    /* --- Clearfix to hold the float image --- */
-    .work-card-inner::after {
-        content: "";
-        display: table;
-        clear: both;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
     }
 
     .project-title {
@@ -134,15 +143,22 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         font-weight: 900;
         letter-spacing: -1px;
         display: block;
-        clear: both;
     }
 
-    /* --- Image --- */
+    /* --- Corpo Fluido (Garante que a imagem nunca vase por cima de outros elementos) --- */
+    .work-card-body {
+        display: flow-root;
+        margin-bottom: 20px;
+    }
+
+    /* --- Imagem Responsiva --- */
     .work-card-image {
-        width: 200px;
         float: right;
-        margin-left: 30px;
-        margin-bottom: 15px;
+        width: 40%;
+        max-width: 160px;
+        min-width: 110px;
+        margin-left: 18px;
+        margin-bottom: 8px;
         aspect-ratio: 1 / 1;
         border-radius: 14px;
         overflow: hidden;
@@ -156,17 +172,12 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         object-fit: cover;
     }
 
-    /* --- Card Content --- */
-    .work-card-content {
-        display: block;
-    }
-
     .description {
         color: var(--secondary);
         font-size: 1rem;
         line-height: 1.7;
-        text-align: justify;
-        margin: 0 0 20px 0;
+        text-align: left; /* Garante tipografia fluida sem rios de espaço branco */
+        margin: 0;
     }
 
     /* --- Tags --- */
@@ -192,6 +203,13 @@ const { title, description, tags, thumbnail, link } = Astro.props;
         color: var(--dark-text);
         background-color: var(--accent);
         transition: ease 0.6s;
+    }
+
+    /* --- Rodapé --- */
+    .work-card-footer {
+        display: flex;
+        flex-direction: column;
+        margin-top: auto; /* Esta é a mágica que absorve o espaço vazio abaixo das tags */
     }
 
     /* --- View Project Button --- */
@@ -264,42 +282,20 @@ const { title, description, tags, thumbnail, link } = Astro.props;
     /* --- Mobile Override --- */
     @media (max-width: 767px) {
         .work-card {
-            height: auto !important;
-            display: flex;
-            flex-direction: column;
             padding: 1.8rem;
-        }
-
-        .work-card-inner {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .work-card-inner::after {
-            display: none;
         }
 
         .work-card-image {
             float: none;
             width: 100%;
+            max-width: none;
             margin-left: 0;
+            margin-bottom: 20px;
             aspect-ratio: auto;
         }
 
         .work-card-image img {
             aspect-ratio: 16 / 9;
-        }
-
-        .work-card-content {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-        }
-
-        .view-project {
-            margin-top: auto;
-            align-self: flex-start;
         }
     }
 

@@ -42,8 +42,8 @@ const formatText = (text: string | undefined) => {
     lang={currentLangTag}
     description={content.shortDescription}
 >
-    <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
-    <div class="bg-glow" id="mouse-glow"></div>
+    <div class="progress-wrap" aria-hidden="true"><div class="progress-bar" id="bar"></div></div>
+    <div class="bg-glow" id="mouse-glow" aria-hidden="true"></div>
 
     <div class="work-article-container">
         <header class="project-header">
@@ -287,6 +287,8 @@ const formatText = (text: string | undefined) => {
         border-radius: 8px;
         border: 1px solid var(--card-border);
         text-transform: uppercase;
+        cursor: default;
+        user-select: none;
     }
     .work-tag:hover {
         color: var(--dark-text);
@@ -299,29 +301,82 @@ const formatText = (text: string | undefined) => {
         gap: 1.5rem;
         margin-top: 2rem;
     }
+    
+    /* --- Botões CTAs Refatorados --- */
     .btn-primary,
     .btn-outline {
+        position: relative;
+        overflow: hidden;
         padding: 14px 35px;
         border-radius: 50px;
         text-decoration: none;
         font-weight: 800;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+        transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.4s ease, color 0.4s ease;
     }
+    
+    /* Primary: Efeito Shimmer/Glass */
     .btn-primary {
         background: var(--accent);
         color: #000;
         border: 2px solid var(--accent);
     }
+    .btn-primary::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0) 100%);
+        transform: skewX(-25deg);
+        z-index: -1;
+        transition: left 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+    .btn-primary:hover,
+    .btn-primary:focus-visible {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px -5px var(--accent);
+    }
+    .btn-primary:hover::after,
+    .btn-primary:focus-visible::after {
+        left: 200%;
+    }
+
+    /* Outline: Efeito Liquid Fill Expansivo */
     .btn-outline {
         border: 2px solid var(--accent);
         color: var(--accent);
+        background: transparent;
     }
-    .btn-primary:hover,
-    .btn-outline:hover {
-        transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 10px 20px var(--dropshadow-rgb);
+    .btn-outline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--accent);
+        z-index: -1;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1);
     }
+    .btn-outline:hover,
+    .btn-outline:focus-visible {
+        transform: translateY(-3px);
+        color: #000;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+    .btn-outline:hover::before,
+    .btn-outline:focus-visible::before {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+
     .hero-visual {
         width: 100%;
         border-radius: 24px;
@@ -427,24 +482,41 @@ const formatText = (text: string | undefined) => {
 </style>
 
 <script>
+    // Referências armazenadas no escopo do módulo para garantir o cleanup
+    let scrollHandler: () => void;
+    let mouseHandler: (e: MouseEvent) => void;
+    let observer: IntersectionObserver;
+    let animationFrameId: number;
+
     function initProject() {
         const bar = document.getElementById("bar");
         const heroImg = document.getElementById("hero-img") as HTMLElement;
         const glowEl = document.getElementById("mouse-glow") as HTMLElement;
         const isTouch = window.matchMedia("(pointer: coarse)").matches;
 
-        window.addEventListener("scroll", () => {
-            if (bar) {
-                const winH =
-                    document.documentElement.scrollHeight -
-                    document.documentElement.clientHeight;
-                bar.style.width = (window.scrollY / winH) * 100 + "%";
+        let ticking = false;
+
+        // Otimização de Scroll Jank via requestAnimationFrame
+        scrollHandler = () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    if (bar) {
+                        const winH =
+                            document.documentElement.scrollHeight -
+                            document.documentElement.clientHeight;
+                        bar.style.width = (window.scrollY / winH) * 100 + "%";
+                    }
+                    if (heroImg && !isTouch) {
+                        const speed = 0.15;
+                        heroImg.style.transform = `translate3d(0, ${window.scrollY * speed}px, 0)`;
+                    }
+                    ticking = false;
+                });
+                ticking = true;
             }
-            if (heroImg && !isTouch) {
-                const speed = 0.15;
-                heroImg.style.transform = `translate3d(0, ${window.scrollY * speed}px, 0)`;
-            }
-        });
+        };
+
+        window.addEventListener("scroll", scrollHandler, { passive: true });
 
         let mouseX = 0,
             mouseY = 0,
@@ -453,27 +525,28 @@ const formatText = (text: string | undefined) => {
         const ease = 0.15;
         let isMoving = false;
 
+        function animateGlow() {
+            if (!isMoving || !glowEl) return;
+            currentX += (mouseX - currentX) * ease;
+            currentY += (mouseY - currentY) * ease;
+            glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
+            animationFrameId = requestAnimationFrame(animateGlow);
+        }
+
         if (glowEl && !isTouch) {
-            window.addEventListener("mousemove", (e) => {
+            mouseHandler = (e: MouseEvent) => {
                 mouseX = e.clientX;
                 mouseY = e.clientY;
                 if (!isMoving) {
                     isMoving = true;
                     glowEl.classList.add("visible");
-                    requestAnimationFrame(animateGlow);
+                    animationFrameId = requestAnimationFrame(animateGlow);
                 }
-            });
-
-            function animateGlow() {
-                if (!isMoving || !glowEl) return;
-                currentX += (mouseX - currentX) * ease;
-                currentY += (mouseY - currentY) * ease;
-                glowEl.style.transform = `translate3d(${currentX - 300}px, ${currentY - 300}px, 0)`;
-                requestAnimationFrame(animateGlow);
-            }
+            };
+            window.addEventListener("mousemove", mouseHandler, { passive: true });
         }
 
-        const observer = new IntersectionObserver(
+        observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting)
@@ -488,5 +561,22 @@ const formatText = (text: string | undefined) => {
             .forEach((el) => observer.observe(el));
     }
 
+    function cleanupProject() {
+        if (scrollHandler) {
+            window.removeEventListener("scroll", scrollHandler);
+        }
+        if (mouseHandler) {
+            window.removeEventListener("mousemove", mouseHandler);
+        }
+        if (observer) {
+            observer.disconnect();
+        }
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+    }
+
+    // Inicialização e Cleanup usando o ciclo de vida do View Transitions (Astro)
     document.addEventListener("astro:page-load", initProject);
+    document.addEventListener("astro:before-swap", cleanupProject);
 </script>
