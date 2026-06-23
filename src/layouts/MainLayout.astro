@@ -235,12 +235,6 @@ const ogImageURL = new URL(image, siteUrl);
                 border-color: var(--accent);
                 box-shadow: 0 4px 15px var(--dropshadow-rgb);
             }
-
-            @media (prefers-reduced-motion: reduce) {
-                html {
-                    scroll-behavior: auto !important;
-                }
-            }
         </style>
     </head>
 
@@ -285,17 +279,12 @@ const ogImageURL = new URL(image, siteUrl);
             if (!window.customScrollInitialized) {
                 window.customScrollInitialized = true;
 
-                // Math scrolling function optimized for 60fps
+                // Math scrolling function optimized for 60fps - FORÇADO (Ignora SO Settings)
                 function smoothScrollTo(targetPos: number) {
-                    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-                    if (prefersReducedMotion) {
-                        window.scrollTo(0, targetPos);
-                        return;
-                    }
-
                     const startPosition = window.scrollY;
                     const distance = targetPos - startPosition;
-                    const duration = 800;
+                    // OTIMIZAÇÃO DE TIMING: 350ms (Snap feeling, muito mais veloz e premium)
+                    const duration = 500; 
                     let start: number | null = null;
 
                     function animation(timestamp: number) {
@@ -323,7 +312,7 @@ const ogImageURL = new URL(image, siteUrl);
                 window.addEventListener("scroll", () => {
                     const btn = document.getElementById("back-to-top");
                     if (btn) {
-                        if (window.scrollY > 300) {
+                        if (window.scrollY > 500) {
                             btn.classList.add("show");
                         } else {
                             btn.classList.remove("show");
@@ -339,23 +328,34 @@ const ogImageURL = new URL(image, siteUrl);
                         const target = e.target;
                         if (!(target instanceof Element)) return;
 
-                        const link = target.closest('a[href^="#"]');
-                        if (!link) return;
-                        const targetId = link.getAttribute("href") || "";
-                        if (targetId === "#" || targetId === "") return;
+                        // CORREÇÃO DE BUG: Parsing robusto usando a API de URL nativa
+                        const link = target.closest("a");
+                        if (!link || !link.href) return;
 
-                        const targetElement = document.querySelector(targetId);
-                        if (targetElement) {
-                            e.preventDefault();
-                            e.stopPropagation();
+                        try {
+                            const url = new URL(link.href);
+                            const currentUrl = new URL(window.location.href);
 
-                            history.pushState(null, "", targetId);
+                            // INTERCEPTADOR DE HASH: Valida se o pathname destino é exatamente o atual (evitando salto entre páginas)
+                            if (url.pathname.replace(/\/$/, "") === currentUrl.pathname.replace(/\/$/, "") && url.hash) {
+                                const targetId = url.hash;
+                                const targetElement = document.querySelector(targetId);
+                                
+                                if (targetElement) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
 
-                            const targetPos =
-                                targetElement.getBoundingClientRect().top +
-                                window.scrollY -
-                                80;
-                            smoothScrollTo(targetPos);
+                                    history.pushState(null, "", targetId);
+
+                                    const targetPos =
+                                        targetElement.getBoundingClientRect().top +
+                                        window.scrollY -
+                                        80;
+                                    smoothScrollTo(targetPos);
+                                }
+                            }
+                        } catch (err) {
+                            // Ignora links inválidos silenciosamente
                         }
                     },
                     { capture: true },
@@ -373,14 +373,9 @@ const ogImageURL = new URL(image, siteUrl);
                 // Back to Top Button Interaction logic for Current Page
                 if (btn) {
                     btn.addEventListener("click", () => {
-                        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-                        if (prefersReducedMotion) {
-                            window.scrollTo(0, 0);
-                            return;
-                        }
-
                         const startPosition = window.scrollY;
-                        const duration = 800;
+                        // OTIMIZAÇÃO DE TIMING: Sincronizado para manter a coerência de UX (350ms)
+                        const duration = 500; 
                         let start: number | null = null;
                         
                         function animation(timestamp: number) {
