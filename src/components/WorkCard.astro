@@ -6,12 +6,13 @@ interface Props {
     description: string;
     tags: string[];
     thumbnail?: string;
+    thumbnailAlt?: string;
     link: string;
 }
 
 const { pathname } = Astro.url;
 const isPt = pathname.includes("/pt");
-const { title, description, tags, thumbnail, link } = Astro.props;
+const { title, description, tags, thumbnail, thumbnailAlt, link } = Astro.props;
 
 // Função de truncamento inteligente: Corta no espaço mais próximo para não quebrar palavras.
 const truncateText = (text: string, maxLength: number = 280) => {
@@ -35,9 +36,10 @@ const displayDescription = truncateText(description);
                         <Image
                             src={thumbnail}
                             alt={
-                                isPt
+                                thumbnailAlt || 
+                                (isPt
                                     ? `Miniatura do projeto ${title}`
-                                    : `Project thumbnail ${title}`
+                                    : `Project thumbnail ${title}`)
                             }
                             width={400}
                             height={225}

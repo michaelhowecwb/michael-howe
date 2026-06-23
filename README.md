@@ -1,9 +1,9 @@
 # 🚀 Michael Howe | Full-Stack Developer Portfolio
 
-Welcome to the source code of my digital portfolio. 
+Welcome to the source code of my digital portfolio.
 Live at: [michael-howe.vercel.app](https://michael-howe.vercel.app/)
 
-This project is more than just a resume; it's a demonstration of my approach to modern web development. It was architected with a relentless focus on **performance, memory management, SEO, and premium UX**, aiming for a flawless 100/100 Lighthouse score. 
+This project is more than just a resume; it's a demonstration of my approach to modern web development. It was architected with a relentless focus on **performance, memory management, SEO, and premium UX**, aiming for a flawless 100/100 Lighthouse score.
 
 Available for new global projects and international opportunities. 🌎
 
@@ -57,7 +57,7 @@ If you want to clone this project and run it locally, follow these steps:
 Clone the repository:
 
 Bash
-git clone https://github.com/michaelhowecwb/portfolio-michael-howe.git
+git clone [https://github.com/michaelhowecwb/portfolio-michael-howe.git](https://github.com/michaelhowecwb/portfolio-michael-howe.git)
 Install dependencies:
 
 Bash

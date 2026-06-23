@@ -12,7 +12,20 @@ const isPt = pathname.includes("/pt");
 const t = isPt ? ui.pt : ui.en;
 const currentLang = isPt ? "pt-br" : "en";
 
-const allWorks = (await getCollection("works")) || [];
+// Setup Centralizado: Configurações Globais
+const settingsEntry = await getEntry("settings", "index");
+const settings = settingsEntry?.data || {
+    githubUrl: "https://github.com/michaelhowecwb",
+    linkedinUrl: "https://www.linkedin.com/in/michael-howe-cwb/",
+    email: "contato@michaelhowe.com"
+};
+
+// Trabalhos: Filtra Rascunhos e Ordena por Data Descendente
+const rawWorks = (await getCollection("works")) || [];
+const allWorks = rawWorks
+    .filter((work) => !work.data.draft)
+    .sort((a, b) => new Date(b.data.date || 0).getTime() - new Date(a.data.date || 0).getTime());
+
 const expertiseEntries = (await getCollection("expertise")) || [];
 const expertise = expertiseEntries.sort((a, b) => a.data.order - b.data.order);
 
@@ -34,9 +47,11 @@ const aboutData = localizedBio
               ? "Preencha sua bio no Keystatic."
               : "Fill your bio in Keystatic.",
           bioImage: "/minha-foto3.png",
+          bioImageAlt: isPt ? "Foto de Perfil de Michael Howe" : "Michael Howe Profile Picture",
+          cv: null
       };
 
-// SEO: JSON-LD Tipado Estritamente
+// SEO: JSON-LD Tipado Estritamente (Agora dinâmico via Settings CMS)
 interface PersonSchema {
     "@context": string;
     "@type": string;
@@ -53,10 +68,11 @@ const schema: PersonSchema = {
     name: nome,
     jobTitle: "Full-stack Developer",
     url: Astro.site ? Astro.site.toString() : Astro.url.origin,
+    // Correção: Type Guard explícito para garantir que TypeScript infira como string[] e não (string | undefined)[]
     sameAs: [
-        "https://github.com/michaelhowecwb",
-        "https://www.linkedin.com/in/michael-howe-cwb/",
-    ],
+        settings.githubUrl,
+        settings.linkedinUrl,
+    ].filter((url): url is string => Boolean(url)),
     knowsAbout: [
         "Full-stack Development",
         "React",
@@ -248,7 +264,9 @@ const jsonLd = JSON.stringify(schema);
 
         .letsChat {
             text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 14px 35px;
             border: 2px solid var(--accent);
             border-radius: 50px;
@@ -387,6 +405,9 @@ const jsonLd = JSON.stringify(schema);
             font-weight: 800;
             position: relative;
             z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .about-card-desc {
@@ -422,6 +443,21 @@ const jsonLd = JSON.stringify(schema);
             border-left: 6px solid var(--accent);
             padding-left: 25px;
             margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .intro-text .bio-line .intro-bio {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-cv {
+            background: transparent;
+            color: var(--text);
+            border-color: var(--card-border);
         }
 
         /* --- Works Section --- */
@@ -477,6 +513,7 @@ const jsonLd = JSON.stringify(schema);
                 border-left: none;
                 border-top: 4px solid var(--accent);
                 padding: 25px 0 0 0;
+                justify-content: center;
             }
             .expertise-list {
                 order: 2;
@@ -536,7 +573,7 @@ const jsonLd = JSON.stringify(schema);
                         <div id="profile-photo">
                             <img
                                 src={aboutData.bioImage}
-                                alt={nome}
+                                alt={aboutData.bioImageAlt || nome}
                                 width="380"
                                 height="480"
                                 loading="eager"
@@ -558,6 +595,9 @@ const jsonLd = JSON.stringify(schema);
                             return (
                                 <div class="about-card spotlight-card reveal">
                                     <h3 class="about-card-title">
+                                        {item.data.iconName && (
+                                            <span class={item.data.iconName} aria-hidden="true" />
+                                        )}
                                         {card.title}
                                     </h3>
                                     <p class="about-card-desc">
@@ -588,6 +628,16 @@ const jsonLd = JSON.stringify(schema);
                                     : "Learn more about me →"
                             }
                         </a>
+                        {aboutData.cv && (
+                            <a
+                                href={aboutData.cv}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="letsChat magnetic-btn btn-cv"
+                            >
+                                {isPt ? "📄 Baixar CV" : "📄 Download CV"}
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>
@@ -609,6 +659,7 @@ const jsonLd = JSON.stringify(schema);
                                     description={content.shortDescription}
                                     tags={work.data.tags}
                                     thumbnail={work.data.thumbnail}
+                                    thumbnailAlt={content.thumbnailAlt || content.title}
                                     link={
                                         isPt
                                             ? `/pt/work/${cleanId}`
